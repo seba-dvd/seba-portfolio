@@ -1,0 +1,12 @@
+# Secrets: DB password, API keys (config.example.php gets committed instead)
+www/includes/config.php
+
+# Claude Code settings for this machine only
+.claude/settings.local.json
+
+# Word lock files (created while a document is open)
+~$*
+
+# Windows system files
+Thumbs.db
+desktop.ini
