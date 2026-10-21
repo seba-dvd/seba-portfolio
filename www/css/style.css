@@ -1,0 +1,383 @@
+/* ===== Theme 1: personal (default) ===== */
+:root {
+    --fundal: #dff1ea;          /* page background: pale green */
+    --card: #f2fbf7;            /* card background: mint */
+    --text: #1c2b26;
+    --text-slab: #5b6f68;       /* secondary text: grey-green */
+    --accent: #0f766e;          /* main colour: teal */
+    --accent-2: #f59e0b;        /* fun colour: amber */
+    --font: "Segoe UI", Arial, sans-serif;
+    --raza: 14px;               /* corner rounding */
+    --umbra: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* ===== Theme 2: cyber (on <body class="tema-cyber"> or on a single card) ===== */
+.tema-cyber {
+    --fundal: #0d1117;
+    --card: #161b22;
+    --text: #c9d1d9;
+    --text-slab: #8b949e;
+    --accent: #39ff14;          /* neon green */
+    --accent-2: #00e5ff;        /* cyan */
+    --font: Consolas, "Courier New", monospace;
+    --raza: 4px;                /* sharper corners */
+    --umbra: 0 0 0 1px #30363d; /* thin outline instead of a shadow */
+}
+
+/* ===== Base ===== */
+body {
+    margin: 0;
+    background: var(--fundal);
+    color: var(--text);
+    font-family: var(--font);
+}
+
+/* ===== Menu: logo on the left, links on the right ===== */
+header {
+    background: var(--card);
+    box-shadow: var(--umbra);
+}
+
+nav {
+    display: flex;
+    justify-content: space-between;   /* logo left, links right */
+    align-items: center;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 14px 20px;
+}
+
+.logo {
+    font-size: 1.5em;
+    font-weight: 800;
+    color: var(--text);
+    text-decoration: none;
+}
+
+.logo span {
+    color: var(--accent-2);           /* the coloured dot */
+}
+
+.meniu {
+    display: flex;
+    gap: 22px;
+}
+
+.meniu a {
+    color: var(--text-slab);
+    text-decoration: none;
+    font-weight: 600;
+    padding-bottom: 4px;
+    border-bottom: 2px solid transparent;
+}
+
+.meniu a:hover,
+.meniu a.activ {
+    color: var(--accent);
+    border-bottom-color: var(--accent);   /* underline the current page */
+}
+
+/* ===== Main content ===== */
+main {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 24px 20px;
+}
+
+/* ===== Hero: two columns, text + photo ===== */
+.hero {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;     /* text column is a bit wider */
+    gap: 40px;
+    align-items: center;
+    padding: 40px 0 56px;
+}
+
+.salut {
+    margin: 0;
+    color: var(--accent);
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.hero h1 {
+    font-size: 3em;
+    line-height: 1.1;
+    margin: 8px 0 16px;
+}
+
+.tagline {
+    font-size: 1.15em;
+    line-height: 1.6;
+    margin: 0 0 8px;
+}
+
+.tagline strong {
+    color: var(--accent);
+}
+
+.locatie {
+    color: var(--text-slab);
+    margin: 0 0 24px;
+}
+
+.butoane {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;                      /* buttons wrap on small screens */
+}
+
+.btn {
+    display: inline-block;
+    padding: 12px 22px;
+    border-radius: 999px;                 /* pill shape */
+    background: var(--accent);
+    color: var(--card);
+    text-decoration: none;
+    font-weight: 700;
+    transition: transform 0.2s;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+}
+
+/* The "cyber mode" button already looks like the other world */
+.btn-cyber {
+    background: #0d1117;
+    color: #39ff14;
+    font-family: Consolas, "Courier New", monospace;
+}
+
+/* Photo with an organic "blob" shape and floating badges */
+.hero-poza {
+    position: relative;                   /* badges are placed relative to this box */
+    justify-self: center;
+}
+
+.poza {
+    display: block;
+    width: 300px;
+    height: 300px;
+    object-fit: cover;
+    border: 6px solid var(--card);
+    box-shadow: 14px 14px 0 var(--accent-2);
+    border-radius: 60% 40% 55% 45% / 50% 60% 40% 50%;
+    animation: blob 8s ease-in-out infinite;
+}
+
+/* The blob slowly changes shape */
+@keyframes blob {
+    50% {
+        border-radius: 40% 60% 45% 55% / 60% 40% 60% 40%;
+    }
+}
+
+.insigna {
+    position: absolute;
+    background: var(--card);
+    color: var(--text);
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-size: 0.9em;
+    font-weight: 600;
+    box-shadow: var(--umbra);
+    white-space: nowrap;
+}
+
+.insigna-1 { top: 10px;    left: -40px; }
+.insigna-2 { top: 140px;   right: -50px; }
+.insigna-3 { bottom: 10px; left: -10px; }
+
+/* ===== Bento grid ===== */
+.bento {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    /* Each name is a card; repeating a name makes that card span several cells */
+    grid-template-areas:
+        "despre    despre     hobby"
+        "educatie  competente competente"
+        "educatie  proiecte   harta";
+}
+
+.despre     { grid-area: despre; }
+.hobby      { grid-area: hobby; }
+.educatie   { grid-area: educatie; }
+.competente { grid-area: competente; }
+.proiecte   { grid-area: proiecte; }
+.harta      { grid-area: harta; }
+
+/* ===== Cards ===== */
+.card {
+    background: var(--card);
+    color: var(--text);
+    font-family: var(--font);
+    border-radius: var(--raza);
+    padding: 22px 24px;
+    box-shadow: var(--umbra);
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-4px);          /* lift on hover */
+}
+
+.card h2 {
+    margin-top: 0;
+    color: var(--accent);
+    font-size: 1.25em;
+}
+
+.card p {
+    line-height: 1.6;
+}
+
+.link {
+    color: var(--accent);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+/* Hobbies */
+.lista-hobby {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.lista-hobby li {
+    padding: 8px 0;
+    font-size: 1.05em;
+}
+
+.lista-hobby span {
+    font-size: 1.4em;
+    margin-right: 8px;
+}
+
+/* Education timeline: a vertical line with dots */
+.timeline {
+    list-style: none;
+    margin: 0;
+    padding: 0 0 0 20px;
+    border-left: 3px solid var(--accent);
+}
+
+.timeline li {
+    position: relative;
+    margin-bottom: 18px;
+    line-height: 1.4;
+}
+
+.timeline li::before {
+    content: "";
+    position: absolute;
+    left: -29px;
+    top: 3px;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: var(--accent-2);
+    border: 2px solid var(--card);
+}
+
+.an {
+    display: block;
+    font-weight: 700;
+    color: var(--accent);
+}
+
+/* Skills as tags */
+.taguri {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.taguri li {
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 2px solid var(--accent);
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 0.9em;
+}
+
+/* Map teaser: legend dots */
+.punct {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin: 0 4px 0 10px;
+    vertical-align: middle;
+}
+
+.punct:first-child { margin-left: 0; }
+.punct.vizitat { background: #16a34a; }   /* green: visited */
+.punct.dorit   { background: #f59e0b; }   /* amber: want to visit */
+
+/* ===== Footer ===== */
+footer {
+    text-align: center;
+    color: var(--text-slab);
+    padding: 24px;
+}
+
+/* ===== Phones and narrow screens ===== */
+@media (max-width: 760px) {
+    nav {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .meniu {
+        gap: 14px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .hero {
+        grid-template-columns: 1fr;       /* one column: photo under text */
+        text-align: center;
+        padding-top: 16px;
+    }
+
+    .hero h1 {
+        font-size: 2.2em;
+    }
+
+    .butoane {
+        justify-content: center;
+    }
+
+    .poza {
+        width: 220px;
+        height: 220px;
+    }
+
+    .insigna-1 { left: -20px; }
+    .insigna-2 { right: -20px; top: 100px; }
+
+    .bento {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            "despre"
+            "hobby"
+            "competente"
+            "educatie"
+            "proiecte"
+            "harta";
+    }
+}
+
+/* Respect users who turned off animations in their system settings */
+@media (prefers-reduced-motion: reduce) {
+    .poza { animation: none; }
+    .card, .btn { transition: none; }
+}
