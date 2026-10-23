@@ -1,16 +1,12 @@
 <?php
 $pagina = 'contact';
-$titlu = 'Contact';
 require __DIR__ . '/includes/antet.php';
 ?>
 
     <main>
         <section class="card contact-intro">
-            <h1>Contact</h1>
-            <p>
-                Caut un stagiu sau un post de junior în securitate cibernetică și sunt deschis la
-                proiecte în rețelistică, radio și IoT. Cel mai rapid răspund pe email.
-            </p>
+            <h1><?= e($t['titluri']['contact']) ?></h1>
+            <p><?= e($t['contact_text']) ?></p>
         </section>
 
         <section class="grid-hobby">
@@ -36,8 +32,8 @@ require __DIR__ . '/includes/antet.php';
 
             <div class="card contact-card">
                 <span class="icon">📍</span>
-                <h3>Locație</h3>
-                <p>Brașov, România</p>
+                <h3><?= e($t['contact_locatie']) ?></h3>
+                <p><?= e($t['locatie']) ?></p>
             </div>
         </section>
     </main>

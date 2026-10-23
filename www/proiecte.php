@@ -1,6 +1,5 @@
 <?php
 $pagina = 'proiecte';
-$titlu = 'Proiecte';
 $temaCyber = true;
 $scripturi = ['js/proiecte.js'];
 require __DIR__ . '/includes/antet.php';
@@ -9,8 +8,8 @@ $proiecte = require __DIR__ . '/includes/proiecte-date.php';
 
 // The two sections of the page: type of project => section title
 $sectiuni = [
-    'solo'   => 'Proiecte individuale',
-    'echipa' => 'Proiecte în echipă',
+    'solo'   => $t['sectiune_solo'],
+    'echipa' => $t['sectiune_echipa'],
 ];
 
 // Projects of one type, e.g. din('solo') → only the individual ones
@@ -28,7 +27,7 @@ $din = fn(string $tip) => array_filter($proiecte, fn($p) => $p['tip'] === $tip);
             </div>
             <div class="terminal-corp">
                 <p><span class="prompt">$</span> whoami</p>
-                <h1>seba – student, cyber security &amp; networking</h1>
+                <h1><?= e($t['whoami']) ?></h1>
                 <p><span class="prompt">$</span> ls ./individuale</p>
                 <p><?php foreach ($din('solo') as $p): ?><?= e($p['slug']) ?>/  <?php endforeach; ?></p>
                 <p><span class="prompt">$</span> ls ./echipa</p>
@@ -51,26 +50,26 @@ $din = fn(string $tip) => array_filter($proiecte, fn($p) => $p['tip'] === $tip);
                         <h3><?= e(tr($p['titlu'])) ?></h3>
                         <p><?= e(tr($p['scurt'])) ?></p>
                         <?php if ($p['rol'] !== null): ?>
-                            <p class="rol"><span>rolul meu:</span> <?= e(tr($p['rol'])) ?></p>
+                            <p class="rol"><span><?= e($t['rolul_meu']) ?></span> <?= e(tr($p['rol'])) ?></p>
                         <?php endif; ?>
                         <ul class="taguri">
                             <?php foreach ($p['tehnologii'] as $tehnologie): ?>
                                 <li><?= e($tehnologie) ?></li>
                             <?php endforeach; ?>
                         </ul>
-                        <a class="link detalii" href="proiect.php?id=<?= (int) $p['id'] ?>">./detalii →</a>
+                        <a class="link detalii" href="proiect.php?id=<?= (int) $p['id'] ?>"><?= e($t['detalii']) ?></a>
                     </article>
                 <?php endforeach; ?>
             </section>
         <?php endforeach; ?>
 
         <!-- ===== Achievements ===== -->
-        <h2 class="titlu-sectiune">// Realizări</h2>
+        <h2 class="titlu-sectiune">// <?= e($t['titlu_realizari']) ?></h2>
         <section class="card">
             <ul class="realizari">
-                <li>TryHackMe – [RANG / CAMERE TERMINATE]</li>
-                <li>HackTheBox – [RANG / MAȘINI REZOLVATE]</li>
-                <li>Transilvania CodeStorm @ MI – ediția a 2-a</li>
+                <?php foreach ($t['realizari'] as $realizare): ?>
+                    <li><?= e($realizare) ?></li>
+                <?php endforeach; ?>
             </ul>
         </section>
     </main>
@@ -82,7 +81,7 @@ $din = fn(string $tip) => array_filter($proiecte, fn($p) => $p['tip'] === $tip);
             <span class="buton galben"></span>
             <span class="buton verde"></span>
             <span class="terminal-titlu" id="fereastra-cale"></span>
-            <button class="inchide" type="button" aria-label="Închide fereastra">✕</button>
+            <button class="inchide" type="button" aria-label="<?= e($t['inchide_fereastra']) ?>">✕</button>
         </div>
         <div class="fereastra-corp">
             <h2 id="fereastra-titlu"></h2>

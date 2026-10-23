@@ -1,0 +1,187 @@
+<?php
+/**
+ * English texts. ro.php has exactly the same keys.
+ * Placeholders in [SQUARE BRACKETS] are facts still to be filled in.
+ */
+return [
+    // ===== Shared: menu, titles, buttons =====
+    'meniu' => [
+        'acasa'    => 'Home',
+        'despre'   => 'About',
+        'proiecte' => 'Projects',
+        'cv'       => 'CV',
+        'contact'  => 'Contact',
+    ],
+    'titluri' => [
+        'acasa'    => 'Home',
+        'despre'   => 'About',
+        'proiecte' => 'Projects',
+        'cv'       => 'CV',
+        'contact'  => 'Contact',
+        '404'      => 'Page not found',
+    ],
+    'meniu_eticheta' => 'Main menu',
+    'limba_eticheta' => 'Site language',
+    'schimba_tema'   => 'Switch theme',
+    'descriere_site' => 'The personal site of David Sebastian Pilat: a Telecommunications student with a passion for cybersecurity.',
+
+    // ===== Home =====
+    'hero_salut'        => 'Hi, I am',
+    'hero_text_inainte' => 'A final-year Telecommunications student. I am building a pentesting multi-tool on a Raspberry Pi and aiming for a career in',
+    'hero_accent'       => 'cybersecurity',
+    'locatie'           => 'Brașov, Romania',
+    'btn_despre'        => 'About me',
+    'btn_cyber'         => '> cyber mode',
+    'poza_alt'          => 'Photo of David Sebastian Pilat',
+    'insigne'           => ['Cyber security', 'Radio & IoT', 'Football'],
+    'acasa_despre'      => 'It all started with spy movies: while everyone else followed the action, I was looking at the gadgets. That brought me to Telecommunications, where I love the invisible side of tech: signals and packets nobody ever sees.',
+    'citeste_tot'       => 'Read the whole story →',
+    'titlu_despre'      => 'About me',
+    'titlu_hobby'       => 'Hobbies',
+    'titlu_parcurs'     => 'Timeline',
+    'titlu_competente'  => 'Skills',
+    'proiecte_link'     => './open.sh →',
+    'harta_titlu'       => 'Travel map',
+    'harta_text'        => 'The cities I have visited and the ones on my list.',
+    'harta_vizitate'    => 'visited',
+    'harta_dorite'      => 'to visit',
+    'harta_link'        => 'See the map →',
+
+    // ===== About =====
+    'despre_paragrafe' => [
+        'I\'m David, a final-year Telecommunications student at Transilvania University of Brașov. Right now I\'m building my bachelor\'s thesis: a portable pentesting multi-tool on a Raspberry Pi that tests the security of radio and IoT devices. It\'s basically my own Flipper Zero, with a few extra tricks. I\'m aiming for a career in cybersecurity, as a pentester or a security engineer in a SOC. I\'m also seriously considering putting my skills to work for my country, at MApN, MAI or SRI.',
+        'It all started in front of the TV. As a kid, I watched every special-forces and spy movie I could find. While everyone else followed the action, I was looking at the gadgets. How does that radio work? How did they get into that system? I never stopped asking.',
+        'Those questions brought me to Telecommunications, where I found what still amazes me most: the invisible side of tech. Signals fly through the air and packets cross networks every second without anyone noticing. Along the way, my internship at Dräxlmaier showed me how industrial systems run, and every lab and project pushed me a little closer to security. Outside the lab, you\'ll find me on the pitch with my team, at the gym, or watching a rally stage somewhere in Romania.',
+    ],
+    'acum_eticheta' => 'Now working on',
+    'acum_titlu'    => 'Multi-Tool Pentesting Platform',
+    'acum_text'     => 'My bachelor\'s thesis: a portable Raspberry Pi device for testing the security of radio and IoT protocols.',
+    'acum_taguri'   => ['Raspberry Pi', 'Sub-1 GHz', 'NFC', 'RFID'],
+
+    'hobby' => [
+        ['icon' => '⚽', 'titlu' => 'Football', 'text' => 'I played centre-back for three Brașov clubs from age 9 to 15, and since 17 I\'ve played minifootball, now with FCP Steagu, the team I built with three friends in Liga Pro Brașov, Division B.'],
+        ['icon' => '🥊', 'titlu' => 'Kickboxing & gym', 'text' => 'Spy and MMA movies got me into contact sports, and kickboxing and the gym are my "me time" to clear stress and keep improving.'],
+        ['icon' => '🏁', 'titlu' => 'Romanian motorsport', 'text' => 'Since I discovered rally and hillclimb racing last year, I follow every stage I can, because I love cars and the adrenaline of a race.'],
+        ['icon' => '🎮', 'titlu' => 'Games & movies', 'text' => 'I play EA FC, UFC and F1, and I watch action, comedy and tech movies, plus documentaries.'],
+    ],
+
+    'competente' => [
+        ['titlu' => 'Programming', 'taguri' => ['C', 'C++', 'Java', 'PHP', 'Python (basic)', 'JavaScript', 'React', 'React Native', 'HTML/CSS']],
+        ['titlu' => 'Networking', 'taguri' => ['TCP/IP', 'Subnetting', 'Routing', 'Wireshark', 'Cisco Packet Tracer', 'Wi-Fi (802.11)', 'DNS', 'FTP', 'Profinet']],
+        ['titlu' => 'Cyber security', 'taguri' => ['Kali Linux', 'Nmap', 'TryHackMe', 'HackTheBox', 'Sub-1 GHz', 'NFC', 'RFID']],
+        ['titlu' => 'Tools', 'taguri' => ['Linux', 'Git/GitHub', 'VS Code', 'Docker/WSL', 'MATLAB', 'Raspberry Pi', 'CODESYS / PLC', 'Ladder, Structured Text']],
+    ],
+    'competente_scurt' => ['C / C++', 'Java', 'PHP', 'React', 'TCP/IP', 'Wireshark', 'Kali Linux', 'Nmap', 'NFC / RFID'],
+
+    // Newest first. The home page shows the first 4.
+    'parcurs' => [
+        ['an' => '2026 – 2027', 'text' => 'Bachelor\'s thesis: Raspberry Pi Multi-Tool Pentesting Platform for radio & IoT security'],
+        ['an' => 'Summer 2026', 'text' => 'Internship at Dräxlmaier (Codlea), Electrics & Applied Engineering: PLC programming, automation, electrical schematics, equipment testing'],
+        ['an' => '2026', 'text' => 'Transilvania CodeStorm @ MI hackathon (2nd edition)'],
+        ['an' => '2023 – 2027', 'text' => 'Bachelor\'s in Telecommunications, Transilvania University of Brașov'],
+        ['an' => '[YEAR]', 'text' => 'Co-founded FCP Steagu, a minifootball team in Liga Pro Brașov, Div. B'],
+        ['an' => '[YEARS]', 'text' => 'Barista; sales assistant at a local shop'],
+        ['an' => '2019 – 2023', 'text' => '"Emil Racoviță" National College, Brașov, Sciences profile'],
+        ['an' => 'Ages 9 – 15', 'text' => 'Football player at three clubs in Brașov'],
+    ],
+
+    // ===== Projects =====
+    'whoami'          => 'seba – student, cyber security & networking',
+    'sectiune_solo'   => 'Individual projects',
+    'sectiune_echipa' => 'Team projects',
+    'rolul_meu'       => 'my role:',
+    'detalii'         => './details →',
+    'titlu_realizari' => 'Achievements',
+    'realizari'       => [
+        'TryHackMe – [RANK / ROOMS COMPLETED]',
+        'HackTheBox – [RANK / MACHINES SOLVED]',
+        'Transilvania CodeStorm @ MI – 2nd edition',
+    ],
+    'inchide_fereastra' => 'Close the window',
+
+    // ===== One project (proiect.php) =====
+    'inapoi_proiecte' => 'cd ../projects',
+    'ce_face'         => 'What it does',
+    'tehnologii'      => 'Technologies',
+    'cod_sursa'       => 'Source code',
+    'cod_nepublicat'  => 'The code is not published on GitHub.',
+    'cod_privat'      => '🔒 Private repository: the code is available on request.',
+    'deschide_github' => 'Open on GitHub ↗',
+
+    // ===== CV =====
+    'cv_pdf'      => 'Download PDF',
+    'cv_pdf_nota' => 'The button opens the print dialog: choose "Save as PDF".',
+    'cv_rol'      => 'Final-year Telecommunications student · Cybersecurity',
+    'cv_sectiuni' => [
+        'profil'     => 'Profile',
+        'experienta' => 'Experience',
+        'educatie'   => 'Education',
+        'proiecte'   => 'Projects',
+        'competente' => 'Skills',
+        'interese'   => 'Interests',
+    ],
+    'cv_profil' => 'Final-year Telecommunications student with a focus on the security of networks, radio protocols and IoT devices. I am building a portable pentesting platform on a Raspberry Pi and looking for an internship or a junior role as a pentester or a security engineer in a SOC.',
+    'cv_experienta' => [
+        [
+            'titlu'    => 'Intern – Dräxlmaier, Codlea',
+            'perioada' => 'Summer 2026',
+            'sub'      => 'Electrics & Applied Engineering department',
+            'puncte'   => [
+                'PLC programming and automation (CODESYS, Ladder, Structured Text)',
+                'Reading and drawing electrical schematics',
+                'Equipment testing',
+            ],
+        ],
+        [
+            'titlu'    => 'Barista; sales assistant at a local shop',
+            'perioada' => '[YEARS]',
+            'sub'      => 'Customer service, communication, teamwork',
+            'puncte'   => [],
+        ],
+    ],
+    'cv_educatie' => [
+        ['titlu' => 'Bachelor\'s in Telecommunications', 'perioada' => '2023 – 2027', 'sub' => 'Transilvania University of Brașov, Faculty of Electrical Engineering and Computer Science'],
+        ['titlu' => '"Emil Racoviță" National College, Brașov', 'perioada' => '2019 – 2023', 'sub' => 'Sciences profile'],
+    ],
+    'cv_proiecte' => [
+        ['nume' => 'Multi-Tool Pentesting Platform', 'text' => '(bachelor\'s thesis, 2026–2027): a portable Raspberry Pi device for radio and IoT protocol security.'],
+        ['nume' => 'Straja', 'text' => ': my own network monitoring and security platform (Java, Spring Boot, Docker).'],
+        ['nume' => 'KubiDoIt', 'text' => '(team of 4): a web and mobile to-do app; role: backend developer (Supabase, security).'],
+        ['nume' => 'EduDocSync', 'text' => ': Transilvania CodeStorm @ MI hackathon, 2nd edition (Python, OCR, PostgreSQL).'],
+        ['nume' => 'SimpleScanner', 'text' => ': a multithreaded TCP port scanner in Python.'],
+    ],
+    'cv_competente' => [
+        ['Programming', 'C, C++, Java, PHP, JavaScript, React, React Native, HTML/CSS, Python (basic)'],
+        ['Networking', 'TCP/IP, subnetting, routing, Wireshark, Cisco Packet Tracer, Wi-Fi (802.11), DNS, FTP, Profinet'],
+        ['Security', 'Kali Linux, Nmap, TryHackMe, HackTheBox, radio & IoT protocols (Sub-1 GHz, NFC, RFID)'],
+        ['Tools', 'Linux, Git/GitHub, VS Code, Docker/WSL, MATLAB, Raspberry Pi, CODESYS / PLC'],
+        ['Languages', '[LANGUAGE – LEVEL]'],
+    ],
+    'cv_interese' => 'Football (co-founder of FCP Steagu, Liga Pro Brașov, Division B), kickboxing, Romanian motorsport (rally, hillclimb).',
+
+    // ===== Contact =====
+    'contact_text'    => 'I am looking for an internship or a junior role in cybersecurity, and I am open to networking, radio and IoT projects. Email is the fastest way to reach me.',
+    'contact_locatie' => 'Location',
+
+    // ===== 404 =====
+    'e404_comanda' => 'cat requested-page',
+    'e404_titlu'   => '404: page not found',
+    'e404_text'    => 'The address is wrong or the page has moved.',
+    'e404_acasa'   => '~/home',
+
+    // ===== Texts used by JavaScript (sent to the page as JSON) =====
+    'js' => [
+        'locale'        => 'en-GB',
+        'acces'         => '> access granted_',
+        'nepublicat'    => '> The code is not published on GitHub.',
+        'privat'        => '🔒 Private repository: the code is available on request.',
+        'incarca'       => '> loading data from GitHub...',
+        'deschide'      => 'Open on GitHub ↗',
+        'limbaje'       => 'languages',
+        'actualizare'   => 'last update',
+        'stele'         => 'stars',
+        'forkuri'       => 'forks',
+        'eroare'        => '> could not read the data from GitHub',
+        'pagina'        => 'Project page →',
+    ],
+];

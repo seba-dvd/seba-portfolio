@@ -8,6 +8,9 @@ const cale = document.getElementById('fereastra-cale');
 const descriere = document.getElementById('fereastra-descriere');
 const zonaGithub = document.getElementById('fereastra-github');
 
+// Texts in the page's language, sent by PHP as JSON (includes/antet.php)
+const T = JSON.parse(document.getElementById('texte-js').textContent);
+
 // Small helper: create an element with text.
 // textContent (not innerHTML) treats data as plain text, so nothing from
 // GitHub's API can inject HTML or scripts into the page (no XSS).
@@ -30,9 +33,9 @@ function deschide(card) {
     zonaGithub.replaceChildren(card.querySelector('.taguri').cloneNode(true));
 
     if (!repo) {
-        zonaGithub.append(element('p', '> Codul nu este publicat pe GitHub.', 'nota'));
+        zonaGithub.append(element('p', T.nepublicat, 'nota'));
     } else if (privat) {
-        zonaGithub.append(element('p', '🔒 Depozit privat: codul este disponibil la cerere.', 'nota'));
+        zonaGithub.append(element('p', T.privat, 'nota'));
     } else {
         incarcaGithub(repo);
     }
@@ -40,7 +43,7 @@ function deschide(card) {
     // Link to the project's own page (proiect.php?id=...)
     const detalii = card.querySelector('a.detalii');
     if (detalii) {
-        const link = element('a', 'Pagina proiectului →', 'link');
+        const link = element('a', T.pagina, 'link');
         link.href = detalii.href;
         zonaGithub.append(element('p', null, 'fereastra-detalii'));
         zonaGithub.lastChild.append(link);
@@ -50,10 +53,10 @@ function deschide(card) {
 }
 
 async function incarcaGithub(repo) {
-    const stare = element('p', '> se încarcă datele de pe GitHub...', 'nota');
+    const stare = element('p', T.incarca, 'nota');
     zonaGithub.append(stare);
 
-    const link = element('a', 'Deschide pe GitHub ↗', 'btn-github');
+    const link = element('a', T.deschide, 'btn-github');
     link.href = 'https://github.com/' + repo;
     link.target = '_blank';                       // new tab
     link.rel = 'noopener noreferrer';             // the new tab can't control this page
@@ -72,14 +75,14 @@ async function incarcaGithub(repo) {
 
         const lista = element('ul', null, 'github-info');
         lista.append(
-            element('li', 'limbaje: ' + (procente || '-')),
-            element('li', 'ultima actualizare: ' + new Date(info.pushed_at).toLocaleDateString('ro-RO')),
-            element('li', 'stele: ' + info.stargazers_count + ' · fork-uri: ' + info.forks_count)
+            element('li', T.limbaje + ': ' + (procente || '-')),
+            element('li', T.actualizare + ': ' + new Date(info.pushed_at).toLocaleDateString(T.locale)),
+            element('li', T.stele + ': ' + info.stargazers_count + ' · ' + T.forkuri + ': ' + info.forks_count)
         );
         stare.replaceWith(lista);
     } catch (eroare) {
         // No internet, or GitHub's limit of 60 requests/hour was reached
-        stare.textContent = '> nu am putut citi datele de pe GitHub (' + eroare + ').';
+        stare.textContent = T.eroare + ' (' + eroare + ').';
     }
 
     zonaGithub.append(link);

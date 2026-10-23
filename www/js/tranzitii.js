@@ -4,6 +4,9 @@
 
 const faraAnimatii = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+// Texts in the page's language, sent by PHP as JSON (includes/antet.php)
+const TEXTE = JSON.parse(document.getElementById('texte-js')?.textContent || '{}');
+
 // sessionStorage can be blocked (private mode, strict settings): never let that break the page
 function citeste(cheie) {
     try { return sessionStorage.getItem(cheie); } catch (e) { return null; }
@@ -40,7 +43,7 @@ window.addEventListener('pagereveal', (e) => {
 function arataAccesPermis() {
     const mesaj = document.createElement('div');
     mesaj.className = 'acces';
-    mesaj.textContent = '> acces permis_';
+    mesaj.textContent = TEXTE.acces || '> acces permis_';
     mesaj.setAttribute('aria-hidden', 'true');      // decoration: screen readers skip it
     mesaj.addEventListener('animationend', () => mesaj.remove());
     document.body.append(mesaj);

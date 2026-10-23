@@ -78,6 +78,27 @@ nav {
     border-bottom-color: var(--accent);   /* underline the current page */
 }
 
+/* Language switch: RO | EN */
+.limbi {
+    display: flex;
+    gap: 2px;
+    padding: 3px;
+    border: 1px solid var(--text-slab);
+    border-radius: 999px;
+}
+
+.meniu .limbi a {
+    padding: 2px 9px;
+    border: none;
+    border-radius: 999px;
+    font-size: 0.85em;
+}
+
+.meniu .limbi a.activ {
+    background: var(--accent);
+    color: var(--card);
+}
+
 /* ===== Main content ===== */
 main {
     max-width: 1000px;

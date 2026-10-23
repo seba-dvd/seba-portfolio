@@ -1,108 +1,88 @@
 <?php
 $pagina = 'acasa';
-$titlu = 'Acasă';
 require __DIR__ . '/includes/antet.php';
+
+$proiecte = require __DIR__ . '/includes/proiecte-date.php';
 ?>
 
     <main>
         <!-- ===== Hero: text on the left, photo on the right ===== -->
         <section class="hero">
             <div class="hero-text">
-                <p class="salut">Salut, eu sunt</p>
+                <p class="salut"><?= e($t['hero_salut']) ?></p>
                 <h1>David Sebastian Pilat</h1>
                 <p class="tagline">
-                    Student în anul IV la Tehnologii și Sisteme de Telecomunicații,
-                    pasionat de <strong>cyber security</strong>, <strong>networking</strong>
-                    și <strong>programare</strong>.
+                    <?= e($t['hero_text_inainte']) ?> <strong><?= e($t['hero_accent']) ?></strong>.
                 </p>
-                <p class="locatie">Brașov, România</p>
+                <p class="locatie"><?= e($t['locatie']) ?></p>
                 <div class="butoane">
-                    <a class="btn" href="despre.php">Despre mine</a>
-                    <a class="btn btn-cyber" href="proiecte.php">&gt; modul cyber</a>
+                    <a class="btn" href="despre.php"><?= e($t['btn_despre']) ?></a>
+                    <a class="btn btn-cyber" href="proiecte.php"><?= e($t['btn_cyber']) ?></a>
                 </div>
             </div>
 
             <div class="hero-poza">
-                <img class="poza" src="img/profil.jpeg" alt="Fotografia lui David Sebastian Pilat">
-                <span class="insigna insigna-1">Cyber security</span>
-                <span class="insigna insigna-2">Networking</span>
-                <span class="insigna insigna-3">Gamer</span>
+                <img class="poza" src="img/profil.jpeg" alt="<?= e($t['poza_alt']) ?>">
+                <?php foreach ($t['insigne'] as $i => $insigna): ?>
+                    <span class="insigna insigna-<?= $i + 1 ?>"><?= e($insigna) ?></span>
+                <?php endforeach; ?>
             </div>
         </section>
 
-        <!-- ===== Bento grid: cards of different sizes ===== -->
+        <!-- ===== Bento grid: short previews; the same data as the other pages ===== -->
         <section class="bento">
             <article class="card despre">
-                <h2>Despre mine</h2>
-                <p>
-                    Lumea din jurul meu mă cunoaște ca Seba. Îmi place să explorez tehnologii noi
-                    și să aplic ce învăț în proiecte practice. Sunt o persoană activă:
-                    sport, jocuri video și multă curiozitate.
-                </p>
-                <a class="link" href="despre.php">Citește mai mult →</a>
+                <h2><?= e($t['titlu_despre']) ?></h2>
+                <p><?= e($t['acasa_despre']) ?></p>
+                <a class="link" href="despre.php"><?= e($t['citeste_tot']) ?></a>
             </article>
 
             <article class="card hobby">
-                <h2>Hobby-uri</h2>
+                <h2><?= e($t['titlu_hobby']) ?></h2>
                 <ul class="lista-hobby">
-                    <li><span>⚽</span> Sport</li>
-                    <li><span>🎮</span> Jocuri video</li>
-                    <li><span>💻</span> Tehnologie</li>
+                    <?php foreach ($t['hobby'] as $hobby): ?>
+                        <li><span><?= e($hobby['icon']) ?></span> <?= e($hobby['titlu']) ?></li>
+                    <?php endforeach; ?>
                 </ul>
             </article>
 
             <article class="card educatie">
-                <h2>Educație</h2>
+                <h2><?= e($t['titlu_parcurs']) ?></h2>
                 <ol class="timeline">
-                    <li>
-                        <span class="an">2023 – prezent</span>
-                        Facultatea de Inginerie Electrică și Știința Calculatoarelor, Universitatea Transilvania din Brașov
-                    </li>
-                    <li>
-                        <span class="an">2019 – 2023</span>
-                        Colegiul Național „Emil Racoviță” Brașov
-                    </li>
-                    <li>
-                        <span class="an">2011 – 2019</span>
-                        Școala Gimnazială nr. 3 „Gheorghe Lazăr” Brașov
-                    </li>
+                    <?php foreach (array_slice($t['parcurs'], 0, 4) as $pas): ?>
+                        <li>
+                            <span class="an"><?= e($pas['an']) ?></span>
+                            <?= e($pas['text']) ?>
+                        </li>
+                    <?php endforeach; ?>
                 </ol>
             </article>
 
             <article class="card competente">
-                <h2>Competențe</h2>
+                <h2><?= e($t['titlu_competente']) ?></h2>
                 <ul class="taguri">
-                    <li>C</li>
-                    <li>C++</li>
-                    <li>Python</li>
-                    <li>Java</li>
-                    <li>HTML</li>
-                    <li>CSS</li>
-                    <li>JavaScript</li>
-                    <li>Wireshark</li>
-                    <li>Cisco Packet Tracer</li>
-                    <li>TryHackMe</li>
-                    <li>HackTheBox</li>
-                    <li>Linux</li>
-                    <li>VS Code</li>
+                    <?php foreach ($t['competente_scurt'] as $competenta): ?>
+                        <li><?= e($competenta) ?></li>
+                    <?php endforeach; ?>
                 </ul>
             </article>
 
             <!-- This card switches to the cyber theme on its own -->
             <article class="card proiecte tema-cyber">
                 <h2>&gt; ls ./proiecte</h2>
-                <p>Proiecte din facultate, laboratoare și realizări din cyber security.</p>
-                <a class="link" href="proiecte.php">./deschide.sh →</a>
+                <p><?php foreach ($proiecte as $p): ?><?= e($p['slug']) ?>/  <?php endforeach; ?></p>
+                <a class="link" href="proiecte.php"><?= e($t['proiecte_link']) ?></a>
             </article>
 
             <article class="card harta">
-                <h2>Harta călătoriilor</h2>
-                <p>Orașele pe care le-am vizitat și cele care sunt pe lista mea.</p>
+                <h2><?= e($t['harta_titlu']) ?></h2>
+                <p><?= e($t['harta_text']) ?></p>
                 <p class="legenda">
-                    <span class="punct vizitat"></span> vizitate
-                    <span class="punct dorit"></span> de vizitat
+                    <span class="punct vizitat"></span> <?= e($t['harta_vizitate']) ?>
+                    <span class="punct dorit"></span> <?= e($t['harta_dorite']) ?>
                 </p>
-                <a class="link" href="login.php">Vezi harta →</a>
+                <!-- TODO(M5): login.php does not exist yet -->
+                <a class="link" href="login.php"><?= e($t['harta_link']) ?></a>
             </article>
         </section>
     </main>

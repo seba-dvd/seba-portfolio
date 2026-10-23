@@ -4,7 +4,7 @@
 http_response_code(404);
 
 $pagina = '';
-$titlu = 'Pagina nu există';
+$cheieTitlu = '404';
 $temaCyber = true;
 require __DIR__ . '/includes/antet.php';
 ?>
@@ -18,10 +18,10 @@ require __DIR__ . '/includes/antet.php';
                 <span class="terminal-titlu">seba@pai: ~</span>
             </div>
             <div class="terminal-corp">
-                <p><span class="prompt">$</span> cat pagina-ceruta</p>
-                <h1>404: pagina nu există</h1>
-                <p>Adresa este greșită sau pagina a fost mutată.</p>
-                <p><span class="prompt">$</span> cd <a class="link" href="index.php">~/acasa</a></p>
+                <p><span class="prompt">$</span> <?= e($t['e404_comanda']) ?></p>
+                <h1><?= e($t['e404_titlu']) ?></h1>
+                <p><?= e($t['e404_text']) ?></p>
+                <p><span class="prompt">$</span> cd <a class="link" href="index.php"><?= e($t['e404_acasa']) ?></a></p>
             </div>
         </section>
     </main>
