@@ -36,7 +36,7 @@ if [ "$(cod "$SITE/")" = "000" ]; then
 fi
 
 echo "1. PHP syntax"
-for f in "$DIR"/www/*.php "$DIR"/www/includes/*.php "$DIR"/www/includes/lang/*.php; do
+for f in "$DIR"/www/*.php "$DIR"/www/api/*.php "$DIR"/www/includes/*.php "$DIR"/www/includes/lang/*.php; do
     "$PHP" -l "$f" >/dev/null 2>&1
     verifica "${f#"$DIR"/}" 0 $?
 done
@@ -153,10 +153,31 @@ verifica "login with the right password → harta.php" "303 harta.php" "$(trimit
 verifica "new session id after login" 1 "$([ "$INAINTE" != "$(sid "$J1")" ] && echo 1 || echo 0)"
 verifica "login.php while logged in → harta.php" 303 "$(cod -c "$J1" -b "$J1" "$SITE/login.php")"
 
-"$MYSQL" -u root -e "DELETE FROM pai_proiect.users WHERE user LIKE 'zz\\_test\\_%'" 2>/dev/null \
+echo "10. Autocomplete (api/utilizatori.php)"
+API="$SITE/api/utilizatori.php"
+numara() { "$PHP" -r 'echo count(json_decode(stream_get_contents(STDIN)) ?? [9999]);'; }
+# 12 names with the same start, and one where "_" is another letter (zzXtest_...), to test the LIKE escaping
+"$MYSQL" -u root -e "INSERT INTO pai_proiect.users (user, password) VALUES
+    $(for i in 01 02 03 04 05 06 07 08 09 10 11 12; do printf "('zz_test_lim_%s','x')," $i; done) ('zzXtest_ac','x')" 2>/dev/null
+
+verifica "answers JSON" "application/json; charset=utf-8" "$(curl -s -o /dev/null -w '%{content_type}' "$API?term=zz")"
+verifica "has X-Content-Type-Options: nosniff" 1 "$(curl -s -D - -o /dev/null "$API?term=zz" | grep -c -i '^x-content-type-options: nosniff')"
+verifica "the start of a name finds it" 1 "$(are "$(curl -s "$API?term=${U:0:12}")" "\"$U\"")"
+verifica "names in other case are found too" 1 "$(are "$(curl -s "$API?term=$(echo "${U:0:12}" | tr a-z A-Z)")" "\"$U\"")"
+verifica "at most 10 names" 10 "$(curl -s "$API?term=zz_test_lim" | numara)"
+verifica "one letter gives nothing" '[]' "$(curl -s "$API?term=z")"
+verifica "\"_\" is a plain character, not a wildcard" 0 "$(curl -s "$API?term=zz_test_ac" | grep -c 'zzXtest')"
+for v in "%25%25" "__" "zz%27%20OR%20%271%27%3D%271" "%3Cscript%3E" ""; do
+    verifica "term=$v gives nothing" '[]' "$(curl -s "$API?term=$v")"
+done
+verifica "term[]=zz (array) gives nothing" '[]' "$(curl -s "$API?term[]=zz")"
+verifica "login.php loads jQuery UI with an SRI hash" 2 \
+    "$(curl -s "$SITE/login.php" | grep -c 'code.jquery.com.*integrity="sha256-')"
+
+"$MYSQL" -u root -e "DELETE FROM pai_proiect.users WHERE user LIKE 'zz\\_test\\_%' OR user = 'zzXtest_ac'" 2>/dev/null \
     || echo "  (could not remove the test users: run as root: DELETE FROM pai_proiect.users WHERE user LIKE 'zz\\_test\\_%')"
 
-# 10. Database (teste/verificare-bd.php prints its own ok / FAIL lines)
+# 11. Database (teste/verificare-bd.php prints its own ok / FAIL lines)
 IESIRE_BD=$("$PHP" "$DIR/teste/verificare-bd.php" 2>&1)
 echo "$IESIRE_BD" | grep -v '^Database passed' | sed '/^$/d'
 TRECUTE=$((TRECUTE + $(echo "$IESIRE_BD" | grep -c '^  ok ')))
