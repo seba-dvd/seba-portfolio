@@ -195,7 +195,9 @@ return [
     'mesaj_iesire'           => 'You have logged out.',
     'bun_venit'              => 'Welcome, %s!',
     'iesire'                 => 'Log out',
-    'harta_in_lucru'         => 'The interactive map is in progress. Until then, here are the places saved in the database.',
+    'harta_intro'            => 'My places, from the database. Hover over a marker or click it for details.',
+    'harta_eticheta'         => 'Map of visited places',
+    'harta_demo'             => 'Demo mode: an OpenStreetMap map shown with Leaflet, no Google Maps key needed.',
     'harta_locuri'           => 'Places',
     'harta_gol'              => 'There are no places in the database yet.',
 
@@ -213,5 +215,7 @@ return [
         'forkuri'       => 'forks',
         'eroare'        => '> could not read the data from GitHub',
         'pagina'        => 'Project page →',
+        'harta_eroare'        => 'The map could not be loaded. The places are in the list below.',
+        'harta_eroare_google' => 'Google Maps refused the key (wrong key or billing not enabled). Set harta_furnizor to demo in config.php.',
     ],
 ];

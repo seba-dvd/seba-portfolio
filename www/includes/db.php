@@ -22,11 +22,7 @@ function conectareBd(): mysqli
         return $conexiune;
     }
 
-    $fisierConfig = __DIR__ . '/config.php';
-    if (!is_file($fisierConfig)) {
-        eroareBd('config.php is missing: copy includes/config.example.php to includes/config.php');
-    }
-    $config = require $fisierConfig;
+    $config = configuratie();
 
     // Errors become exceptions, so a failed query can't go unnoticed
     mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
@@ -38,6 +34,22 @@ function conectareBd(): mysqli
         eroareBd('connection failed: ' . $e->getMessage());
     }
     return $conexiune;
+}
+
+/**
+ * The settings from config.php (database, map provider), read once per request.
+ */
+function configuratie(): array
+{
+    static $config = null;
+    if ($config === null) {
+        $fisierConfig = __DIR__ . '/config.php';
+        if (!is_file($fisierConfig)) {
+            eroareBd('config.php is missing: copy includes/config.example.php to includes/config.php');
+        }
+        $config = require $fisierConfig;
+    }
+    return $config;
 }
 
 /**

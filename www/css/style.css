@@ -996,6 +996,33 @@ ul.mesaj {
 }
 
 /* ===== App: the protected map page (harta.php) ===== */
+.harta-card {
+    margin-bottom: 20px;
+}
+
+.harta-mare {
+    height: 460px;
+    border-radius: var(--raza);
+    overflow: hidden;
+    isolation: isolate;                    /* keeps Leaflet's layers under the sticky menu */
+    background: var(--fundal);
+}
+
+.harta-nota {
+    margin: 10px 0 0;
+    color: var(--text-slab);
+    font-size: 0.9em;
+}
+
+.harta-eroare {
+    margin: 0;
+    padding: 24px;
+}
+
+.popup-loc small {
+    color: #5b6f68;
+}
+
 .harta-antet {
     display: flex;
     align-items: center;

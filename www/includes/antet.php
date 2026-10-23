@@ -7,6 +7,7 @@
  *   $titlu       the page name in the browser tab (optional: by default the menu title of $pagina)
  *   $cheieTitlu  a key of $t['titluri'] to use instead (optional, e.g. '404')
  *   $temaCyber   true for pages in the cyber theme (optional, default false)
+ *   $stiluri     extra stylesheets from a CDN (optional): [['href' => ..., 'integrity' => ...]]
  */
 require_once __DIR__ . '/functii.php';
 require_once __DIR__ . '/limba.php';
@@ -35,6 +36,9 @@ $texteJs = json_encode($t['js'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | J
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="<?= e($t['descriere_site']) ?>">
     <title><?= e($titlu) ?> – David Sebastian Pilat</title>
+<?php foreach ($stiluri ?? [] as $stil): ?>
+    <link rel="stylesheet" href="<?= e($stil['href']) ?>" integrity="<?= e($stil['integrity']) ?>" crossorigin="anonymous">
+<?php endforeach; ?>
     <link rel="stylesheet" href="css/style.css">
     <script id="texte-js" type="application/json"><?= $texteJs ?></script>
     <script src="js/tranzitii.js"></script>

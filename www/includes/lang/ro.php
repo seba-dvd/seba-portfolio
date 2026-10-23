@@ -195,7 +195,9 @@ return [
     'mesaj_iesire'           => 'Te-ai deconectat.',
     'bun_venit'              => 'Bine ai venit, %s!',
     'iesire'                 => 'Ieșire',
-    'harta_in_lucru'         => 'Harta interactivă este în lucru. Până atunci, iată locurile salvate în baza de date.',
+    'harta_intro'            => 'Locurile mele, din baza de date. Treci cu mouse-ul peste un marcaj sau dă click pentru detalii.',
+    'harta_eticheta'         => 'Harta locurilor vizitate',
+    'harta_demo'             => 'Mod demo: hartă OpenStreetMap afișată cu Leaflet, fără cheie Google Maps.',
     'harta_locuri'           => 'Locuri',
     'harta_gol'              => 'Nu există încă locuri în baza de date.',
 
@@ -213,5 +215,7 @@ return [
         'forkuri'       => 'fork-uri',
         'eroare'        => '> nu am putut citi datele de pe GitHub',
         'pagina'        => 'Pagina proiectului →',
+        'harta_eroare'        => 'Harta nu a putut fi încărcată. Locurile sunt în lista de mai jos.',
+        'harta_eroare_google' => 'Google Maps a refuzat cheia (cheie greșită sau facturare neactivată). Pune harta_furnizor pe demo în config.php.',
     ],
 ];
