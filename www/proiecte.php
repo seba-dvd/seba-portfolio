@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>David Sebastian Pilat – Proiecte</title>
     <link rel="stylesheet" href="css/style.css">
+    <script src="js/tranzitii.js"></script>
 </head>
 
 <!-- The whole page uses the cyber theme -->
@@ -18,6 +19,7 @@
                 <a class="activ" href="proiecte.php">Proiecte</a>
                 <a href="cv.php">CV</a>
                 <a href="contact.php">Contact</a>
+                <button class="comuta-tema" type="button" aria-label="Schimbă tema"><span class="tema-ic-cyber">&gt;_</span><span class="tema-ic-mint">🌿</span></button>
             </div>
         </nav>
     </header>

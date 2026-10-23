@@ -9,6 +9,7 @@
 - Project preview window with live data from the GitHub API
 - About page: story, current work, hobbies, skills and timeline
 - English texts for the about page, saved for M2 (docs/texte/)
+- Smooth transitions: page cross-fade, cyber wipe with "acces permis", cards on scroll, theme switch button
 
 ### Changed
 - Project charter: the site becomes bilingual (RO/EN)

@@ -217,7 +217,7 @@ main {
     border-radius: var(--raza);
     padding: 22px 24px;
     box-shadow: var(--umbra);
-    transition: transform 0.2s;
+    transition: transform 0.2s, background-color 0.4s ease, color 0.4s ease;
 }
 
 .card:hover {
@@ -624,6 +624,120 @@ footer {
 .grid-hobby h3 {
     margin: 8px 0;
     color: var(--accent);
+}
+
+/* ===== Transitions ===== */
+
+/* 1. Every navigation between pages of this site cross-fades */
+@view-transition {
+    navigation: auto;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+    animation-duration: 0.35s;
+}
+
+/* 2a. Entering cyber mode: the dark page wipes in from the left */
+html:active-view-transition-type(intra-cyber)::view-transition-old(root) {
+    animation: none;
+}
+
+html:active-view-transition-type(intra-cyber)::view-transition-new(root) {
+    animation: sterge-intra 0.7s cubic-bezier(0.7, 0, 0.3, 1);
+}
+
+@keyframes sterge-intra {
+    from { clip-path: inset(0 100% 0 0); }
+    to   { clip-path: inset(0 0 0 0); }
+}
+
+/* 2b. Leaving cyber mode: the dark page wipes out to the right */
+html:active-view-transition-type(iese-cyber)::view-transition-new(root) {
+    animation: none;
+}
+
+html:active-view-transition-type(iese-cyber)::view-transition-old(root) {
+    z-index: 1;                                 /* keep the old (dark) page on top while it leaves */
+    animation: sterge-iese 0.7s cubic-bezier(0.7, 0, 0.3, 1) forwards;
+}
+
+@keyframes sterge-iese {
+    from { clip-path: inset(0 0 0 0); }
+    to   { clip-path: inset(0 0 0 100%); }
+}
+
+/* 2c. The "> acces permis" flash */
+.acces {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: grid;
+    place-items: center;
+    pointer-events: none;                       /* clicks go through it */
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 2em;
+    font-weight: 700;
+    color: #39ff14;
+    text-shadow: 0 0 14px #39ff14;
+    background: rgba(1, 4, 9, 0.6);
+    animation: acces 1.3s ease forwards;
+}
+
+@keyframes acces {
+    0%   { opacity: 0; }
+    15%  { opacity: 1; }
+    70%  { opacity: 1; }
+    100% { opacity: 0; visibility: hidden; }
+}
+
+/* 3. Cards appear when they scroll into view (classes added by js/tranzitii.js) */
+.card.apare {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.card.apare.vizibil {
+    opacity: 1;
+    transform: none;
+}
+
+/* 4. Theme switch button in the menu */
+.comuta-tema {
+    margin-left: 8px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    background: var(--card);
+    color: var(--accent);
+    font-family: Consolas, "Courier New", monospace;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.comuta-tema:hover {
+    transform: rotate(20deg) scale(1.1);
+}
+
+/* Show the icon of the OTHER theme: ">_" on mint pages, a leaf on cyber pages */
+.tema-ic-mint                   { display: none; }
+.tema-cyber .tema-ic-mint       { display: inline; }
+.tema-cyber .tema-ic-cyber      { display: none; }
+
+/* During the circle animation, no other animation should play */
+.comutare::view-transition-old(root),
+.comutare::view-transition-new(root) {
+    animation: none;
+    mix-blend-mode: normal;
+}
+
+/* Fallback for browsers without View Transitions: colours fade instead */
+body,
+header {
+    transition: background-color 0.4s ease, color 0.4s ease;
 }
 
 /* ===== Phones and narrow screens ===== */
