@@ -96,7 +96,8 @@ Planul complet este în [docs/Carta proiectului - PAI.docx](docs/Carta%20proiect
    Harta folosește implicit **modul demo** (Leaflet + OpenStreetMap, fără cheie). Pentru Google Maps:
    `'harta_furnizor' => 'google'` și `'google_maps_cheie' => '...'` în `config.php`. Cheia vine
    dintr-un proiect Google Cloud cu facturare activată și trebuie restricționată la adresa site-ului.
-   Fără cheie, pagina revine singură la modul demo.
+   Fără cheie, sau dacă Google refuză cheia (de exemplu după expirarea creditului), pagina afișează
+   singură harta demo.
 
 7. **Deschide** http://localhost/pai/
 

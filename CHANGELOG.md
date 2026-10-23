@@ -6,6 +6,13 @@ and versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.7.1] - 2026-10-24
+The map keeps working when Google refuses the key.
+
+### Changed
+- Google mode verified with a real, restricted key (Google Cloud trial account)
+- Google mode: if Google refuses the key (wrong key, billing ended, credit used up), the page loads Leaflet itself and shows the demo map with a short note, instead of an error
+
 ## [0.7.0] - 2026-10-24
 M7: the map with one marker per place, in demo mode.
 

@@ -219,7 +219,8 @@ Furnizorul se alege în `includes/config.php`:
 | `demo` (implicit) | Leaflet 1.9.4 de pe unpkg (CSS și JS, cu SRI), hărți OpenStreetMap | nu |
 | `google` | `maps.googleapis.com/maps/api/js?...&callback=pornesteHartaGoogle` (async, fără SRI: încărcătorul Google se schimbă) | `google_maps_cheie`, cu facturare |
 
-`google` fără cheie → `demo`. Cheie refuzată → `gm_authFailure()` afișează un mesaj în locul hărții.
+`google` fără cheie → `demo`. Cheie refuzată → `gm_authFailure()` încarcă Leaflet (aceleași hash-uri SRI, trimise în JSON)
+și afișează harta demo cu o notă; doar dacă nici Leaflet nu se încarcă apare un mesaj de eroare.
 
 **De ce un mod demo:** API-ul Google Maps JavaScript cere un proiect Google Cloud cu facturare
 activată, chiar și în limitele gratuite. Un abonament Gemini nu ajută: este facturat separat.
@@ -324,8 +325,9 @@ baza de date rămâne neschimbată.
   (60 de cereri pe oră, fără autentificare).
 - Nu există încă o limită pentru încercările repetate de autentificare (M9).
 - Site-ul rulează local pe HTTP; pe HTTPS, cookie-urile primesc automat `Secure`.
-- Modul `google` nu a putut fi testat cu o cheie reală (fără facturare); cazurile „fără cheie” și
-  „cheie refuzată” sunt verificate.
+- Modul `google` a fost verificat pe 24.10.2026 cu o cheie reală (cont Google Cloud de probă, credit
+  valabil până pe 22.01.2027), restricționată la `http://localhost/*`, `http://127.0.0.1/*` și la
+  Maps JavaScript API. După expirarea creditului, pagina trece singură pe harta demo.
 - Harta are deocamdată doar două locuri (Brașov, Codlea); restul orașelor vizitate se adaugă în
   `sql/date-initiale.sql`.
 - Culorile marcajelor (vizitat / de vizitat) și fotografiile au nevoie de coloane în plus în

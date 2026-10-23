@@ -196,3 +196,15 @@
 
 ### Următorul pas
 - Extinderea hărții după răspunsul profesorului, apoi M8–M9 (finisaje, revizuire de securitate, limita de încercări la autentificare).
+
+## 24.10.2026 – Google Maps cu cheie reală
+
+### Ce am făcut
+- Am folosit creditul de probă Google Cloud (300 $, valabil până pe 22.01.2027): am activat Maps JavaScript API și am creat o cheie.
+- Am restricționat cheia la `http://localhost/*` și `http://127.0.0.1/*` și doar la Maps JavaScript API, apoi am pus-o în `config.php` (ignorat de git), cu `'harta_furnizor' => 'google'`.
+- Harta Google apare pe pagina protejată, cu marcajele verzi.
+- Dacă Google refuză cheia (de exemplu după expirarea creditului), pagina încarcă singură harta demo și afișează o notă.
+
+### Ce am învățat
+- Cheia unei hărți Google se vede în codul paginii, deci nu poate fi secretă. Protecția vine din restricții: site-urile și API-urile pentru care e valabilă.
+- O alertă de buget în Google Cloud anunță din timp orice cost neașteptat.
