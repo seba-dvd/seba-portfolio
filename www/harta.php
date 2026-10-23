@@ -12,6 +12,15 @@ require_once __DIR__ . '/includes/limba.php';
 require_once __DIR__ . '/includes/auth.php';       // sets $utilizator or redirects to login
 require_once __DIR__ . '/includes/db.php';
 
+// Leaflet from unpkg, pinned version with SRI hashes. Used in demo mode, and in
+// Google mode as the fallback if Google refuses the key (js/harta.js loads it then).
+const LEAFLET = [
+    'css'      => 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
+    'css_hash' => 'sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=',
+    'js'       => 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
+    'js_hash'  => 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=',
+];
+
 $puncte = toatePunctele();
 
 $config = configuratie();
@@ -22,6 +31,7 @@ $furnizor = (($config['harta_furnizor'] ?? 'demo') === 'google' && $cheieGoogle 
 // text and are shown with textContent, never as HTML.
 $dateHarta = [
     'furnizor' => $furnizor,
+    'leaflet'  => LEAFLET,
     'puncte'   => array_map(fn(array $p) => [
         'lat'       => (float) $p['lat'],
         'lng'       => (float) $p['long'],
@@ -31,12 +41,9 @@ $dateHarta = [
 
 $pagina = 'harta';
 if ($furnizor === 'demo') {
-    // Leaflet from unpkg, pinned version with SRI hashes
-    $stiluri = [['href' => 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
-                 'integrity' => 'sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=']];
+    $stiluri = [['href' => LEAFLET['css'], 'integrity' => LEAFLET['css_hash']]];
     $scripturi = [
-        ['src' => 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
-         'integrity' => 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo='],
+        ['src' => LEAFLET['js'], 'integrity' => LEAFLET['js_hash']],
         'js/harta.js',
     ];
 } else {

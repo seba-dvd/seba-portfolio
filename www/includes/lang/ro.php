@@ -216,6 +216,7 @@ return [
         'eroare'        => '> nu am putut citi datele de pe GitHub',
         'pagina'        => 'Pagina proiectului →',
         'harta_eroare'        => 'Harta nu a putut fi încărcată. Locurile sunt în lista de mai jos.',
+        'harta_rezerva'       => 'Google Maps nu este disponibil acum, așa că afișez harta demo (OpenStreetMap).',
         'harta_eroare_google' => 'Google Maps a refuzat cheia (cheie greșită sau facturare neactivată). Pune harta_furnizor pe demo în config.php.',
     ],
 ];

@@ -216,6 +216,7 @@ return [
         'eroare'        => '> could not read the data from GitHub',
         'pagina'        => 'Project page →',
         'harta_eroare'        => 'The map could not be loaded. The places are in the list below.',
+        'harta_rezerva'       => 'Google Maps is not available right now, so this is the demo map (OpenStreetMap).',
         'harta_eroare_google' => 'Google Maps refused the key (wrong key or billing not enabled). Set harta_furnizor to demo in config.php.',
     ],
 ];

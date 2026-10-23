@@ -103,9 +103,41 @@ window.pornesteHartaGoogle = async function () {
     }
 };
 
-// Google calls this when it refuses the key (wrong key, billing not enabled...)
+// Loads Leaflet only when needed (Google mode fallback), with the same SRI hashes as harta.php
+function incarcaLeaflet() {
+    const leaflet = DATE_HARTA.leaflet;
+    return new Promise((gata, esec) => {
+        const stil = document.createElement('link');
+        stil.rel = 'stylesheet';
+        stil.href = leaflet.css;
+        stil.integrity = leaflet.css_hash;
+        stil.crossOrigin = 'anonymous';
+        const script = document.createElement('script');
+        script.src = leaflet.js;
+        script.integrity = leaflet.js_hash;
+        script.crossOrigin = 'anonymous';
+        script.onload = gata;
+        script.onerror = esec;
+        document.head.append(stil, script);
+    });
+}
+
+// Google calls this when it refuses the key (wrong key, billing ended, credit used up...).
+// The visitor still gets a map: the demo one, with a short note under it.
 window.gm_authFailure = function () {
-    arataEroare(TEXTE_HARTA.harta_eroare_google);
+    const vechi = document.getElementById('harta');
+    const nou = vechi.cloneNode(false);              // an empty container, without Google's leftovers
+    vechi.replaceWith(nou);
+
+    incarcaLeaflet()
+        .then(() => {
+            hartaDemo();
+            const nota = document.createElement('p');
+            nota.className = 'harta-nota';
+            nota.textContent = TEXTE_HARTA.harta_rezerva;
+            nou.after(nota);
+        })
+        .catch(() => arataEroare(TEXTE_HARTA.harta_eroare_google));
 };
 
 if (DATE_HARTA.furnizor === 'demo') {
