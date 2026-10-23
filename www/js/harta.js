@@ -4,11 +4,83 @@
 //   google → Google Maps JavaScript API (calls pornesteHartaGoogle when it is ready)
 // The descriptions come from the database, so they go into the page with
 // textContent only, never as HTML (no XSS), with either provider.
+// Explore mode (◀ ▶ under the map) works the same with both: each provider gives
+// explorare.mergiLa(i), which moves the map to place i and opens it.
 
 const DATE_HARTA = JSON.parse(document.getElementById('date-harta').textContent);
 const TEXTE_HARTA = JSON.parse(document.getElementById('texte-js')?.textContent || '{}');
 const CULOARE_VIZITAT = '#16a34a';               // same green as the legend on the home page
 const CENTRU_ROMANIA = { lat: 45.9, lng: 24.97 };
+const ZOOM_LOC = 12;
+const FARA_ANIMATII = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// ===== Explore mode: go through the places one by one, like levels on a world map =====
+const explorare = {
+    index: -1,                                       // -1: the tour has not started yet
+    mergiLa: null,                                   // set by the map provider
+
+    pornesteInterfata() {
+        this.bara = document.getElementById('explorare');
+        if (!this.bara) {                            // no places: no explore bar
+            return;
+        }
+        this.inapoi = document.getElementById('explorare-inapoi');
+        this.inainte = document.getElementById('explorare-inainte');
+        this.inapoi.addEventListener('click', () => this.alege(this.index - 1));
+        this.inainte.addEventListener('click', () => this.alege(this.index + 1));
+        // Left / right arrows while the bar (or one of its buttons) has focus
+        this.bara.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                e.preventDefault();
+                this.alege(this.index + (e.key === 'ArrowRight' ? 1 : -1));
+            }
+        });
+        this.arata();
+        this.bara.hidden = false;
+    },
+
+    alege(i) {
+        if (!this.mergiLa || i < 0 || i >= DATE_HARTA.puncte.length) {
+            return;
+        }
+        this.index = i;
+        this.mergiLa(i);
+        this.arata();
+    },
+
+    // A marker was clicked on the map: the tour continues from there
+    selectat(i) {
+        this.index = i;
+        this.arata();
+    },
+
+    // The texts come from the page (data-text-*), already in the right language
+    arata() {
+        if (!this.bara) {
+            return;
+        }
+        const n = DATE_HARTA.puncte.length;
+        const pozitie = document.getElementById('explorare-pozitie');
+        const nume = document.getElementById('explorare-nume');
+        const distanta = document.getElementById('explorare-distanta');
+
+        if (this.index < 0) {
+            pozitie.textContent = this.bara.dataset.textPozitie.replace('{i}', '0').replace('{n}', n);
+            nume.textContent = this.bara.dataset.textStart;
+            distanta.textContent = '';
+        } else {
+            const punct = DATE_HARTA.puncte[this.index];
+            pozitie.textContent = this.bara.dataset.textPozitie.replace('{i}', this.index + 1).replace('{n}', n);
+            nume.textContent = punct.descriere;
+            distanta.textContent = punct.distanta_km < 0.05
+                ? this.bara.dataset.textAcasa
+                : this.bara.dataset.textDistanta.replace('{km}',
+                    punct.distanta_km.toLocaleString(TEXTE_HARTA.locale, { maximumFractionDigits: 0 }));
+        }
+        this.inapoi.disabled = this.index <= 0;
+        this.inainte.disabled = this.index >= n - 1;
+    },
+};
 
 // What a marker shows when clicked: the description and the coordinates
 function continutLoc(punct) {
@@ -56,6 +128,17 @@ function hartaDemo() {
             .bindPopup(continutLoc(punct))
             .addTo(harta);
     });
+    marcaje.forEach((marcaj, i) => marcaj.on('click', () => explorare.selectat(i)));
+
+    explorare.mergiLa = (i) => {
+        const marcaj = marcaje[i];
+        harta.once('moveend', () => marcaj.openPopup());   // open it when the map has arrived
+        if (FARA_ANIMATII) {
+            harta.setView(marcaj.getLatLng(), ZOOM_LOC);
+        } else {
+            harta.flyTo(marcaj.getLatLng(), ZOOM_LOC, { duration: 1.2 });
+        }
+    };
 
     if (marcaje.length > 1) {
         harta.fitBounds(L.featureGroup(marcaje).getBounds(), { padding: [40, 40] });
@@ -79,8 +162,9 @@ window.pornesteHartaGoogle = async function () {
     });
     const fereastra = new InfoWindow();
     const limite = new google.maps.LatLngBounds();
+    const marcaje = [];
 
-    DATE_HARTA.puncte.forEach((punct) => {
+    DATE_HARTA.puncte.forEach((punct, i) => {
         const pin = new PinElement({ background: CULOARE_VIZITAT, borderColor: '#0f5132', glyphColor: '#ffffff' });
         const marcaj = new AdvancedMarkerElement({
             map: harta,
@@ -91,9 +175,19 @@ window.pornesteHartaGoogle = async function () {
         marcaj.addListener('click', () => {
             fereastra.setContent(continutLoc(punct));
             fereastra.open({ map: harta, anchor: marcaj });
+            explorare.selectat(i);
         });
+        marcaje.push(marcaj);
         limite.extend({ lat: punct.lat, lng: punct.lng });
     });
+
+    explorare.mergiLa = (i) => {
+        const punct = DATE_HARTA.puncte[i];
+        harta.panTo({ lat: punct.lat, lng: punct.lng });   // Google animates short moves by itself
+        harta.setZoom(ZOOM_LOC);
+        fereastra.setContent(continutLoc(punct));
+        fereastra.open({ map: harta, anchor: marcaje[i] });
+    };
 
     if (DATE_HARTA.puncte.length > 1) {
         harta.fitBounds(limite, 40);
@@ -143,3 +237,4 @@ window.gm_authFailure = function () {
 if (DATE_HARTA.furnizor === 'demo') {
     document.addEventListener('DOMContentLoaded', hartaDemo);
 }
+explorare.pornesteInterfata();                       // the script is at the end of <body>: the bar exists
