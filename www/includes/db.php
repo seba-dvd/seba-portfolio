@@ -65,7 +65,23 @@ function toatePunctele(): array
 }
 
 /**
- * One account by its exact name, or null. Used by the login (M5).
+ * Creates an account and returns its ID. $hash comes from password_hash().
+ * A name that already exists throws mysqli_sql_exception with code 1062
+ * (the UNIQUE key on users.user), which the register form turns into a message.
+ */
+function adaugaUtilizator(string $nume, string $hash): int
+{
+    $cerere = mysqli_prepare(conectareBd(), 'INSERT INTO users (user, password) VALUES (?, ?)');
+    mysqli_stmt_bind_param($cerere, 'ss', $nume, $hash);
+    mysqli_stmt_execute($cerere);
+    $id = mysqli_insert_id(conectareBd());
+    mysqli_stmt_close($cerere);
+    return $id;
+}
+
+/**
+ * One account by its name, or null. Used by the login.
+ * The column uses a case-insensitive collation, so "Seba" finds "seba".
  * The name comes from a form, so it is sent separately from the SQL.
  */
 function gasesteUtilizator(string $nume): ?array

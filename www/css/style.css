@@ -886,6 +886,116 @@ a.contact-card:focus-visible {
     }
 }
 
+/* ===== App: login and register forms (login.php) ===== */
+.grid-conturi {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    align-items: start;
+}
+
+.formular {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.formular h2 {
+    margin: 0 0 8px;
+}
+
+.formular label {
+    font-weight: 600;
+    margin-top: 8px;
+}
+
+.formular input {
+    font: inherit;
+    padding: 10px 12px;
+    border: 1px solid var(--text-slab);
+    border-radius: var(--raza);
+    background: var(--fundal);
+    color: var(--text);
+}
+
+.formular input:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+}
+
+.formular small {
+    color: var(--text-slab);
+}
+
+.formular .btn {
+    margin-top: 14px;
+    align-self: flex-start;
+    border: 0;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.mesaj {
+    margin: 0 0 8px;
+    padding: 10px 14px;
+    border-radius: var(--raza);
+    border-left: 4px solid;
+}
+
+ul.mesaj {
+    padding-left: 32px;
+}
+
+.mesaj.eroare {
+    border-color: #ef4444;
+    background: rgba(239, 68, 68, 0.12);
+}
+
+.mesaj.succes {
+    border-color: var(--accent);
+    background: var(--card);
+    margin-bottom: 20px;
+}
+
+/* ===== App: the protected map page (harta.php) ===== */
+.harta-antet {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.harta-antet h1 {
+    margin: 0 0 6px;
+}
+
+.lista-locuri {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.lista-locuri li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.lista-locuri li:last-child {
+    border-bottom: 0;
+}
+
+.lista-locuri small {
+    color: var(--text-slab);
+    font-variant-numeric: tabular-nums;
+}
+
 /* ===== Transitions ===== */
 
 /* 1. Every navigation between pages of this site cross-fades */

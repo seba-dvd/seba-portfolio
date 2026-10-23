@@ -81,8 +81,7 @@ $proiecte = require __DIR__ . '/includes/proiecte-date.php';
                     <span class="punct vizitat"></span> <?= e($t['harta_vizitate']) ?>
                     <span class="punct dorit"></span> <?= e($t['harta_dorite']) ?>
                 </p>
-                <!-- TODO(M5): login.php does not exist yet -->
-                <a class="link" href="login.php"><?= e($t['harta_link']) ?></a>
+                <a class="link" href="harta.php"><?= e($t['harta_link']) ?></a>
             </article>
         </section>
     </main>

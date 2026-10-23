@@ -3,7 +3,7 @@
  * Shared top of every page: <head>, the menu and the opening <body>.
  *
  * Before including it, a page sets:
- *   $pagina      which menu item is active: 'acasa', 'despre', 'proiecte', 'cv', 'contact' ('' for none)
+ *   $pagina      which menu item is active: 'acasa', 'despre', 'proiecte', 'cv', 'contact', 'harta' ('' for none)
  *   $titlu       the page name in the browser tab (optional: by default the menu title of $pagina)
  *   $cheieTitlu  a key of $t['titluri'] to use instead (optional, e.g. '404')
  *   $temaCyber   true for pages in the cyber theme (optional, default false)
@@ -21,6 +21,7 @@ $meniu = [
     'proiecte' => 'proiecte.php',
     'cv'       => 'cv.php',
     'contact'  => 'contact.php',
+    'harta'    => 'harta.php',      // logged-out visitors are sent to login.php
 ];
 
 // Texts for JavaScript, embedded as JSON. The JSON_HEX_* flags turn < > & ' "
