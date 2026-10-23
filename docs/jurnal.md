@@ -113,3 +113,35 @@
 
 ### Următorul pas
 - M4: formularul de înregistrare, cu `password_hash` și mesaj pentru un nume deja folosit.
+
+## 24.10.2026 – M4 și M5: conturi, autentificare și pagina protejată (v0.5.0)
+
+### Ce am făcut
+- Am creat `login.php`, cu cele două formulare din enunț: autentificare și cont nou. Ambele trimit datele prin POST la aceeași pagină, iar câmpul ascuns `actiune` spune care formular a fost trimis.
+- Contul nou: verific pe server numele (3–30 caractere: litere, cifre, `.`, `_`, `-`) și parola (8–72 caractere, scrisă de două ori), salvez parola cu `password_hash`, iar pentru un nume ocupat afișez un mesaj clar (eroarea 1062).
+- Autentificarea: caut contul cu interogarea pregătită din M3 și verific parola cu `password_verify`.
+- Am creat pagina protejată `harta.php`, cu „Bine ai venit, <utilizator>!”, locurile din baza de date și linkul de ieșire. Harta propriu-zisă vine în M7.
+- Am adăugat `logout.php`, `includes/sesiune.php` și `includes/auth.php`, plus „Hartă” în meniu.
+- Am scris 26 de teste noi, care folosesc formularele reale: 103 verificări în total, toate trecute.
+- Am completat raportul cu secțiunile despre conturi și sesiuni.
+- Claude a scris o mare parte din cod la cererea mea; am parcurs fiecare fișier și am verificat paginile în browser.
+
+### Ce am învățat
+- Hash, nu criptare: din hash-ul bcrypt nu se poate obține parola înapoi. Sarea aleatorie face ca două parole identice să aibă hash-uri diferite.
+- bcrypt folosește doar primii 72 de octeți ai parolei, de aceea refuz parolele mai lungi în loc să le tai pe ascuns.
+- Același mesaj pentru nume sau parolă greșită, și chiar același timp de răspuns (hash fals pentru nume inexistente), ca nimeni să nu afle ce conturi există.
+- Laboratorul 3 folosea `session_id("mainID")`: toți vizitatorii aveau aceeași sesiune. `session_regenerate_id(true)` după autentificare oprește atacul „session fixation”.
+- Cookie-ul de sesiune trebuie să fie `HttpOnly` (JavaScript nu îl poate citi) și `SameSite=Lax`.
+- CSRF: alt site poate trimite formularul meu din browserul vizitatorului, dar nu poate citi tokenul din pagină. Tokenul e necesar și la ieșire.
+- Post/Redirect/Get: după un POST reușit fac redirecționare, ca F5 să nu retrimită formularul.
+- `Cache-Control: no-store` face ca butonul Înapoi să nu mai arate pagina protejată după ieșire.
+
+### Probleme întâlnite
+- La o sesiune expirată apelam `session_destroy()` și pierdeam tokenul CSRF, deci primul formular trimis după aceea dădea eroare. Acum, la expirare, golesc sesiunea și îi schimb identificatorul, fără să o închid.
+- Colația bazei de date nu face diferența între majuscule și minuscule, deci „Seba” și „seba” sunt același cont. E comportamentul dorit, iar acum e acoperit de un test.
+
+### De completat
+- Limitarea încercărilor de autentificare (M9).
+
+### Următorul pas
+- M6: autocomplete jQuery pe câmpul de utilizator, după laboratorul 9.

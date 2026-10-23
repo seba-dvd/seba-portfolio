@@ -1,6 +1,6 @@
 # Documentație tehnică – site personal PAI
 
-Versiunea documentată: **v0.4.0** (24.10.2026), etapele M0–M3.
+Versiunea documentată: **v0.5.0** (24.10.2026), etapele M0–M5.
 Documentul descrie cum este construit site-ul și de ce; servește ca bază pentru raportul Word.
 
 ---
@@ -9,7 +9,7 @@ Documentul descrie cum este construit site-ul și de ce; servește ca bază pent
 
 Un site personal cu mai multe pagini (prezentare, proiecte, CV, contact), în română și engleză,
 la care se va adăuga o aplicație web cu bază de date MySQL: înregistrare, autentificare,
-autocomplete jQuery și o hartă a orașelor vizitate (baza de date în M3, restul în M4–M7).
+autocomplete jQuery și o hartă a orașelor vizitate (baza de date în M3, conturile în M4–M5, restul în M6–M7).
 
 ---
 
@@ -61,6 +61,8 @@ istoricul git (`.git`) stau în afara lui și nu pot fi cerute de nimeni.
 | `functii.php` | `e()` – escapare HTML; `tr()` – alege textul în limba curentă dintr-un `['ro' => ..., 'en' => ...]`; `gasesteProiect()`. |
 | `limba.php` | Alege limba, setează cookie-ul, încarcă dicționarul în `$t`. Definește constanta `LIMBA`. |
 | `db.php` | Conexiunea `mysqli` (o dată pe cerere), `toatePunctele()`, `gasesteUtilizator()` cu interogare pregătită. |
+| `sesiune.php` | Pornește sesiunea (cookie securizat), `utilizatorConectat()`, `conecteaza()`, `deconecteaza()`, `tokenCsrf()`, `verificaCsrf()`. |
+| `auth.php` | Paza paginilor protejate: fără sesiune → `login.php`; altfel `$utilizator` și `Cache-Control: no-store`. |
 | `config.php` | Datele de conectare la baza de date. Ignorat de git; modelul este `config.example.php`. |
 | `proiecte-date.php` | Un array cu cele 8 proiecte: tip (solo/echipă), texte RO/EN, tehnologii, depozit GitHub. |
 | `lang/ro.php`, `lang/en.php` | Toate textele site-ului, cu aceleași chei în ambele fișiere. |
@@ -84,6 +86,9 @@ care se schimbă rar, deci un fișier PHP este suficient și mai simplu.
 | `proiect.php` | Pagina unui proiect, cu validarea `id`-ului și 404 pentru valori invalide. |
 | `cv.php` | CV formal, generat din dicționar. `js/cv.js` deschide fereastra de printare; `@media print` și `@page { size: A4 }` îl transformă într-o singură pagină A4. |
 | `contact.php` | Carduri-link (email, GitHub, LinkedIn). |
+| `login.php` | Cele două formulare (autentificare, cont nou), trimise prin POST la aceeași pagină; câmpul ascuns `actiune` le deosebește. |
+| `harta.php` | Pagina protejată: mesajul de bun venit, locurile din `points`, linkul de ieșire. |
+| `logout.php` | Închide sesiunea dacă tokenul din adresă este corect. |
 | `404.php` | Trimite codul HTTP 404 (`http_response_code`) și o pagină în stilul site-ului. Folosită de Apache (`ErrorDocument`) și de `proiect.php`. |
 
 ---
@@ -162,6 +167,29 @@ Toate încep cu `SET NAMES utf8mb4`: clientul `mysql` din Windows citește impli
   `mysqli_prepare` → `mysqli_stmt_bind_param` → `mysqli_stmt_execute`.
   Fără valori de la utilizator (lista punctelor), o interogare simplă este suficientă.
 
+### Conturi și sesiuni (M4, M5)
+
+**Cont nou** (`login.php`, `actiune=inregistrare`):
+1. Verifică tokenul CSRF.
+2. Validează pe server: nume `^[A-Za-z0-9._-]{3,30}$`, parolă de 8–72 de octeți (bcrypt ignoră
+   ce trece de 72), cele două parole identice.
+3. `adaugaUtilizator($nume, password_hash($parola, PASSWORD_DEFAULT))`, interogare pregătită.
+4. Eroarea 1062 (cheia `UNIQUE`) → „nume deja folosit”. Colația `utf8mb4_unicode_ci` nu face
+   diferența între majuscule și minuscule, deci `Seba` și `seba` sunt același nume.
+5. `conecteaza()` și redirecționare 303 la `harta.php` (Post/Redirect/Get).
+
+**Autentificare** (`actiune=login`): `gasesteUtilizator()` → `password_verify()`. Pentru un nume
+inexistent se verifică un hash fals (`HASH_FALS`), ca timpul de răspuns să fie același. Un singur
+mesaj: „Utilizator sau parolă greșită.”
+
+**Sesiunea** (`includes/sesiune.php`): numele cookie-ului `pai_sesiune`, calea `/pai/`,
+`HttpOnly`, `SameSite=Lax`, `Secure` pe HTTPS, `session.use_strict_mode`. `conecteaza()` apelează
+`session_regenerate_id(true)`. După 30 de minute fără activitate, utilizatorul este uitat. Paginile
+site-ului personal nu pornesc sesiunea, deci vizitatorii lor nu primesc cookie.
+
+**Ieșire:** `logout.php?token=…` → `deconecteaza()`: golește `$_SESSION`, expiră cookie-ul,
+`session_destroy()`, apoi `login.php?iesire=1`. Fără token valid, nu se întâmplă nimic.
+
 ---
 
 ## 9. Securitate
@@ -183,6 +211,12 @@ Toate încep cu `SET NAMES utf8mb4`: clientul `mysql` din Windows citește impli
 | Drepturi excesive în baza de date | Contul `pai_app`: doar `SELECT`, `INSERT` pe `pai_proiect` | `sql/utilizator.sql` |
 | Detalii tehnice în erori | `error_log` + mesaj general, HTTP 503 | `includes/db.php` |
 | Date invalide în tabele | `NOT NULL`, `UNIQUE`, `CHECK` pe coordonate | `sql/schema.sql` |
+| **Parole furate din baza de date** | `password_hash` (bcrypt, sare aleatorie), `password_verify` | `login.php` |
+| Ghicirea numelor de utilizator | Același mesaj și același timp de răspuns pentru nume sau parolă greșită | `login.php` |
+| **Session fixation** | `session_regenerate_id(true)` după autentificare; `use_strict_mode` | `includes/sesiune.php` |
+| Furtul cookie-ului de sesiune | `HttpOnly`, `SameSite=Lax`, `Secure` pe HTTPS, expirare la 30 de minute | `includes/sesiune.php` |
+| **CSRF** | Token aleatoriu în sesiune, `hash_equals`, în formulare și în linkul de ieșire | `login.php`, `logout.php` |
+| Pagina protejată în cache / istoric | `Cache-Control: no-store`, redirecționare fără sesiune | `includes/auth.php` |
 
 ---
 
@@ -200,7 +234,7 @@ Toate încep cu `SET NAMES utf8mb4`: clientul `mysql` din Windows citește impli
 ## 11. Testare
 
 ### Teste automate
-`bash teste/verificare.sh` (Apache și MySQL pornite). Rezultat pe 24.10.2026: **72 / 72 trecute**.
+`bash teste/verificare.sh` (Apache și MySQL pornite). Rezultat pe 24.10.2026: **103 / 103 trecute**.
 
 | Grup | Ce verifică |
 |---|---|
@@ -212,6 +246,7 @@ Toate încep cu `SET NAMES utf8mb4`: clientul `mysql` din Windows citește impli
 | Limbă | Redirecționare 303, cookie `HttpOnly` și `SameSite=Lax`, păstrarea `?id=` |
 | Atacuri | `?lang=../../...`, `en%00`, `EN`, `fr`, `<script>`, cookie falsificat → rămâne română |
 | Escapare | Un `<script>` trimis în adresă nu apare neescapat în pagină |
+| Conturi și sesiuni | Prin formularele reale: fără token CSRF, nume `<b>x</b>`, parolă scurtă, parole diferite, cont nou, hash `$2y$` în baza de date, nume dublat (și cu majuscule), cookie `HttpOnly` / `SameSite`, identificator nou după autentificare, `no-store`, ieșire fără și cu token, parolă greșită, nume inexistent, `x' OR '1'='1`. Conturile `zz_test_*` sunt șterse la final. |
 | Baza de date | `teste/verificare-bd.php`: conectarea ca `pai_app`, `utf8mb4`, coloanele, diacriticele, `x' OR '1'='1` nu găsește pe nimeni, `UNIQUE` (1062), `CHECK` (4025), `pai_app` nu poate `DELETE` / `UPDATE` / `DROP` / citi `mysql.user` (1142) |
 
 Rândurile de test sunt adăugate într-o tranzacție anulată la final (`mysqli_rollback`), deci
@@ -231,6 +266,8 @@ baza de date rămâne neschimbată.
   TryHackMe / HackTheBox sunt încă marcate cu `[PARANTEZE]`.
 - Datele live din GitHub depind de conexiunea la internet și de limita API-ului
   (60 de cereri pe oră, fără autentificare).
+- Nu există încă o limită pentru încercările repetate de autentificare (M9).
+- Site-ul rulează local pe HTTP; pe HTTPS, cookie-urile primesc automat `Secure`.
 - Harta are deocamdată doar două locuri (Brașov, Codlea); restul orașelor vizitate se adaugă în
   `sql/date-initiale.sql`.
 - Culorile marcajelor (vizitat / de vizitat) și fotografiile au nevoie de coloane în plus în

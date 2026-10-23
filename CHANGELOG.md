@@ -6,6 +6,28 @@ and versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-10-24
+M4 and M5: accounts, login and the protected page.
+
+### Added
+- `login.php`: the login and register forms required by the brief, both posting back to the same page
+- Register: server-side checks (name of 3–30 letters, digits, `.` `_` `-`; password of 8–72 characters, typed twice), `password_hash`, a clear message for a taken name
+- Login with `password_verify`, then a redirect to the protected page
+- `harta.php`: the protected page with "Bine ai venit, <user>!", the places from the database and a logout link (the map itself comes in M7)
+- `logout.php`: ends the session
+- `includes/sesiune.php` (session, login/logout, CSRF tokens) and `includes/auth.php` (guard for protected pages)
+- `adaugaUtilizator()` in `includes/db.php`
+- "Hartă / Map" in the menu; the map card on the home page links to it
+- 26 tests for accounts and sessions, through the real forms (103 checks in total)
+- Report: sections on registration, login, sessions and the protected page, with two new figures
+
+### Security
+- Passwords stored only as bcrypt hashes; the same message, and the same response time, for a wrong name or a wrong password
+- A new session id after login and register (`session_regenerate_id`), strict mode, sessions end after 30 idle minutes
+- Session cookie `HttpOnly`, `SameSite=Lax`, `Secure` on HTTPS; only the app pages start a session
+- CSRF token in both forms and in the logout link
+- The protected page is sent with `Cache-Control: no-store`, so Back can't show it after logout
+
 ## [0.4.0] - 2026-10-24
 M3: the database.
 

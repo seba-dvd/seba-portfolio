@@ -8,7 +8,7 @@ Site-ul are două fețe: paginile personale (Acasă, Despre, CV, Contact) în te
 și paginile tehnice (Proiecte) în tema **cyber**, cu tranziții animate între ele.
 Este disponibil în **română și engleză**.
 
-**Versiunea curentă:** v0.4.0 (etapele M0–M3). Istoricul complet: [CHANGELOG.md](CHANGELOG.md).
+**Versiunea curentă:** v0.5.0 (etapele M0–M5). Istoricul complet: [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
@@ -23,6 +23,9 @@ Este disponibil în **română și engleză**.
 | **CV** (`cv.php`) | CV formal; butonul „Descarcă PDF” îl exportă pe o pagină A4 |
 | **Contact** (`contact.php`) | Email, GitHub, LinkedIn, locație |
 | **404** (`404.php`) | Pagina pentru adrese inexistente |
+| **Autentificare** (`login.php`) | Formularele de autentificare și de cont nou |
+| **Hartă** (`harta.php`) | Pagina protejată: „Bine ai venit, <utilizator>!”, locurile din baza de date, ieșire |
+| **Ieșire** (`logout.php?token=…`) | Închide sesiunea |
 
 Plus: comutator **RO | EN** (alegerea se păstrează într-un cookie), buton de schimbare a temei,
 tranziții între pagini, design adaptat pentru telefon.
@@ -33,7 +36,6 @@ printr-un cont dedicat (`pai_app`) care poate doar citi și adăuga rânduri.
 
 ### Ce urmează (cerințele din enunț)
 
-- **M4–M5:** înregistrare și autentificare, sesiuni, logout.
 - **M6:** autocomplete jQuery pe câmpul de utilizator (laboratorul 9).
 - **M7:** harta cu orașele vizitate (marcaje colorate: vizitate / de vizitat).
 - **M8–M10:** finisaje, revizuire de securitate, raportul Word.
@@ -103,9 +105,10 @@ Cu Apache și MySQL pornite, în Git Bash, din folderul proiectului:
 ```bash
 bash teste/verificare.sh
 ```
-Scriptul face 72 de verificări: sintaxa PHP, cheile dicționarelor, răspunsul fiecărei pagini,
-erorile 404, folderele blocate, schimbarea limbii, încercările de atac pe parametri și baza de date
-(structura, constrângerile, drepturile contului `pai_app`, interogările pregătite).
+Scriptul face 103 verificări: sintaxa PHP, cheile dicționarelor, răspunsul fiecărei pagini,
+erorile 404, folderele blocate, schimbarea limbii, încercările de atac pe parametri, conturile și
+sesiunile (prin formularele reale) și baza de date (structura, constrângerile, drepturile contului
+`pai_app`, interogările pregătite). Conturile de test sunt șterse la final (cu `root`).
 Verificările bazei de date se pot rula și separat: `php teste/verificare-bd.php`.
 
 ---
@@ -116,6 +119,7 @@ Verificările bazei de date se pot rula și separat: `php teste/verificare-bd.ph
 pai-proiect/
 ├── www/                      ← rădăcina web (legată la C:\xampp\htdocs\pai)
 │   ├── index.php, despre.php, proiecte.php, proiect.php, cv.php, contact.php, 404.php
+│   ├── login.php, harta.php, logout.php   ← aplicația: conturi, sesiuni, pagina protejată
 │   ├── .htaccess             ← fără listarea folderelor, pagina 404, fișiere ascunse blocate
 │   ├── includes/             ← cod PHP comun, blocat din browser (.htaccess)
 │   │   ├── antet.php         ← <head>, meniul, comutatorul de limbă
@@ -123,6 +127,8 @@ pai-proiect/
 │   │   ├── functii.php       ← e() (escapare HTML), tr(), gasesteProiect()
 │   │   ├── limba.php         ← alegerea limbii (allowlist + cookie)
 │   │   ├── db.php            ← conexiunea mysqli și interogările
+│   │   ├── sesiune.php       ← sesiunea, autentificare / ieșire, token CSRF
+│   │   ├── auth.php          ← paza paginilor protejate
 │   │   ├── config.example.php ← model pentru config.php (parola, ignorat de git)
 │   │   ├── proiecte-date.php ← datele celor 8 proiecte (RO și EN)
 │   │   └── lang/ro.php, lang/en.php ← toate textele site-ului
@@ -157,6 +163,12 @@ Măsurile deja implementate (detalii în [docs/documentatie.md](docs/documentati
   `pai_proiect`), nu `root`.
 - **Erori:** o eroare de conectare la baza de date ajunge în jurnalul serverului; vizitatorul
   primește doar un mesaj general (HTTP 503).
+- **Parole:** salvate doar ca hash bcrypt (`password_hash`), verificate cu `password_verify`;
+  același mesaj pentru nume sau parolă greșită.
+- **Sesiuni:** cookie `HttpOnly` și `SameSite=Lax`, identificator nou după autentificare
+  (`session_regenerate_id`), expirare după 30 de minute de inactivitate.
+- **CSRF:** token aleatoriu în formulare și în linkul de ieșire.
+- **Pagina protejată:** fără sesiune → `login.php`; `Cache-Control: no-store`.
 - **Secrete:** `www/includes/config.php` (parola bazei de date) este în `.gitignore`.
 - **Linkuri externe:** `rel="noopener noreferrer"` pe toate linkurile care se deschid în tab nou.
 
