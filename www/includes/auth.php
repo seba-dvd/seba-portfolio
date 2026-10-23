@@ -4,8 +4,13 @@
  * Not logged in → sent to the login page. Logged in → $utilizator holds the name.
  */
 require_once __DIR__ . '/sesiune.php';
+require_once __DIR__ . '/db.php';
 
 $utilizator = utilizatorConectat();
+if ($utilizator !== null && gasesteUtilizator($utilizator) === null) {
+    deconecteaza();                                // the account was deleted by an admin
+    $utilizator = null;
+}
 if ($utilizator === null) {
     header('Location: login.php', true, 303);
     exit;

@@ -12,6 +12,11 @@ return [
     'db_pass' => 'SCHIMBA_PAROLA',
     'db_name' => 'pai_proiect',
 
+    // Admin panel (admin.php)
+    'db_admin_user' => 'pai_admin',     // the account from sql/admin.sql: can change places, delete users
+    'db_admin_pass' => 'SCHIMBA_PAROLA_ADMIN',
+    'admini'        => ['seba'],        // usernames with access to the admin panel
+
     // Map on harta.php:
     //   'demo'   → Leaflet + OpenStreetMap: no key, no billing (default)
     //   'google' → Google Maps JavaScript API: needs a key from a Google Cloud

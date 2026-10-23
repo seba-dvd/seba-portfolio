@@ -5,6 +5,7 @@ Options -Indexes
 
 # Our own "page not found" page, in the site's style
 ErrorDocument 404 /pai/404.php
+ErrorDocument 403 /pai/403.php
 
 # Never serve hidden files (.htaccess, .git...) if one ever ends up here
 <FilesMatch "^\.">

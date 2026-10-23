@@ -11,15 +11,7 @@ require_once __DIR__ . '/includes/functii.php';
 require_once __DIR__ . '/includes/limba.php';
 require_once __DIR__ . '/includes/auth.php';       // sets $utilizator or redirects to login
 require_once __DIR__ . '/includes/db.php';
-
-// Leaflet from unpkg, pinned version with SRI hashes. Used in demo mode, and in
-// Google mode as the fallback if Google refuses the key (js/harta.js loads it then).
-const LEAFLET = [
-    'css'      => 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
-    'css_hash' => 'sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=',
-    'js'       => 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
-    'js_hash'  => 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=',
-];
+require_once __DIR__ . '/includes/leaflet.php';    // LEAFLET: demo mode, and the fallback if Google refuses the key
 
 $puncte = toatePunctele();
 
@@ -65,7 +57,12 @@ require __DIR__ . '/includes/antet.php';
                 <h1><?= e(sprintf($t['bun_venit'], $utilizator)) ?></h1>
                 <p><?= e($t['harta_intro']) ?></p>
             </div>
-            <a class="btn" href="logout.php?token=<?= e(tokenCsrf()) ?>"><?= e($t['iesire']) ?></a>
+            <div class="butoane">
+                <?php if (esteAdmin($utilizator)): ?>
+                    <a class="btn btn-cyber" href="admin.php"><?= e($t['admin_link']) ?></a>
+                <?php endif; ?>
+                <a class="btn" href="logout.php?token=<?= e(tokenCsrf()) ?>"><?= e($t['iesire']) ?></a>
+            </div>
         </section>
 
         <section class="card harta-card">

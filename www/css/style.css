@@ -1060,6 +1060,110 @@ ul.mesaj {
     font-variant-numeric: tabular-nums;
 }
 
+/* ===== App: admin panel (admin.php) ===== */
+.grid-statistici {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 20px;
+    margin: 20px 0;
+}
+
+.statistica .numar {
+    display: block;
+    font-size: 2.2em;
+    font-weight: 700;
+    color: var(--accent);
+}
+
+.statistica small {
+    display: block;
+    margin-top: 4px;
+    color: var(--text-slab);
+}
+
+#formular-loc,
+.admin-sectiune {
+    margin-bottom: 20px;
+}
+
+.admin-loc {
+    display: grid;
+    grid-template-columns: minmax(240px, 1fr) 1.4fr;
+    gap: 24px;
+    align-items: start;
+}
+
+.harta-admin {
+    height: 340px;
+}
+
+.tabel-container {
+    overflow-x: auto;                      /* long tables scroll on phones instead of breaking the page */
+}
+
+.tabel-admin {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tabel-admin th,
+.tabel-admin td {
+    padding: 10px 8px;
+    text-align: left;
+    border-bottom: 1px solid var(--text-slab);
+    vertical-align: middle;
+}
+
+.tabel-admin th {
+    color: var(--accent);
+    font-weight: 700;
+}
+
+.tabel-admin .numeric {
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.tabel-admin .actiuni {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.tabel-admin .actiuni form {
+    margin: 0;
+}
+
+.btn-mic {
+    padding: 6px 14px;
+    font-size: 0.9em;
+    border: 0;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.btn-pericol {
+    background: #ef4444;
+    color: #ffffff;
+}
+
+.btn-secundar {
+    background: transparent;
+    color: var(--accent);
+    box-shadow: inset 0 0 0 2px var(--accent);
+}
+
+.text-slab {
+    color: var(--text-slab);
+}
+
+@media (max-width: 760px) {
+    .admin-loc {
+        grid-template-columns: 1fr;
+    }
+}
+
 /* ===== Transitions ===== */
 
 /* 1. Every navigation between pages of this site cross-fades */

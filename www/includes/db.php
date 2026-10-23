@@ -14,26 +14,33 @@
 
 /**
  * The connection, opened once per request and reused.
+ * $admin = true uses the pai_admin account (admin panel only); otherwise pai_app.
  */
-function conectareBd(): mysqli
+function conectareBd(bool $admin = false): mysqli
 {
-    static $conexiune = null;
-    if ($conexiune !== null) {
-        return $conexiune;
+    static $conexiuni = [];
+    $cont = $admin ? 'admin' : 'app';
+    if (isset($conexiuni[$cont])) {
+        return $conexiuni[$cont];
     }
 
     $config = configuratie();
+    $utilizator = $admin ? ($config['db_admin_user'] ?? null) : $config['db_user'];
+    $parola = $admin ? ($config['db_admin_pass'] ?? null) : $config['db_pass'];
+    if ($utilizator === null || $parola === null) {
+        eroareBd('db_admin_user / db_admin_pass are missing in config.php (see config.example.php)');
+    }
 
     // Errors become exceptions, so a failed query can't go unnoticed
     mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
     try {
-        $conexiune = mysqli_connect($config['db_host'], $config['db_user'], $config['db_pass'], $config['db_name']);
+        $conexiune = mysqli_connect($config['db_host'], $utilizator, $parola, $config['db_name']);
         mysqli_set_charset($conexiune, 'utf8mb4');
     } catch (mysqli_sql_exception $e) {
-        eroareBd('connection failed: ' . $e->getMessage());
+        eroareBd('connection failed (' . $cont . '): ' . $e->getMessage());
     }
-    return $conexiune;
+    return $conexiuni[$cont] = $conexiune;
 }
 
 /**
@@ -50,6 +57,19 @@ function configuratie(): array
         $config = require $fisierConfig;
     }
     return $config;
+}
+
+/**
+ * Is this user an admin? The admin usernames are listed in config.php ('admini').
+ * Compared without case, like the usernames in the database (Seba = seba).
+ */
+function esteAdmin(?string $nume): bool
+{
+    if ($nume === null) {
+        return false;
+    }
+    $admini = array_map('mb_strtolower', configuratie()['admini'] ?? []);
+    return in_array(mb_strtolower($nume), $admini, true);
 }
 
 /**
