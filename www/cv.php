@@ -1,27 +1,9 @@
-<!DOCTYPE html>
-<html lang="ro">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CV – David Sebastian Pilat</title>
-    <link rel="stylesheet" href="css/style.css">
-    <script src="js/tranzitii.js"></script>
-</head>
-
-<body>
-    <header>
-        <nav>
-            <a class="logo" href="index.php">Seba<span>.</span></a>
-            <div class="meniu">
-                <a href="index.php">Acasă</a>
-                <a href="despre.php">Despre</a>
-                <a href="proiecte.php">Proiecte</a>
-                <a class="activ" href="cv.php">CV</a>
-                <a href="contact.php">Contact</a>
-                <button class="comuta-tema" type="button" aria-label="Schimbă tema"><span class="tema-ic-cyber">&gt;_</span><span class="tema-ic-mint">🌿</span></button>
-            </div>
-        </nav>
-    </header>
+<?php
+$pagina = 'cv';
+$titlu = 'CV';
+$scripturi = ['js/cv.js'];
+require __DIR__ . '/includes/antet.php';
+?>
 
     <main>
         <div class="cv-actiuni">
@@ -130,10 +112,4 @@
         </article>
     </main>
 
-    <footer>
-        <p>&copy; 2026 David Sebastian Pilat</p>
-    </footer>
-
-    <script src="js/cv.js"></script>
-</body>
-</html>
+<?php require __DIR__ . '/includes/subsol.php'; ?>

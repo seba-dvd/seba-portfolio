@@ -1,28 +1,10 @@
-<!DOCTYPE html>
-<html lang="ro">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>David Sebastian Pilat – Proiecte</title>
-    <link rel="stylesheet" href="css/style.css">
-    <script src="js/tranzitii.js"></script>
-</head>
-
-<!-- The whole page uses the cyber theme -->
-<body class="tema-cyber">
-    <header>
-        <nav>
-            <a class="logo" href="index.php">Seba<span>.</span></a>
-            <div class="meniu">
-                <a href="index.php">Acasă</a>
-                <a href="despre.php">Despre</a>
-                <a class="activ" href="proiecte.php">Proiecte</a>
-                <a href="cv.php">CV</a>
-                <a href="contact.php">Contact</a>
-                <button class="comuta-tema" type="button" aria-label="Schimbă tema"><span class="tema-ic-cyber">&gt;_</span><span class="tema-ic-mint">🌿</span></button>
-            </div>
-        </nav>
-    </header>
+<?php
+$pagina = 'proiecte';
+$titlu = 'Proiecte';
+$temaCyber = true;
+$scripturi = ['js/proiecte.js'];
+require __DIR__ . '/includes/antet.php';
+?>
 
     <main>
         <!-- ===== Fake terminal window ===== -->
@@ -229,10 +211,4 @@
         </div>
     </dialog>
 
-    <footer>
-        <p>&copy; 2026 David Sebastian Pilat</p>
-    </footer>
-
-    <script src="js/proiecte.js"></script>
-</body>
-</html>
+<?php require __DIR__ . '/includes/subsol.php'; ?>

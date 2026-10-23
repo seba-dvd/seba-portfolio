@@ -1,27 +1,8 @@
-<!DOCTYPE html>
-<html lang="ro">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>David Sebastian Pilat – Contact</title>
-    <link rel="stylesheet" href="css/style.css">
-    <script src="js/tranzitii.js"></script>
-</head>
-
-<body>
-    <header>
-        <nav>
-            <a class="logo" href="index.php">Seba<span>.</span></a>
-            <div class="meniu">
-                <a href="index.php">Acasă</a>
-                <a href="despre.php">Despre</a>
-                <a href="proiecte.php">Proiecte</a>
-                <a href="cv.php">CV</a>
-                <a class="activ" href="contact.php">Contact</a>
-                <button class="comuta-tema" type="button" aria-label="Schimbă tema"><span class="tema-ic-cyber">&gt;_</span><span class="tema-ic-mint">🌿</span></button>
-            </div>
-        </nav>
-    </header>
+<?php
+$pagina = 'contact';
+$titlu = 'Contact';
+require __DIR__ . '/includes/antet.php';
+?>
 
     <main>
         <section class="card contact-intro">
@@ -61,8 +42,4 @@
         </section>
     </main>
 
-    <footer>
-        <p>&copy; 2026 David Sebastian Pilat</p>
-    </footer>
-</body>
-</html>
+<?php require __DIR__ . '/includes/subsol.php'; ?>

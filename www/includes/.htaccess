@@ -1,0 +1,2 @@
+# The files in includes/ are only loaded by PHP (require), never opened from a browser.
+Require all denied

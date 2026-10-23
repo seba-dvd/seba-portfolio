@@ -1,0 +1,12 @@
+# Apache settings for the site (XAMPP has AllowOverride All for htdocs).
+
+# A folder without index.php must not list its files to visitors
+Options -Indexes
+
+# Our own "page not found" page, in the site's style
+ErrorDocument 404 /pai/404.php
+
+# Never serve hidden files (.htaccess, .git...) if one ever ends up here
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
