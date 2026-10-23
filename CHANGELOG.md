@@ -6,6 +6,23 @@ and versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-10-24
+M6: jQuery autocomplete on the login form.
+
+### Added
+- `api/utilizatori.php`: up to 10 usernames that start with the typed text, as JSON
+- `js/autocomplete.js`: jQuery UI autocomplete on the username field of the login form (from 2 characters, after a short pause in typing)
+- jQuery 3.7.1 and jQuery UI 1.13.2 from code.jquery.com, only on the login page
+- `includes/subsol.php` accepts CDN scripts with an SRI hash
+- Styles for the suggestion list, in both themes, without the jQuery UI theme
+- 14 autocomplete tests; the PHP syntax check now covers `api/` too (118 checks in total)
+- Report: section on the autocomplete, with a screenshot
+
+### Security
+- The autocomplete can't list everyone: at least 2 characters, "starts with" only, at most 10 names, `%` refused and `_` escaped in `LIKE`
+- JSON answers with `X-Content-Type-Options: nosniff` and `Cache-Control: no-store`
+- CDN libraries are pinned and checked with Subresource Integrity
+
 ## [0.5.0] - 2026-10-24
 M4 and M5: accounts, login and the protected page.
 

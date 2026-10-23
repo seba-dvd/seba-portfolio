@@ -8,7 +8,7 @@ Site-ul are două fețe: paginile personale (Acasă, Despre, CV, Contact) în te
 și paginile tehnice (Proiecte) în tema **cyber**, cu tranziții animate între ele.
 Este disponibil în **română și engleză**.
 
-**Versiunea curentă:** v0.5.0 (etapele M0–M5). Istoricul complet: [CHANGELOG.md](CHANGELOG.md).
+**Versiunea curentă:** v0.6.0 (etapele M0–M6). Istoricul complet: [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
@@ -23,7 +23,7 @@ Este disponibil în **română și engleză**.
 | **CV** (`cv.php`) | CV formal; butonul „Descarcă PDF” îl exportă pe o pagină A4 |
 | **Contact** (`contact.php`) | Email, GitHub, LinkedIn, locație |
 | **404** (`404.php`) | Pagina pentru adrese inexistente |
-| **Autentificare** (`login.php`) | Formularele de autentificare și de cont nou |
+| **Autentificare** (`login.php`) | Formularele de autentificare și de cont nou; completare automată (jQuery UI) pe numele de utilizator |
 | **Hartă** (`harta.php`) | Pagina protejată: „Bine ai venit, <utilizator>!”, locurile din baza de date, ieșire |
 | **Ieșire** (`logout.php?token=…`) | Închide sesiunea |
 
@@ -36,7 +36,6 @@ printr-un cont dedicat (`pai_app`) care poate doar citi și adăuga rânduri.
 
 ### Ce urmează (cerințele din enunț)
 
-- **M6:** autocomplete jQuery pe câmpul de utilizator (laboratorul 9).
 - **M7:** harta cu orașele vizitate (marcaje colorate: vizitate / de vizitat).
 - **M8–M10:** finisaje, revizuire de securitate, raportul Word.
 
@@ -49,7 +48,8 @@ Planul complet este în [docs/Carta proiectului - PAI.docx](docs/Carta%20proiect
 - **Server:** Apache și PHP 8.2 (XAMPP 8.2.12), pe Windows
 - **Bază de date:** MariaDB 10.4 (compatibil MySQL), extensia PHP `mysqli`
 - **Client:** HTML5, CSS (variabile, Grid, Flexbox, View Transitions), JavaScript fără framework-uri
-- **Mai târziu:** jQuery și jQuery UI (autocomplete), o bibliotecă de hărți
+- **jQuery 3.7.1 și jQuery UI 1.13.2** (de pe code.jquery.com, cu hash SRI) pentru completarea automată
+- **Mai târziu:** o bibliotecă de hărți
 - **Versionare:** Git și GitHub (depozit privat), Conventional Commits, Semantic Versioning
 
 ---
@@ -105,9 +105,9 @@ Cu Apache și MySQL pornite, în Git Bash, din folderul proiectului:
 ```bash
 bash teste/verificare.sh
 ```
-Scriptul face 103 verificări: sintaxa PHP, cheile dicționarelor, răspunsul fiecărei pagini,
+Scriptul face 118 verificări: sintaxa PHP, cheile dicționarelor, răspunsul fiecărei pagini,
 erorile 404, folderele blocate, schimbarea limbii, încercările de atac pe parametri, conturile și
-sesiunile (prin formularele reale) și baza de date (structura, constrângerile, drepturile contului
+sesiunile (prin formularele reale), completarea automată și baza de date (structura, constrângerile, drepturile contului
 `pai_app`, interogările pregătite). Conturile de test sunt șterse la final (cu `root`).
 Verificările bazei de date se pot rula și separat: `php teste/verificare-bd.php`.
 
@@ -120,6 +120,7 @@ pai-proiect/
 ├── www/                      ← rădăcina web (legată la C:\xampp\htdocs\pai)
 │   ├── index.php, despre.php, proiecte.php, proiect.php, cv.php, contact.php, 404.php
 │   ├── login.php, harta.php, logout.php   ← aplicația: conturi, sesiuni, pagina protejată
+│   ├── api/utilizatori.php   ← numele de utilizator pentru autocomplete (JSON)
 │   ├── .htaccess             ← fără listarea folderelor, pagina 404, fișiere ascunse blocate
 │   ├── includes/             ← cod PHP comun, blocat din browser (.htaccess)
 │   │   ├── antet.php         ← <head>, meniul, comutatorul de limbă
@@ -133,7 +134,7 @@ pai-proiect/
 │   │   ├── proiecte-date.php ← datele celor 8 proiecte (RO și EN)
 │   │   └── lang/ro.php, lang/en.php ← toate textele site-ului
 │   ├── css/style.css         ← temele, layout-ul, tranzițiile, stilul de printare
-│   ├── js/                   ← tranzitii.js, proiecte.js (fereastra GitHub), cv.js
+│   ├── js/                   ← tranzitii.js, proiecte.js (fereastra GitHub), cv.js, autocomplete.js
 │   └── img/
 ├── sql/                      ← schema.sql, date-initiale.sql, utilizator.sql
 ├── teste/                    ← verificare.sh (site), verificare-bd.php (baza de date)
@@ -169,6 +170,9 @@ Măsurile deja implementate (detalii în [docs/documentatie.md](docs/documentati
   (`session_regenerate_id`), expirare după 30 de minute de inactivitate.
 - **CSRF:** token aleatoriu în formulare și în linkul de ieșire.
 - **Pagina protejată:** fără sesiune → `login.php`; `Cache-Control: no-store`.
+- **Autocomplete:** minimum 2 caractere, doar nume care încep cu textul, maximum 10; `%` refuzat și
+  `_` escapat în `LIKE`, ca nimeni să nu poată lista toți utilizatorii. Răspuns JSON cu `nosniff`.
+- **Biblioteci de pe CDN:** versiuni fixe și hash SRI (`integrity`).
 - **Secrete:** `www/includes/config.php` (parola bazei de date) este în `.gitignore`.
 - **Linkuri externe:** `rel="noopener noreferrer"` pe toate linkurile care se deschid în tab nou.
 

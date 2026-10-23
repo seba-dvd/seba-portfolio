@@ -145,3 +145,27 @@
 
 ### Următorul pas
 - M6: autocomplete jQuery pe câmpul de utilizator, după laboratorul 9.
+
+## 24.10.2026 – M6: autocomplete jQuery (v0.6.0)
+
+### Ce am făcut
+- Pe câmpul de utilizator din formularul de autentificare am pus completare automată cu jQuery UI (`js/autocomplete.js`).
+- Am scris `api/utilizatori.php`: primește textul tastat (`?term=`) și întoarce JSON cu cel mult 10 nume care încep cu el.
+- jQuery și jQuery UI se încarcă de pe code.jquery.com, cu versiuni fixe și hash SRI, doar pe pagina de autentificare.
+- Lista de sugestii folosește culorile site-ului, fără tema jQuery UI.
+- Am adăugat 14 teste; testul de sintaxă PHP verifică acum și folderul `api/`. Total: 118 verificări, toate trecute.
+- Laboratorul 9 nu a avut loc încă. Am folosit varianta standard din jQuery UI; dacă laboratorul folosește altceva, adaptez.
+- De acum fac singur commit-urile; Claude doar modifică fișierele.
+
+### Ce am învățat
+- AJAX: pagina cere date de la server fără reîncărcare, iar serverul răspunde cu JSON, nu cu HTML.
+- În `LIKE`, `%` înseamnă „orice text” și `_` „orice caracter”. Dacă nu le tratez, `?term=%` ar lista toți utilizatorii.
+- `X-Content-Type-Options: nosniff` obligă browserul să trateze răspunsul exact ca JSON.
+- SRI (`integrity`): browserul rulează biblioteca de pe CDN doar dacă hash-ul se potrivește.
+- Autocomplete-ul arată ce conturi există. E un compromis cerut de temă, pe care îl limitez (2 caractere, 10 rezultate).
+
+### Probleme întâlnite
+- Primul test pentru `_` nu verifica de fapt nimic: cele 12 conturi de test ocupau toate cele 10 locuri, deci contul `zzXtest_ac` n-ar fi apărut oricum. L-am refăcut cu un text pe care doar `zzXtest_ac` l-ar putea potrivi dacă `_` ar fi wildcard.
+
+### Următorul pas
+- M7: harta cu marcaje. Aștept răspunsul profesorului despre Leaflet și coloanele în plus pentru `points`.

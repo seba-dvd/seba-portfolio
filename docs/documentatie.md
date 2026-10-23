@@ -1,6 +1,6 @@
 # Documentație tehnică – site personal PAI
 
-Versiunea documentată: **v0.5.0** (24.10.2026), etapele M0–M5.
+Versiunea documentată: **v0.6.0** (24.10.2026), etapele M0–M6.
 Documentul descrie cum este construit site-ul și de ce; servește ca bază pentru raportul Word.
 
 ---
@@ -9,7 +9,7 @@ Documentul descrie cum este construit site-ul și de ce; servește ca bază pent
 
 Un site personal cu mai multe pagini (prezentare, proiecte, CV, contact), în română și engleză,
 la care se va adăuga o aplicație web cu bază de date MySQL: înregistrare, autentificare,
-autocomplete jQuery și o hartă a orașelor vizitate (baza de date în M3, conturile în M4–M5, restul în M6–M7).
+autocomplete jQuery și o hartă a orașelor vizitate (baza de date în M3, conturile în M4–M5, autocomplete în M6, harta în M7).
 
 ---
 
@@ -87,6 +87,7 @@ care se schimbă rar, deci un fișier PHP este suficient și mai simplu.
 | `cv.php` | CV formal, generat din dicționar. `js/cv.js` deschide fereastra de printare; `@media print` și `@page { size: A4 }` îl transformă într-o singură pagină A4. |
 | `contact.php` | Carduri-link (email, GitHub, LinkedIn). |
 | `login.php` | Cele două formulare (autentificare, cont nou), trimise prin POST la aceeași pagină; câmpul ascuns `actiune` le deosebește. |
+| `api/utilizatori.php` | JSON cu cel mult 10 nume de utilizator care încep cu `?term=`, pentru autocomplete. |
 | `harta.php` | Pagina protejată: mesajul de bun venit, locurile din `points`, linkul de ieșire. |
 | `logout.php` | Închide sesiunea dacă tokenul din adresă este corect. |
 | `404.php` | Trimite codul HTTP 404 (`http_response_code`) și o pagină în stilul site-ului. Folosită de Apache (`ErrorDocument`) și de `proiect.php`. |
@@ -190,6 +191,25 @@ site-ului personal nu pornesc sesiunea, deci vizitatorii lor nu primesc cookie.
 **Ieșire:** `logout.php?token=…` → `deconecteaza()`: golește `$_SESSION`, expiră cookie-ul,
 `session_destroy()`, apoi `login.php?iesire=1`. Fără token valid, nu se întâmplă nimic.
 
+### Completarea automată (M6)
+
+`login.php` încarcă jQuery 3.7.1 și jQuery UI 1.13.2 de pe code.jquery.com, cu `integrity`
+(hash SRI) și `crossorigin="anonymous"`; `includes/subsol.php` acceptă pentru asta intrări de forma
+`['src' => ..., 'integrity' => ...]`. Doar pagina de autentificare încarcă bibliotecile.
+
+`js/autocomplete.js` activează `autocomplete` pe `#login-user` (`minLength: 2`, `delay: 250`).
+jQuery UI trimite `api/utilizatori.php?term=...` și afișează numele cu `.text()`. Lista este
+stilizată în `style.css`, fără tema jQuery UI.
+
+`api/utilizatori.php`:
+1. Acceptă doar un șir de 2–30 de caractere permise într-un nume (`[A-Za-z0-9._-]`); altfel `[]`.
+2. `addcslashes($text, '%_\\')` + `%`: `_` devine caracter obișnuit, `%` final înseamnă „începe cu”.
+3. `SELECT user FROM users WHERE user LIKE ? ORDER BY user LIMIT 10` (interogare pregătită).
+4. `json_encode` cu `JSON_HEX_*`, antetele `Content-Type: application/json`,
+   `X-Content-Type-Options: nosniff`, `Cache-Control: no-store`.
+
+Lista arată ce conturi există (user enumeration): tema o cere; limitele de mai sus o reduc.
+
 ---
 
 ## 9. Securitate
@@ -216,6 +236,9 @@ site-ului personal nu pornesc sesiunea, deci vizitatorii lor nu primesc cookie.
 | **Session fixation** | `session_regenerate_id(true)` după autentificare; `use_strict_mode` | `includes/sesiune.php` |
 | Furtul cookie-ului de sesiune | `HttpOnly`, `SameSite=Lax`, `Secure` pe HTTPS, expirare la 30 de minute | `includes/sesiune.php` |
 | **CSRF** | Token aleatoriu în sesiune, `hash_equals`, în formulare și în linkul de ieșire | `login.php`, `logout.php` |
+| Listarea tuturor utilizatorilor prin autocomplete | Minimum 2 caractere, „începe cu”, `LIMIT 10`, `%` refuzat, `_` escapat | `api/utilizatori.php` |
+| JSON interpretat ca HTML | `application/json`, `nosniff`, `JSON_HEX_*` | `api/utilizatori.php` |
+| Bibliotecă modificată pe CDN | Versiuni fixe + `integrity` (SRI) | `login.php`, `includes/subsol.php` |
 | Pagina protejată în cache / istoric | `Cache-Control: no-store`, redirecționare fără sesiune | `includes/auth.php` |
 
 ---
@@ -234,7 +257,7 @@ site-ului personal nu pornesc sesiunea, deci vizitatorii lor nu primesc cookie.
 ## 11. Testare
 
 ### Teste automate
-`bash teste/verificare.sh` (Apache și MySQL pornite). Rezultat pe 24.10.2026: **103 / 103 trecute**.
+`bash teste/verificare.sh` (Apache și MySQL pornite). Rezultat pe 24.10.2026: **118 / 118 trecute**.
 
 | Grup | Ce verifică |
 |---|---|
@@ -247,6 +270,7 @@ site-ului personal nu pornesc sesiunea, deci vizitatorii lor nu primesc cookie.
 | Atacuri | `?lang=../../...`, `en%00`, `EN`, `fr`, `<script>`, cookie falsificat → rămâne română |
 | Escapare | Un `<script>` trimis în adresă nu apare neescapat în pagină |
 | Conturi și sesiuni | Prin formularele reale: fără token CSRF, nume `<b>x</b>`, parolă scurtă, parole diferite, cont nou, hash `$2y$` în baza de date, nume dublat (și cu majuscule), cookie `HttpOnly` / `SameSite`, identificator nou după autentificare, `no-store`, ieșire fără și cu token, parolă greșită, nume inexistent, `x' OR '1'='1`. Conturile `zz_test_*` sunt șterse la final. |
+| Autocomplete | JSON cu `nosniff`, un nume găsit după început (și cu majuscule), maximum 10, nimic pentru o literă, `%%`, `__`, `x' OR '1'='1`, `<script>`, gol sau tablou; `_` nu este wildcard (`zzXtest_ac` nu apare pentru `zz_test_ac`); jQuery UI cu SRI |
 | Baza de date | `teste/verificare-bd.php`: conectarea ca `pai_app`, `utf8mb4`, coloanele, diacriticele, `x' OR '1'='1` nu găsește pe nimeni, `UNIQUE` (1062), `CHECK` (4025), `pai_app` nu poate `DELETE` / `UPDATE` / `DROP` / citi `mysql.user` (1142) |
 
 Rândurile de test sunt adăugate într-o tranzacție anulată la final (`mysqli_rollback`), deci
