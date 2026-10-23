@@ -37,6 +37,15 @@ function deschide(card) {
         incarcaGithub(repo);
     }
 
+    // Link to the project's own page (proiect.php?id=...)
+    const detalii = card.querySelector('a.detalii');
+    if (detalii) {
+        const link = element('a', 'Pagina proiectului →', 'link');
+        link.href = detalii.href;
+        zonaGithub.append(element('p', null, 'fereastra-detalii'));
+        zonaGithub.lastChild.append(link);
+    }
+
     fereastra.showModal();
 }
 
@@ -78,8 +87,12 @@ async function incarcaGithub(repo) {
 
 // Open on click, or on Enter/Space for keyboard users
 document.querySelectorAll('.proiect').forEach(card => {
-    card.addEventListener('click', () => deschide(card));
+    card.addEventListener('click', e => {
+        if (e.target.closest('a')) return;          // a click on "./detalii" follows the link
+        deschide(card);
+    });
     card.addEventListener('keydown', e => {
+        if (e.target !== card) return;              // Enter on the link inside follows the link
         if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
             deschide(card);

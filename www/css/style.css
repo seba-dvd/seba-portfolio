@@ -496,6 +496,40 @@ footer {
     color: var(--accent-2);
 }
 
+/* ===== Project detail page (proiect.php) ===== */
+.proiect-detaliu {
+    max-width: 760px;
+    margin: 0 auto;
+}
+
+.proiect-detaliu h1 {
+    color: var(--accent);
+    margin: 12px 0;
+}
+
+.proiect-detaliu h2 {
+    color: var(--accent-2);
+    font-size: 1.1em;
+    margin: 24px 0 10px;
+}
+
+.proiect-scurt {
+    font-size: 1.05em;
+    line-height: 1.7;
+}
+
+.functii li {
+    margin: 6px 0;
+}
+
+.echipa.proiect-detaliu h1 {
+    color: var(--accent-2);
+}
+
+.fereastra-detalii {
+    margin-top: 14px;
+}
+
 /* Cards are clickable */
 .proiect {
     cursor: pointer;
