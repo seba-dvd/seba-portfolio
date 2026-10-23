@@ -5,7 +5,7 @@
     --text: #1c2b26;
     --text-slab: #5b6f68;       /* secondary text: grey-green */
     --accent: #0f766e;          /* main colour: teal */
-    --accent-2: #f59e0b;        /* fun colour: amber */
+    --accent-2: #f59e0b;        /* fun colour: amber */ 
     --font: "Segoe UI", Arial, sans-serif;
     --raza: 14px;               /* corner rounding */
     --umbra: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -584,6 +584,48 @@ footer {
     color: var(--fundal);
 }
 
+/* ===== About page ===== */
+.despre-intro {
+    display: grid;
+    grid-template-columns: 2fr 1fr;       /* story wide, "now" card narrow */
+    gap: 18px;
+    align-items: start;
+    margin-bottom: 32px;
+}
+
+.despre-intro h1 {
+    margin-top: 0;
+    color: var(--accent);
+}
+
+/* The "Acum lucrez la" card: amber outline so it stands out */
+.acum {
+    border: 2px solid var(--accent-2);
+    position: sticky;                     /* stays in view while the story scrolls */
+    top: 16px;
+}
+
+.acum-eticheta {
+    margin: 0;
+    color: var(--accent-2);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.85em;
+}
+
+.grid-hobby {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 18px;
+    margin-bottom: 32px;
+}
+
+.grid-hobby h3 {
+    margin: 8px 0;
+    color: var(--accent);
+}
+
 /* ===== Phones and narrow screens ===== */
 @media (max-width: 760px) {
     nav {
@@ -618,6 +660,14 @@ footer {
 
     .insigna-1 { left: -20px; }
     .insigna-2 { right: -20px; top: 100px; }
+
+    .despre-intro {
+        grid-template-columns: 1fr;
+    }
+
+    .acum {
+        position: static;
+    }
 
     .bento {
         grid-template-columns: 1fr;

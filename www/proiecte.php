@@ -181,11 +181,12 @@
             <article class="card proiect echipa" data-repo="hsilviu05/CodeStorm" tabindex="0" role="button" aria-haspopup="dialog">
                 <div class="proiect-cap">
                     <span class="icon">📚</span>
-                    <span class="eticheta">echipă · 4 membri</span>
+                    <span class="eticheta">echipă · hackathon</span>
                 </div>
                 <h3>EduDocSync (CodeStorm)</h3>
                 <p>
-                    Aplicație client-server care procesează documente academice în PDF
+                    Realizat la hackathonul Transilvania CodeStorm @ MI (ediția a 2-a), într-o echipă de 4:
+                    aplicație client-server care procesează documente academice în PDF
                     (planuri de învățământ, fișe de disciplină): extragere de text, OCR și dashboard.
                 </p>
                 <!-- TODO: write your role, e.g. "backend – OCR service" -->
