@@ -185,10 +185,70 @@ verifica "term[]=zz (array) gives nothing" '[]' "$(curl -s "$API?term[]=zz")"
 verifica "login.php loads jQuery UI with an SRI hash" 2 \
     "$(curl -s "$SITE/login.php" | grep -c 'code.jquery.com.*integrity="sha256-')"
 
+echo "11. Admin panel"
+# $J1 is still logged in as the ordinary test user $U
+verifica "admin.php without login → login.php" 303 "$(cod "$SITE/admin.php")"
+verifica "admin.php for an ordinary user → 403" 403 "$(cod -c "$J1" -b "$J1" "$SITE/admin.php")"
+verifica "no admin link on the map for an ordinary user" 0 "$(curl -s -c "$J1" -b "$J1" "$SITE/harta.php" | grep -c 'href="admin.php"')"
+TU=$(curl -s -c "$J1" -b "$J1" "$SITE/harta.php" | grep -o 'logout.php?token=[a-f0-9]*' | head -1 | cut -d= -f2)
+verifica "an ordinary user can't delete a place (POST → 403)" 403 "$(cod -c "$J1" -b "$J1" \
+    -d actiune=sterge_loc -d id=1 -d "csrf=$TU" "$SITE/admin.php")"
+verifica "… and the place is still there" 1 "$("$MYSQL" -u root -N -e "SELECT COUNT(*) FROM pai_proiect.points WHERE ID = 1" 2>/dev/null)"
+verifica "403.php answers 403" 403 "$(cod "$SITE/403.php")"
+
+# The full flow needs an admin account (listed in config.php 'admini'):
+#     ADMIN_USER=seba ADMIN_PASS='...' bash teste/verificare.sh
+if [ -n "$ADMIN_USER" ] && [ -n "$ADMIN_PASS" ]; then
+    J3="$(mktemp)"
+    T3=$(token "$J3")
+    # Create the account if it doesn't exist yet (an existing one just gives "taken")
+    trimite "$J3" -o /dev/null -d actiune=inregistrare -d "csrf=$T3" --data-urlencode "user=$ADMIN_USER" \
+        --data-urlencode "password=$ADMIN_PASS" --data-urlencode "password2=$ADMIN_PASS"
+    if [ "$(cod -c "$J3" -b "$J3" "$SITE/harta.php")" != 200 ]; then
+        T3=$(token "$J3")
+        trimite "$J3" -o /dev/null -d actiune=login -d "csrf=$T3" --data-urlencode "user=$ADMIN_USER" --data-urlencode "password=$ADMIN_PASS"
+    fi
+    verifica "admin.php for an admin → 200" 200 "$(cod -c "$J3" -b "$J3" "$SITE/admin.php")"
+    verifica "the map shows the admin link to an admin" 1 "$(curl -s -c "$J3" -b "$J3" "$SITE/harta.php" | grep -c 'href="admin.php"')"
+    TA=$(curl -s -c "$J3" -b "$J3" "$SITE/admin.php" | grep -o 'name="csrf" value="[^"]*"' | head -1 | cut -d'"' -f4)
+    admin_post() { curl -s -c "$J3" -b "$J3" "$@" "$SITE/admin.php"; }
+
+    verifica "a change without CSRF token is refused" 1 "$(are "$(admin_post -d actiune=salveaza_loc -d lat=45 -d long=25 \
+        -d description=zz_test_loc)" 'Formularul a expirat')"
+    verifica "latitude 100 is refused" 1 "$(are "$(admin_post -d actiune=salveaza_loc -d "csrf=$TA" -d lat=100 -d long=25 \
+        -d description=zz_test_loc)" 'Latitudinea trebuie')"
+    verifica "an empty description is refused" 1 "$(are "$(admin_post -d actiune=salveaza_loc -d "csrf=$TA" -d lat=45 -d long=25 \
+        -d description=)" 'Descrierea trebuie')"
+    verifica "add a place → 303" 303 "$(admin_post -o /dev/null -w '%{http_code}' -d actiune=salveaza_loc -d "csrf=$TA" \
+        -d lat=45,5 -d long=25.1 --data-urlencode 'description=zz_test_loc <b>x</b>')"
+    IDL=$("$MYSQL" -u root -N -e "SELECT ID FROM pai_proiect.points WHERE description LIKE 'zz\\_test\\_loc%'" 2>/dev/null)
+    verifica "… it is in the database (a comma works as decimal point)" "45.500000" \
+        "$("$MYSQL" -u root -N -e "SELECT lat FROM pai_proiect.points WHERE ID = '$IDL'" 2>/dev/null)"
+    verifica "… and shown escaped in the panel" 1 "$(are "$(admin_post)" 'zz_test_loc &lt;b&gt;x&lt;/b&gt;')"
+    verifica "edit the place → 303" 303 "$(admin_post -o /dev/null -w '%{http_code}' -d actiune=salveaza_loc -d "csrf=$TA" \
+        -d "id=$IDL" -d lat=46 -d long=24 -d description=zz_test_loc_modificat)"
+    verifica "… the change is saved" "zz_test_loc_modificat" \
+        "$("$MYSQL" -u root -N -e "SELECT description FROM pai_proiect.points WHERE ID = '$IDL'" 2>/dev/null)"
+    verifica "delete the place → 303" 303 "$(admin_post -o /dev/null -w '%{http_code}' -d actiune=sterge_loc -d "csrf=$TA" -d "id=$IDL")"
+    verifica "… it is gone" 0 "$("$MYSQL" -u root -N -e "SELECT COUNT(*) FROM pai_proiect.points WHERE ID = '$IDL'" 2>/dev/null)"
+
+    IDA=$("$MYSQL" -u root -N -e "SELECT ID FROM pai_proiect.users WHERE user = '$ADMIN_USER'" 2>/dev/null)
+    admin_post -o /dev/null -d actiune=sterge_utilizator -d "csrf=$TA" -d "id=$IDA"
+    verifica "an admin account can't be deleted" 1 "$("$MYSQL" -u root -N -e "SELECT COUNT(*) FROM pai_proiect.users WHERE ID = '$IDA'" 2>/dev/null)"
+    IDU=$("$MYSQL" -u root -N -e "SELECT ID FROM pai_proiect.users WHERE user = '$U'" 2>/dev/null)
+    verifica "delete an ordinary user → 303" 303 "$(admin_post -o /dev/null -w '%{http_code}' -d actiune=sterge_utilizator \
+        -d "csrf=$TA" -d "id=$IDU")"
+    verifica "… the deleted user is logged out" 303 "$(cod -c "$J1" -b "$J1" "$SITE/harta.php")"
+    rm -f "$J3"
+    "$MYSQL" -u root -e "DELETE FROM pai_proiect.points WHERE description LIKE 'zz\\_test\\_loc%'" 2>/dev/null
+else
+    echo "  (skipped the admin flow: set ADMIN_USER and ADMIN_PASS to an admin account to run it)"
+fi
+
 "$MYSQL" -u root -e "DELETE FROM pai_proiect.users WHERE user LIKE 'zz\\_test\\_%' OR user = 'zzXtest_ac'" 2>/dev/null \
     || echo "  (could not remove the test users: run as root: DELETE FROM pai_proiect.users WHERE user LIKE 'zz\\_test\\_%')"
 
-# 11. Database (teste/verificare-bd.php prints its own ok / FAIL lines)
+# 12. Database (teste/verificare-bd.php prints its own ok / FAIL lines)
 IESIRE_BD=$("$PHP" "$DIR/teste/verificare-bd.php" 2>&1)
 echo "$IESIRE_BD" | grep -v '^Database passed' | sed '/^$/d'
 TRECUTE=$((TRECUTE + $(echo "$IESIRE_BD" | grep -c '^  ok ')))

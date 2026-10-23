@@ -37,7 +37,7 @@ function codEroare(mysqli $bd, string $sql): int
 
 $bd = conectareBd();
 
-echo "11. Database\n";
+echo "12. Database\n";
 verifica('connected as pai_app', 'pai_app@localhost',
     mysqli_fetch_row(mysqli_query($bd, 'SELECT CURRENT_USER()'))[0]);
 verifica('connection charset is utf8mb4', 'utf8mb4', mysqli_character_set_name($bd));
@@ -72,6 +72,20 @@ verifica('pai_app cannot DELETE', 1142, codEroare($bd, 'DELETE FROM points WHERE
 verifica('pai_app cannot UPDATE', 1142, codEroare($bd, 'UPDATE users SET user = user WHERE ID = 0'));
 verifica('pai_app cannot DROP', 1142, codEroare($bd, 'DROP TABLE points'));
 verifica('pai_app cannot read the mysql database', 1142, codEroare($bd, 'SELECT user FROM mysql.user'));
+
+// pai_admin (admin panel): may change places and delete users, nothing more
+$admin = conectareBd(true);
+verifica('connected as pai_admin', 'pai_admin@localhost',
+    mysqli_fetch_row(mysqli_query($admin, 'SELECT CURRENT_USER()'))[0]);
+mysqli_begin_transaction($admin);
+verifica('pai_admin can UPDATE points', 0, codEroare($admin, 'UPDATE points SET description = description WHERE ID = 0'));
+verifica('pai_admin can DELETE from points', 0, codEroare($admin, 'DELETE FROM points WHERE ID = 0'));
+verifica('pai_admin can DELETE from users', 0, codEroare($admin, 'DELETE FROM users WHERE ID = 0'));
+mysqli_rollback($admin);
+verifica('pai_admin cannot change users (no password resets)', 1142, codEroare($admin, 'UPDATE users SET password = password WHERE ID = 0'));
+verifica('pai_admin cannot create users', 1142, codEroare($admin, "INSERT INTO users (user, password) VALUES ('x', 'x')"));
+verifica('pai_admin cannot DROP', 1142, codEroare($admin, 'DROP TABLE points'));
+verifica('pai_admin cannot read the mysql database', 1142, codEroare($admin, 'SELECT user FROM mysql.user'));
 
 echo "\nDatabase passed: $trecute   failed: $picate\n";
 exit($picate === 0 ? 0 : 1);
