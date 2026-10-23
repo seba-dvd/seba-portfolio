@@ -125,6 +125,13 @@ HARTA=$(curl -s -D - -c "$J1" -b "$J1" "$SITE/harta.php")
 verifica "harta.php greets the user" 1 "$(are "$HARTA" "Bine ai venit, $U!")"
 verifica "harta.php is not cached (no-store)" 1 "$(echo "$HARTA" | grep -c -i '^cache-control: no-store')"
 verifica "harta.php has the map and its data" 2 "$(echo "$HARTA" | grep -c -E 'id="harta"|id="date-harta"')"
+verifica "harta.php shows the level, the XP bar and 6 achievements" 1 \
+    "$([ "$(printf '%s\n' "$HARTA" | grep -c '<li class="realizare')" = 6 ] \
+        && printf '%s\n' "$HARTA" | grep -q '<progress class="bara-xp"' \
+        && printf '%s\n' "$HARTA" | grep -q 'class="nivel-insigna"' && echo 1 || echo 0)"
+verifica "harta.php has the explore bar (hidden until JavaScript starts it)" 1 \
+    "$(printf '%s\n' "$HARTA" | grep -c '<div class="explorare" id="explorare" tabindex="0" hidden')"
+verifica "the map data has the distance from home" 1 "$(are "$HARTA" '"distanta_km":')"
 verifica "the map library is Leaflet with SRI or Google Maps" 1 \
     "$(echo "$HARTA" | grep -c -E 'leaflet\.js" integrity="sha256-|maps\.googleapis\.com' | sed 's/[2-9]/1/')"
 # A description with HTML in the database must stay text, in the list and in the JSON for the map
@@ -256,6 +263,16 @@ PICATE=$((PICATE + $(echo "$IESIRE_BD" | grep -c '^  FAIL ')))
 if ! echo "$IESIRE_BD" | grep -q '^Database passed'; then
     PICATE=$((PICATE + 1))            # the script stopped early (MySQL off, no config.php)
     echo "  FAIL  database checks did not run (is MySQL started?)"
+fi
+
+# 13. Travel progress (teste/verificare-progres.php, no server needed)
+IESIRE_PROGRES=$("$PHP" "$DIR/teste/verificare-progres.php" 2>&1)
+echo "$IESIRE_PROGRES" | grep -v '^Progress passed' | sed '/^$/d'
+TRECUTE=$((TRECUTE + $(echo "$IESIRE_PROGRES" | grep -c '^  ok ')))
+PICATE=$((PICATE + $(echo "$IESIRE_PROGRES" | grep -c '^  FAIL ')))
+if ! echo "$IESIRE_PROGRES" | grep -q '^Progress passed'; then
+    PICATE=$((PICATE + 1))
+    echo "  FAIL  progress checks did not run"
 fi
 
 echo
