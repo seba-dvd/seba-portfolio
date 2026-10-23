@@ -1,6 +1,6 @@
 # Documentație tehnică – site personal PAI
 
-Versiunea documentată: **v0.8.0** (24.10.2026), etapele M0–M7 și panoul de administrare.
+Versiunea documentată: **v0.9.0** (24.10.2026), etapele M0–M7, panoul de administrare și progresul pe hartă.
 Documentul descrie cum este construit site-ul și de ce; servește ca bază pentru raportul Word.
 
 ---
@@ -64,6 +64,7 @@ istoricul git (`.git`) stau în afara lui și nu pot fi cerute de nimeni.
 | `sesiune.php` | Pornește sesiunea (cookie securizat), `utilizatorConectat()`, `conecteaza()`, `deconecteaza()`, `tokenCsrf()`, `verificaCsrf()`. |
 | `auth.php` | Paza paginilor protejate: fără sesiune → `login.php`; altfel `$utilizator` și `Cache-Control: no-store`. |
 | `db-admin.php` | Funcțiile panoului: locuri (adăugare, modificare, ștergere), conturi (listă, ștergere), toate cu `conectareBd(true)` (contul `pai_admin`). |
+| `progres.php` | `distantaKm()` (haversine) și `progresCalatorii()`: XP, nivel, realizări, distanțele de acasă. Fără bază de date, deci ușor de testat. |
 | `leaflet.php` | Constanta `LEAFLET`: adresele și hash-urile SRI ale Leaflet, folosite de hartă și de panou. |
 | `config.php` | Datele de conectare la baza de date. Ignorat de git; modelul este `config.example.php`. |
 | `proiecte-date.php` | Un array cu cele 8 proiecte: tip (solo/echipă), texte RO/EN, tehnologii, depozit GitHub. |
@@ -244,6 +245,36 @@ activată, chiar și în limitele gratuite. Un abonament Gemini nu ajută: este 
 meniul. `includes/antet.php` acceptă `$stiluri` (CSS de pe CDN cu SRI), `includes/subsol.php`
 acceptă scripturi `async` fără SRI.
 
+### Progresul călătoriilor și turul locurilor
+
+Pagina hărții are un panou în stil de joc, calculat pe server din locurile din `points`
+(`includes/progres.php`), deci apare și fără JavaScript:
+
+- **Acasă** este locul cu cel mai mic `ID` (primul adăugat); distanțele se calculează de acolo, cu
+  formula haversine (raza Pământului 6371 km).
+- **XP:** 100 pentru fiecare loc + 50 pentru fiecare realizare deblocată. **Nivel:** ⌊XP / 250⌋ + 1;
+  bara de progres (`<progress>`) arată XP-ul din nivelul curent.
+- **Realizări:**
+
+| Realizare | Condiție |
+|---|---|
+| 👣 Primul pas | cel puțin un loc |
+| 🧭 Explorator | cel puțin 5 locuri |
+| 🎒 Călător | cel puțin 10 locuri |
+| 🚗 Drum lung | un loc la peste 100 km de casă |
+| ✈️ Departe de casă | un loc la peste 500 km de casă |
+| 🌐 Roza vânturilor | locuri la nord, sud, est și vest de casă (fiecare la cel puțin 0,1°) |
+
+  Realizările blocate sunt estompate și au textul „🔒 blocată”, nu doar altă culoare.
+
+**Turul locurilor** (`js/harta.js`, obiectul `explorare`): bara ◀ ▶ de sub hartă trece prin locuri în
+ordinea adăugării, ca prin nivelurile unui joc. Harta zboară la loc (`flyTo` în Leaflet, `panTo` în
+Google; fără animație cu `prefers-reduced-motion`) și îi deschide fereastra; textul arată „Locul 2 din 7”,
+numele și distanța de casă (`distanta_km`, trimisă din PHP în JSON). Merge și cu săgețile stânga / dreapta,
+iar un click pe un marcaj continuă turul de acolo. Fiecare furnizor de hărți își dă propria funcție
+`mergiLa(i)`, deci turul funcționează în modul demo, în modul Google și în harta de rezervă. Bara este
+ascunsă (`hidden`) până o pornește JavaScript.
+
 ### Panoul de administrare
 
 **Cine are acces:** numele din `config.php` → `'admini' => ['seba']`, comparate fără diferență de
@@ -325,7 +356,7 @@ verifică la fiecare pagină protejată dacă numele mai există.
 ## 11. Testare
 
 ### Teste automate
-`bash teste/verificare.sh` (Apache și MySQL pornite). Rezultat pe 24.10.2026: **141 / 141 trecute**; cu `ADMIN_USER` și `ADMIN_PASS`, **156 / 156**.
+`bash teste/verificare.sh` (Apache și MySQL pornite). Rezultat pe 24.10.2026: **163 / 163 trecute**; cu `ADMIN_USER` și `ADMIN_PASS`, **178 / 178**.
 
 | Grup | Ce verifică |
 |---|---|
@@ -339,6 +370,8 @@ verifică la fiecare pagină protejată dacă numele mai există.
 | Escapare | Un `<script>` trimis în adresă nu apare neescapat în pagină |
 | Conturi și sesiuni | Prin formularele reale: fără token CSRF, nume `<b>x</b>`, parolă scurtă, parole diferite, cont nou, hash `$2y$` în baza de date, nume dublat (și cu majuscule), cookie `HttpOnly` / `SameSite`, identificator nou după autentificare, `no-store`, ieșire fără și cu token, parolă greșită, nume inexistent, `x' OR '1'='1`. Conturile `zz_test_*` sunt șterse la final. |
 | Hartă | Pagina protejată are harta și datele ei, biblioteca (Leaflet cu SRI sau Google); descrierea `<img src=x onerror=alert(1)>` introdusă în baza de date apare escapată în listă, ca `\u003C` în JSON și nicăieri ca etichetă reală |
+| Progres (`teste/verificare-progres.php`) | Distanțe (Brașov–Codlea ≈ 12,6 km, Brașov–București ≈ 141 km), fără locuri, 2 / 5 / 10 locuri, „acasă” = cel mai mic `ID`, drum lung, departe de casă, roza vânturilor (4 direcții da, 3 nu), calculul XP și al nivelului |
+| Pagina hărții | Nivelul, bara XP, cele 6 realizări, bara de explorare ascunsă până la pornirea JavaScript, `distanta_km` în JSON |
 | Panou de administrare | Fără autentificare → `login.php`; utilizator obișnuit → 403 (și pentru POST), fără link în pagină; `403.php`. Cu un cont de administrator: CSRF, latitudine 100, descriere goală, adăugare (virgula ca separator), escapare în panou, modificare, ștergere, contul de administrator nu poate fi șters, ștergerea unui cont îl deconectează |
 | Autocomplete | JSON cu `nosniff`, un nume găsit după început (și cu majuscule), maximum 10, nimic pentru o literă, `%%`, `__`, `x' OR '1'='1`, `<script>`, gol sau tablou; `_` nu este wildcard (`zzXtest_ac` nu apare pentru `zz_test_ac`); jQuery UI cu SRI |
 | Baza de date (`pai_admin`) | Poate `UPDATE` / `DELETE` pe `points` și `DELETE` pe `users` (în tranzacție anulată); nu poate schimba sau crea conturi, nu poate `DROP`, nu poate citi `mysql.user` |

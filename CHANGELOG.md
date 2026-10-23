@@ -6,6 +6,17 @@ and versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-10-24
+The map page feels like a game: travel progress, achievements and a tour of the places.
+
+### Added
+- Travel progress on `harta.php`: a level badge, an XP bar and counters (places, farthest place from home, achievements, total XP)
+- Six achievements: First step, Explorer, Traveller, Long road, Far from home, Compass rose; locked ones are faded and marked "locked"
+- Explore mode: ◀ ▶ under the map (or the arrow keys) fly from place to place, open it, and show "Place 2 of 7", the name and the distance from home; works with Leaflet, Google and the fallback map
+- `includes/progres.php`: `distantaKm()` (haversine) and `progresCalatorii()`, computed on the server
+- `teste/verificare-progres.php`: 18 checks for distances, achievements, XP and levels; 3 checks for the map page (163 checks in total, 178 with the admin flow)
+- Report: section on the travel progress and the tour, with a screenshot
+
 ## [0.8.0] - 2026-10-24
 An admin panel for the places and the user accounts.
 

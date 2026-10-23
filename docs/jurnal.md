@@ -231,3 +231,21 @@
 
 ### De completat
 - Creez contul `seba` din pagina de autentificare (sau pun alt nume în `config.php` la `admini`).
+
+## 24.10.2026 – Harta în stil de joc: progres, realizări, tur (v0.9.0)
+
+### Ce am făcut
+- Pe pagina hărții am adăugat un panou de joc: nivelul de călător, bara de XP și câteva contoare (locuri, cel mai îndepărtat loc, realizări, XP).
+- Am adăugat 6 realizări: Primul pas, Explorator, Călător, Drum lung, Departe de casă, Roza vânturilor. Cele blocate apar estompate, cu „🔒 blocată”.
+- Am făcut turul locurilor: butoanele ◀ ▶ de sub hartă (sau săgețile) duc harta de la un loc la altul și arată distanța de casă. Merge cu Leaflet și cu Google.
+- Calculele sunt în PHP (`includes/progres.php`) și au teste proprii (`teste/verificare-progres.php`): 163 de verificări, toate trecute.
+
+### Ce am învățat
+- Formula haversine: distanța în linie dreaptă pe suprafața Pământului, din latitudine și longitudine.
+- Calculele făcute pe server pot fi testate fără browser, iar panoul apare și fără JavaScript.
+- `<progress>` este bara de progres nativă din HTML; o pot stiliza, iar cititoarele de ecran o înțeleg.
+- O realizare blocată nu se marchează doar prin culoare; are și textul „blocată”.
+
+### Probleme întâlnite
+- Două teste au picat din cauza așteptărilor mele, nu a codului: Brașov–București are în linie dreaptă aproximativ 141 km, nu 136, iar București (sud-est) plus Paris (nord-vest) deblochează pe bună dreptate „Roza vânturilor”.
+- Un test număra și iconițele realizărilor (`class="realizare-icon"`); acum numără doar elementele `<li>`.

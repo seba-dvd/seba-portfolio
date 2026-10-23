@@ -8,7 +8,7 @@ Site-ul are două fețe: paginile personale (Acasă, Despre, CV, Contact) în te
 și paginile tehnice (Proiecte) în tema **cyber**, cu tranziții animate între ele.
 Este disponibil în **română și engleză**.
 
-**Versiunea curentă:** v0.8.0 (etapele M0–M7 și panoul de administrare). Istoricul complet: [CHANGELOG.md](CHANGELOG.md).
+**Versiunea curentă:** v0.9.0 (etapele M0–M7, panoul de administrare, progresul pe hartă). Istoricul complet: [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
@@ -24,7 +24,7 @@ Este disponibil în **română și engleză**.
 | **Contact** (`contact.php`) | Email, GitHub, LinkedIn, locație |
 | **404** (`404.php`) | Pagina pentru adrese inexistente |
 | **Autentificare** (`login.php`) | Formularele de autentificare și de cont nou; completare automată (jQuery UI) pe numele de utilizator |
-| **Hartă** (`harta.php`) | Pagina protejată: „Bine ai venit, <utilizator>!”, harta cu un marcaj pentru fiecare loc din baza de date, lista locurilor, ieșire |
+| **Hartă** (`harta.php`) | Pagina protejată: „Bine ai venit, <utilizator>!”, nivelul de călător (XP, realizări), harta cu un marcaj pentru fiecare loc și turul locurilor (◀ ▶), lista locurilor, ieșire |
 | **Ieșire** (`logout.php?token=…`) | Închide sesiunea |
 | **Administrare** (`admin.php`) | Doar pentru administratori: adaugă, modifică și șterge locurile (cu alegerea punctului pe hartă), șterge conturi, statistici |
 | **403** (`403.php`) | Acces interzis (Apache și panoul de administrare) |
@@ -122,14 +122,14 @@ Cu Apache și MySQL pornite, în Git Bash, din folderul proiectului:
 ```bash
 bash teste/verificare.sh
 ```
-Scriptul face 141 de verificări: sintaxa PHP, cheile dicționarelor, răspunsul fiecărei pagini,
+Scriptul face 163 de verificări: sintaxa PHP, cheile dicționarelor, răspunsul fiecărei pagini,
 erorile 404, folderele blocate, schimbarea limbii, încercările de atac pe parametri, conturile și
-sesiunile (prin formularele reale), harta, completarea automată și baza de date (structura, constrângerile, drepturile contului
+sesiunile (prin formularele reale), harta, completarea automată, baza de date și progresul de pe hartă (structura, constrângerile, drepturile contului
 `pai_app`, interogările pregătite). Conturile de test sunt șterse la final (cu `root`).
 Verificările bazei de date se pot rula și separat: `php teste/verificare-bd.php`.
 
 Cu un cont de administrator, testele parcurg și panoul de administrare (adăugare, modificare,
-ștergere de locuri și conturi), 156 de verificări în total:
+ștergere de locuri și conturi), 178 de verificări în total:
 ```bash
 ADMIN_USER=seba ADMIN_PASS='parola ta' bash teste/verificare.sh
 ```
@@ -156,6 +156,7 @@ pai-proiect/
 │   │   ├── auth.php          ← paza paginilor protejate
 │   │   ├── db-admin.php      ← interogările panoului (contul pai_admin)
 │   │   ├── leaflet.php       ← adresele și hash-urile SRI ale Leaflet
+│   │   ├── progres.php       ← XP, nivel, realizări, distanțe (pagina hărții)
 │   │   ├── config.example.php ← model pentru config.php (parola, ignorat de git)
 │   │   ├── proiecte-date.php ← datele celor 8 proiecte (RO și EN)
 │   │   └── lang/ro.php, lang/en.php ← toate textele site-ului
@@ -163,7 +164,7 @@ pai-proiect/
 │   ├── js/                   ← tranzitii.js, proiecte.js (fereastra GitHub), cv.js, autocomplete.js, harta.js, admin.js
 │   └── img/
 ├── sql/                      ← schema.sql, date-initiale.sql, utilizator.sql, admin.sql
-├── teste/                    ← verificare.sh (site), verificare-bd.php (baza de date)
+├── teste/                    ← verificare.sh (site), verificare-bd.php (baza de date), verificare-progres.php
 ├── docs/                     ← enunțul, carta proiectului, documentația, jurnalul, raportul
 ├── CHANGELOG.md
 └── README.md
