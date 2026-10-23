@@ -53,3 +53,34 @@
 
 ### Următorul pas
 - M2: elemente PHP comune (antet, subsol), site bilingv RO/EN, datele proiectelor într-un array PHP.
+
+
+## 23.10.2026 – M2: PHP de bază și site bilingv (v0.3.0)
+
+### Ce am făcut
+- Am mutat `<head>`, meniul și subsolul în `www/includes/antet.php` și `subsol.php`. Fiecare pagină începe acum cu câteva variabile (`$pagina`, `$temaCyber`) și un `require`.
+- Am mutat datele celor 8 proiecte într-un array PHP (`includes/proiecte-date.php`). Pagina Proiecte le afișează cu `foreach`, iar fiecare proiect are pagina lui: `proiect.php?id=N`.
+- Am făcut site-ul bilingv: toate textele stau în `includes/lang/ro.php` și `en.php`, cu aceleași chei. Comutatorul RO | EN din meniu păstrează alegerea într-un cookie.
+- Am adăugat `.htaccess` (fără listarea folderelor, `includes/` blocat) și o pagină 404 proprie.
+- Am scris un script de teste (`teste/verificare.sh`, 50 de verificări), un README și documentația tehnică (`docs/documentatie.md`).
+- Ca și la M1, Claude (asistent AI) m-a ajutat cu explicații, cu o parte din cod și cu revizuirea lui; am rulat testele și am verificat paginile în browser.
+
+### Ce am învățat
+- `require` și `require_once`: codul comun scris o singură dată.
+- `foreach`, `array_filter`, `array_slice` și funcțiile săgeată (`fn`) pentru a genera HTML din date.
+- `filter_input(..., FILTER_VALIDATE_INT)`: o adresă poate conține orice, deci orice parametru se validează.
+- `htmlspecialchars` (funcția `e()`): textul afișat nu poate deveni cod HTML (protecție XSS).
+- *Local File Inclusion*: o valoare din adresă nu se pune niciodată într-o cale de fișier; folosesc o listă permisă.
+- Cookie-uri cu `setcookie()`: `HttpOnly`, `SameSite`; redirecționarea 303 după schimbarea limbii (Post/Redirect/Get, aici pentru GET).
+- `http_response_code(404)` și `ErrorDocument` din `.htaccess`.
+- `json_encode` cu `JSON_HEX_*`, ca textele trimise către JavaScript să nu poată închide tag-ul `<script>`.
+
+### Probleme întâlnite
+- Pentru pagina 404 inclusă din `proiect.php`, titlul trebuia ales după ce se încarcă limba; am rezolvat cu `$cheieTitlu`.
+- Un `git rm --cached` greșit a scos `sql/.gitkeep` dintr-un commit; commitul nu era încă publicat, așa că l-am corectat cu `git commit --amend`.
+
+### De completat
+- Aceleași date ca la M1: email, LinkedIn, anii din parcurs, rolul în CodeStorm, TryHackMe / HackTheBox, limbile străine.
+
+### Următorul pas
+- M3: baza de date MySQL (`users`, `points`), `sql/schema.sql`, conexiunea `mysqli` cu prepared statements, după laboratorul 3.
