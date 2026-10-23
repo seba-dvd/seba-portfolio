@@ -208,3 +208,26 @@
 ### Ce am învățat
 - Cheia unei hărți Google se vede în codul paginii, deci nu poate fi secretă. Protecția vine din restricții: site-urile și API-urile pentru care e valabilă.
 - O alertă de buget în Google Cloud anunță din timp orice cost neașteptat.
+
+## 24.10.2026 – Panoul de administrare (v0.8.0)
+
+### Ce am făcut
+- Am făcut un panou de administrare (`admin.php`), accesibil din pagina hărții doar pentru administratori.
+- Din panou pot adăuga, modifica și șterge locurile de pe hartă. Coordonatele le aleg dând click pe o hartă sau trăgând marcajul.
+- Tot din panou văd conturile și le pot șterge, cu excepția celor de administrator.
+- Administratorii sunt numele din `config.php` (`'admini' => ['seba']`), ca tabelul `users` să rămână exact cel din enunț.
+- Panoul folosește un cont separat de bază de date, `pai_admin` (`sql/admin.sql`). `pai_app` a rămas doar cu `SELECT` și `INSERT`.
+- Am adăugat pagina 403 și 29 de teste: 141 de verificări în mod normal, 156 cu un cont de administrator.
+
+### Ce am învățat
+- Autorizare față de autentificare: un utilizator autentificat nu are automat voie peste tot. Verific dreptul pe server, la fiecare cerere, inclusiv la POST, nu doar ascunzând butonul.
+- Două conturi de bază de date cu drepturi diferite limitează paguba dacă o pagină are o greșeală.
+- Un cont șters trebuie deconectat imediat, nu abia când îi expiră sesiunea.
+- Un administrator nu trebuie să își poată șterge singur contul din greșeală.
+
+### Probleme întâlnite
+- La prima captură de ecran a apărut pagina 403: pagina mea de test se autentificase cu contul obișnuit, pentru că numele de administrator era deja ocupat de la rularea anterioară. Panoul refuzase corect accesul.
+- Butoanele din tabel, puse direct într-o celulă cu `display: flex`, strică liniile tabelului; le-am mutat într-un `<div>`.
+
+### De completat
+- Creez contul `seba` din pagina de autentificare (sau pun alt nume în `config.php` la `admini`).

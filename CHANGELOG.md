@@ -6,6 +6,28 @@ and versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-10-24
+An admin panel for the places and the user accounts.
+
+### Added
+- `admin.php`: admin panel with statistics, a form to add or edit a place (with a Leaflet map: click or drag the marker to fill in the coordinates), a table of places (edit, delete) and a table of accounts (delete)
+- Admins are the usernames in `config.php` → `admini` (the `users` table stays exactly as in the brief)
+- `sql/admin.sql`: a second database account, `pai_admin`, used only by the panel
+- `includes/db-admin.php`, `includes/leaflet.php`, `js/admin.js`
+- `403.php`: an access-denied page in the site's style, also used by Apache (`ErrorDocument 403`)
+- "Admin panel" button on the map page, for admins only
+- 15 panel tests (with `ADMIN_USER` / `ADMIN_PASS`), 6 always-on access tests, 8 tests for the rights of `pai_admin`
+
+### Changed
+- `includes/db.php`: `conectareBd(true)` opens the admin connection; `esteAdmin()`
+- `includes/auth.php`: a user deleted by an admin is logged out on the next request
+
+### Security
+- The panel answers 403 to everyone who isn't an admin, also for POST requests
+- `pai_admin` can change and delete places and delete accounts, but can't create accounts, change passwords or drop tables; `pai_app` is unchanged
+- Admin accounts can't be deleted from the panel
+- CSRF tokens, server-side validation and delete confirmations on every panel form
+
 ## [0.7.1] - 2026-10-24
 The map keeps working when Google refuses the key.
 

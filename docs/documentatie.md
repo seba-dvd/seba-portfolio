@@ -1,6 +1,6 @@
 # Documentație tehnică – site personal PAI
 
-Versiunea documentată: **v0.7.0** (24.10.2026), etapele M0–M7 (harta în mod demo).
+Versiunea documentată: **v0.8.0** (24.10.2026), etapele M0–M7 și panoul de administrare.
 Documentul descrie cum este construit site-ul și de ce; servește ca bază pentru raportul Word.
 
 ---
@@ -63,6 +63,8 @@ istoricul git (`.git`) stau în afara lui și nu pot fi cerute de nimeni.
 | `db.php` | Conexiunea `mysqli` (o dată pe cerere), `toatePunctele()`, `gasesteUtilizator()` cu interogare pregătită. |
 | `sesiune.php` | Pornește sesiunea (cookie securizat), `utilizatorConectat()`, `conecteaza()`, `deconecteaza()`, `tokenCsrf()`, `verificaCsrf()`. |
 | `auth.php` | Paza paginilor protejate: fără sesiune → `login.php`; altfel `$utilizator` și `Cache-Control: no-store`. |
+| `db-admin.php` | Funcțiile panoului: locuri (adăugare, modificare, ștergere), conturi (listă, ștergere), toate cu `conectareBd(true)` (contul `pai_admin`). |
+| `leaflet.php` | Constanta `LEAFLET`: adresele și hash-urile SRI ale Leaflet, folosite de hartă și de panou. |
 | `config.php` | Datele de conectare la baza de date. Ignorat de git; modelul este `config.example.php`. |
 | `proiecte-date.php` | Un array cu cele 8 proiecte: tip (solo/echipă), texte RO/EN, tehnologii, depozit GitHub. |
 | `lang/ro.php`, `lang/en.php` | Toate textele site-ului, cu aceleași chei în ambele fișiere. |
@@ -90,6 +92,8 @@ care se schimbă rar, deci un fișier PHP este suficient și mai simplu.
 | `api/utilizatori.php` | JSON cu cel mult 10 nume de utilizator care încep cu `?term=`, pentru autocomplete. |
 | `harta.php` | Pagina protejată: mesajul de bun venit, harta (`js/harta.js`), lista locurilor din `points`, linkul de ieșire. |
 | `logout.php` | Închide sesiunea dacă tokenul din adresă este corect. |
+| `admin.php` | Panoul de administrare (doar pentru numele din `config.php` → `admini`). |
+| `403.php` | Codul 403 și o pagină în stilul site-ului; folosită de Apache (`ErrorDocument 403`) și de `admin.php`. |
 | `404.php` | Trimite codul HTTP 404 (`http_response_code`) și o pagină în stilul site-ului. Folosită de Apache (`ErrorDocument`) și de `proiect.php`. |
 
 ---
@@ -240,6 +244,34 @@ activată, chiar și în limitele gratuite. Un abonament Gemini nu ajută: este 
 meniul. `includes/antet.php` acceptă `$stiluri` (CSS de pe CDN cu SRI), `includes/subsol.php`
 acceptă scripturi `async` fără SRI.
 
+### Panoul de administrare
+
+**Cine are acces:** numele din `config.php` → `'admini' => ['seba']`, comparate fără diferență de
+majuscule (`esteAdmin()`). Lista stă în configurare, nu într-o coloană nouă, ca tabelul `users` să
+rămână exact cel din enunț. Ceilalți utilizatori autentificați primesc 403, iar vizitatorii
+neautentificați sunt trimiși la `login.php`.
+
+**Două conturi de bază de date:**
+
+| Cont | Drepturi | Folosit de |
+|---|---|---|
+| `pai_app` | `SELECT`, `INSERT` pe `pai_proiect` | toate paginile publice și aplicația |
+| `pai_admin` | `points`: `SELECT`, `INSERT`, `UPDATE`, `DELETE`; `users`: `SELECT`, `DELETE` | doar `admin.php` (`includes/db-admin.php`) |
+
+Astfel, o greșeală în paginile publice tot nu poate șterge nimic, iar panoul nu poate crea conturi și
+nu poate schimba parole.
+
+**Ce face:** statistici (locuri, conturi, administratori); formular pentru un loc nou sau pentru
+modificarea unuia (`admin.php?loc=ID`), cu o hartă Leaflet: click sau tragerea marcajului completează
+coordonatele, iar scrierea lor mută marcajul; tabel cu locurile (modifică / șterge); tabel cu conturile
+(șterge, cu excepția administratorilor).
+
+**Reguli:** token CSRF în fiecare formular; confirmare în browser înainte de ștergere (`data-confirmare`,
+`js/admin.js`); validare pe server (latitudine ±90, longitudine ±180, virgula acceptată ca separator
+zecimal, descriere de 1–255 caractere); după fiecare modificare, redirecționare 303 cu un mesaj păstrat
+o singură dată în sesiune. Un cont șters este deconectat la următoarea cerere: `includes/auth.php`
+verifică la fiecare pagină protejată dacă numele mai există.
+
 ---
 
 ## 9. Securitate
@@ -271,6 +303,10 @@ acceptă scripturi `async` fără SRI.
 | Bibliotecă modificată pe CDN | Versiuni fixe + `integrity` (SRI) | `login.php`, `includes/subsol.php` |
 | XSS prin descrierile de pe hartă | JSON cu `JSON_HEX_*`, apoi elemente DOM cu `textContent` în etichete și ferestre | `harta.php`, `js/harta.js` |
 | Cheia Google Maps | În `config.php`; restricționată la adresa site-ului în Google Cloud | `includes/config.php` |
+| Acces la panou fără drept | `esteAdmin()` după autentificare; 403 pentru ceilalți, inclusiv pentru cereri POST | `admin.php` |
+| Drepturi de modificare în paginile publice | Cont separat `pai_admin`, folosit doar de panou | `sql/admin.sql`, `includes/db-admin.php` |
+| Ștergerea propriului cont de administrator | Conturile de administrator nu au buton și sunt refuzate și pe server | `admin.php` |
+| Sesiunea unui cont șters | `auth.php` verifică existența contului la fiecare cerere | `includes/auth.php` |
 | Pagina protejată în cache / istoric | `Cache-Control: no-store`, redirecționare fără sesiune | `includes/auth.php` |
 
 ---
@@ -289,7 +325,7 @@ acceptă scripturi `async` fără SRI.
 ## 11. Testare
 
 ### Teste automate
-`bash teste/verificare.sh` (Apache și MySQL pornite). Rezultat pe 24.10.2026: **123 / 123 trecute**.
+`bash teste/verificare.sh` (Apache și MySQL pornite). Rezultat pe 24.10.2026: **141 / 141 trecute**; cu `ADMIN_USER` și `ADMIN_PASS`, **156 / 156**.
 
 | Grup | Ce verifică |
 |---|---|
@@ -303,7 +339,9 @@ acceptă scripturi `async` fără SRI.
 | Escapare | Un `<script>` trimis în adresă nu apare neescapat în pagină |
 | Conturi și sesiuni | Prin formularele reale: fără token CSRF, nume `<b>x</b>`, parolă scurtă, parole diferite, cont nou, hash `$2y$` în baza de date, nume dublat (și cu majuscule), cookie `HttpOnly` / `SameSite`, identificator nou după autentificare, `no-store`, ieșire fără și cu token, parolă greșită, nume inexistent, `x' OR '1'='1`. Conturile `zz_test_*` sunt șterse la final. |
 | Hartă | Pagina protejată are harta și datele ei, biblioteca (Leaflet cu SRI sau Google); descrierea `<img src=x onerror=alert(1)>` introdusă în baza de date apare escapată în listă, ca `\u003C` în JSON și nicăieri ca etichetă reală |
+| Panou de administrare | Fără autentificare → `login.php`; utilizator obișnuit → 403 (și pentru POST), fără link în pagină; `403.php`. Cu un cont de administrator: CSRF, latitudine 100, descriere goală, adăugare (virgula ca separator), escapare în panou, modificare, ștergere, contul de administrator nu poate fi șters, ștergerea unui cont îl deconectează |
 | Autocomplete | JSON cu `nosniff`, un nume găsit după început (și cu majuscule), maximum 10, nimic pentru o literă, `%%`, `__`, `x' OR '1'='1`, `<script>`, gol sau tablou; `_` nu este wildcard (`zzXtest_ac` nu apare pentru `zz_test_ac`); jQuery UI cu SRI |
+| Baza de date (`pai_admin`) | Poate `UPDATE` / `DELETE` pe `points` și `DELETE` pe `users` (în tranzacție anulată); nu poate schimba sau crea conturi, nu poate `DROP`, nu poate citi `mysql.user` |
 | Baza de date | `teste/verificare-bd.php`: conectarea ca `pai_app`, `utf8mb4`, coloanele, diacriticele, `x' OR '1'='1` nu găsește pe nimeni, `UNIQUE` (1062), `CHECK` (4025), `pai_app` nu poate `DELETE` / `UPDATE` / `DROP` / citi `mysql.user` (1142) |
 
 Rândurile de test sunt adăugate într-o tranzacție anulată la final (`mysqli_rollback`), deci

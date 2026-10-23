@@ -8,7 +8,7 @@ Site-ul are două fețe: paginile personale (Acasă, Despre, CV, Contact) în te
 și paginile tehnice (Proiecte) în tema **cyber**, cu tranziții animate între ele.
 Este disponibil în **română și engleză**.
 
-**Versiunea curentă:** v0.7.0 (etapele M0–M7, harta în mod demo). Istoricul complet: [CHANGELOG.md](CHANGELOG.md).
+**Versiunea curentă:** v0.8.0 (etapele M0–M7 și panoul de administrare). Istoricul complet: [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
@@ -26,6 +26,8 @@ Este disponibil în **română și engleză**.
 | **Autentificare** (`login.php`) | Formularele de autentificare și de cont nou; completare automată (jQuery UI) pe numele de utilizator |
 | **Hartă** (`harta.php`) | Pagina protejată: „Bine ai venit, <utilizator>!”, harta cu un marcaj pentru fiecare loc din baza de date, lista locurilor, ieșire |
 | **Ieșire** (`logout.php?token=…`) | Închide sesiunea |
+| **Administrare** (`admin.php`) | Doar pentru administratori: adaugă, modifică și șterge locurile (cu alegerea punctului pe hartă), șterge conturi, statistici |
+| **403** (`403.php`) | Acces interzis (Apache și panoul de administrare) |
 
 Plus: comutator **RO | EN** (alegerea se păstrează într-un cookie), buton de schimbare a temei,
 tranziții între pagini, design adaptat pentru telefon.
@@ -90,8 +92,17 @@ Planul complet este în [docs/Carta proiectului - PAI.docx](docs/Carta%20proiect
    ```
    Pune înapoi `SCHIMBA_PAROLA` în fișier înainte de commit.
 
+   Contul pentru panoul de administrare, la fel, cu altă parolă (`SCHIMBA_PAROLA_ADMIN`):
+   ```bash
+   /c/xampp/mysql/bin/mysql -u root < sql/admin.sql
+   ```
+
 6. **Configurează conexiunea:** copiază `www/includes/config.example.php` în
-   `www/includes/config.php` și scrie aceeași parolă. `config.php` este în `.gitignore`.
+   `www/includes/config.php` și scrie aceeași parolă (și parola contului `pai_admin` la
+   `db_admin_pass`). `config.php` este în `.gitignore`.
+
+   **Administratori:** în `config.php`, `'admini' => ['seba']` conține numele conturilor care au acces
+   la `admin.php`. Creează contul din pagina de autentificare, cu unul dintre aceste nume.
 
    Harta folosește implicit **modul demo** (Leaflet + OpenStreetMap, fără cheie). Pentru Google Maps:
    `'harta_furnizor' => 'google'` și `'google_maps_cheie' => '...'` în `config.php`. Cheia vine
@@ -111,11 +122,17 @@ Cu Apache și MySQL pornite, în Git Bash, din folderul proiectului:
 ```bash
 bash teste/verificare.sh
 ```
-Scriptul face 123 de verificări: sintaxa PHP, cheile dicționarelor, răspunsul fiecărei pagini,
+Scriptul face 141 de verificări: sintaxa PHP, cheile dicționarelor, răspunsul fiecărei pagini,
 erorile 404, folderele blocate, schimbarea limbii, încercările de atac pe parametri, conturile și
 sesiunile (prin formularele reale), harta, completarea automată și baza de date (structura, constrângerile, drepturile contului
 `pai_app`, interogările pregătite). Conturile de test sunt șterse la final (cu `root`).
 Verificările bazei de date se pot rula și separat: `php teste/verificare-bd.php`.
+
+Cu un cont de administrator, testele parcurg și panoul de administrare (adăugare, modificare,
+ștergere de locuri și conturi), 156 de verificări în total:
+```bash
+ADMIN_USER=seba ADMIN_PASS='parola ta' bash teste/verificare.sh
+```
 
 ---
 
@@ -126,6 +143,7 @@ pai-proiect/
 ├── www/                      ← rădăcina web (legată la C:\xampp\htdocs\pai)
 │   ├── index.php, despre.php, proiecte.php, proiect.php, cv.php, contact.php, 404.php
 │   ├── login.php, harta.php, logout.php   ← aplicația: conturi, sesiuni, pagina protejată
+│   ├── admin.php, 403.php    ← panoul de administrare, pagina de acces interzis
 │   ├── api/utilizatori.php   ← numele de utilizator pentru autocomplete (JSON)
 │   ├── .htaccess             ← fără listarea folderelor, pagina 404, fișiere ascunse blocate
 │   ├── includes/             ← cod PHP comun, blocat din browser (.htaccess)
@@ -136,13 +154,15 @@ pai-proiect/
 │   │   ├── db.php            ← conexiunea mysqli și interogările
 │   │   ├── sesiune.php       ← sesiunea, autentificare / ieșire, token CSRF
 │   │   ├── auth.php          ← paza paginilor protejate
+│   │   ├── db-admin.php      ← interogările panoului (contul pai_admin)
+│   │   ├── leaflet.php       ← adresele și hash-urile SRI ale Leaflet
 │   │   ├── config.example.php ← model pentru config.php (parola, ignorat de git)
 │   │   ├── proiecte-date.php ← datele celor 8 proiecte (RO și EN)
 │   │   └── lang/ro.php, lang/en.php ← toate textele site-ului
 │   ├── css/style.css         ← temele, layout-ul, tranzițiile, stilul de printare
-│   ├── js/                   ← tranzitii.js, proiecte.js (fereastra GitHub), cv.js, autocomplete.js, harta.js
+│   ├── js/                   ← tranzitii.js, proiecte.js (fereastra GitHub), cv.js, autocomplete.js, harta.js, admin.js
 │   └── img/
-├── sql/                      ← schema.sql, date-initiale.sql, utilizator.sql
+├── sql/                      ← schema.sql, date-initiale.sql, utilizator.sql, admin.sql
 ├── teste/                    ← verificare.sh (site), verificare-bd.php (baza de date)
 ├── docs/                     ← enunțul, carta proiectului, documentația, jurnalul, raportul
 ├── CHANGELOG.md
@@ -179,6 +199,9 @@ Măsurile deja implementate (detalii în [docs/documentatie.md](docs/documentati
 - **Autocomplete:** minimum 2 caractere, doar nume care încep cu textul, maximum 10; `%` refuzat și
   `_` escapat în `LIKE`, ca nimeni să nu poată lista toți utilizatorii. Răspuns JSON cu `nosniff`.
 - **Biblioteci de pe CDN:** versiuni fixe și hash SRI (`integrity`).
+- **Administrare:** doar conturile din `config.php` (`admini`), restul primesc 403; modificările trec
+  prin contul de bază de date `pai_admin`, separat de `pai_app`; conturile de administrator nu pot fi
+  șterse din panou; un cont șters este deconectat la următoarea cerere.
 - **Harta:** descrierile din baza de date ajung în etichete și ferestre doar ca text (`textContent`);
   cheia Google, dacă există, stă în `config.php`.
 - **Secrete:** `www/includes/config.php` (parola bazei de date) este în `.gitignore`.
