@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# Smoke tests for the site: pages, languages, 404s and security rules.
+# Smoke tests for the site: pages, languages, 404s, security rules and the database.
 #
-# Needs: Apache running (XAMPP) with the site at http://localhost/pai/, curl, php.
+# Needs: Apache and MySQL running (XAMPP) with the site at http://localhost/pai/, curl, php,
+# the database imported from sql/ and www/includes/config.php (see README).
 # Run from the project folder, in Git Bash:
 #     bash teste/verificare.sh
 # Another address:  SITE=http://localhost:8080/pai bash teste/verificare.sh
@@ -61,7 +62,8 @@ for p in nu-exista.php proiect.php "proiect.php?id=0" "proiect.php?id=-1" "proie
 done
 
 echo "5. Private folders are blocked (403)"
-for p in includes/ includes/functii.php includes/lang/ro.php css/ js/ img/ .htaccess; do
+for p in includes/ includes/functii.php includes/lang/ro.php includes/db.php includes/config.php \
+         includes/config.example.php css/ js/ img/ .htaccess; do
     verifica "/$p" 403 "$(cod "$SITE/$p")"
 done
 
@@ -84,6 +86,16 @@ verifica "forged cookie lang=../../x" ro "$(limba -b 'lang=../../x' "$SITE/")"
 echo "8. Output is escaped"
 verifica "no raw <script> from the address" 0 \
     "$(curl -s "$SITE/proiect.php?id=4&x=%3Cscript%3Ealert(1)%3C/script%3E" | grep -c '<script>alert')"
+
+# 9. Database (teste/verificare-bd.php prints its own ok / FAIL lines)
+IESIRE_BD=$("$PHP" "$DIR/teste/verificare-bd.php" 2>&1)
+echo "$IESIRE_BD" | grep -v '^Database passed' | sed '/^$/d'
+TRECUTE=$((TRECUTE + $(echo "$IESIRE_BD" | grep -c '^  ok ')))
+PICATE=$((PICATE + $(echo "$IESIRE_BD" | grep -c '^  FAIL ')))
+if ! echo "$IESIRE_BD" | grep -q '^Database passed'; then
+    PICATE=$((PICATE + 1))            # the script stopped early (MySQL off, no config.php)
+    echo "  FAIL  database checks did not run (is MySQL started?)"
+fi
 
 echo
 echo "Passed: $TRECUTE   Failed: $PICATE"
