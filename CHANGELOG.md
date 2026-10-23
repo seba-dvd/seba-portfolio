@@ -6,6 +6,9 @@ and versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+- Project report in the university Word template (`docs/Documentatie_Proiect.docx`): cover page, contents, lists of figures, tables and code, chapters 1–8, bibliography, abstracts in Romanian and English
+
 ## [0.3.0] - 2026-10-23
 M2: PHP basics and the bilingual site.
 

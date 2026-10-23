@@ -140,6 +140,7 @@ Măsurile deja implementate (detalii în [docs/documentatie.md](docs/documentati
 | [docs/documentatie.md](docs/documentatie.md) | Documentația tehnică: arhitectură, componente, securitate, teste |
 | [docs/jurnal.md](docs/jurnal.md) | Jurnalul de dezvoltare, pe etape |
 | [CHANGELOG.md](CHANGELOG.md) | Ce s-a schimbat în fiecare versiune |
+| `docs/Documentatie_Proiect.docx` | Raportul proiectului (Word, șablonul UniTBv) |
 | `docs/Carta proiectului - PAI.docx` | Obiective, cerințe, etape, riscuri |
 | `docs/Proiect - PAI 2025.pdf` | Enunțul proiectului |
 
