@@ -2,7 +2,11 @@
 /**
  * Shared bottom of every page: the footer, the page's own scripts, </body> and </html>.
  *
- * A page may set $scripturi = ['js/....js', ...] before including it.
+ * A page may set $scripturi before including it. Each entry is either a local
+ * file ('js/....js') or a library from a CDN with its SRI hash:
+ *     ['src' => 'https://...', 'integrity' => 'sha384-...']
+ * With "integrity" the browser runs the file only if its hash matches, so a
+ * changed file on the CDN can't run code on this site.
  */
 $scripturi = $scripturi ?? [];
 ?>
@@ -10,7 +14,11 @@ $scripturi = $scripturi ?? [];
         <p>&copy; <?= date('Y') ?> David Sebastian Pilat</p>
     </footer>
 <?php foreach ($scripturi as $script): ?>
+<?php if (is_array($script)): ?>
+    <script src="<?= e($script['src']) ?>" integrity="<?= e($script['integrity']) ?>" crossorigin="anonymous"></script>
+<?php else: ?>
     <script src="<?= e($script) ?>"></script>
+<?php endif; ?>
 <?php endforeach; ?>
 </body>
 </html>

@@ -88,6 +88,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $pagina = 'harta';
 $cheieTitlu = 'login';
 $temaCyber = true;
+$scripturi = [
+    // jQuery + jQuery UI from the official CDN, pinned versions with SRI hashes
+    ['src' => 'https://code.jquery.com/jquery-3.7.1.min.js',
+     'integrity' => 'sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo='],
+    ['src' => 'https://code.jquery.com/ui/1.13.2/jquery-ui.min.js',
+     'integrity' => 'sha256-lSjKY0/srUM9BE3dPm+c4fBo1dky2v27Gdjm2uoZaL0='],
+    'js/autocomplete.js',
+];
 require __DIR__ . '/includes/antet.php';
 $token = tokenCsrf();
 ?>

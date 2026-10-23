@@ -958,6 +958,43 @@ ul.mesaj {
     margin-bottom: 20px;
 }
 
+/* ===== App: jQuery UI autocomplete list (no jQuery UI theme, only these rules) ===== */
+.ui-autocomplete {
+    position: absolute;
+    z-index: 10;
+    list-style: none;
+    margin: 0;
+    padding: 4px 0;
+    max-height: 260px;
+    overflow-y: auto;
+    background: var(--card);
+    color: var(--text);
+    border: 1px solid var(--accent);
+    border-radius: var(--raza);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+    font-family: var(--font);
+}
+
+.ui-menu-item-wrapper {
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+.ui-menu-item-wrapper.ui-state-active {
+    background: var(--accent);
+    color: var(--card);
+}
+
+/* jQuery UI announces the suggestions to screen readers in this element: hide it visually only */
+.ui-helper-hidden-accessible {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+}
+
 /* ===== App: the protected map page (harta.php) ===== */
 .harta-antet {
     display: flex;
