@@ -6,8 +6,33 @@ and versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-10-24
+M3: the database.
+
 ### Added
-- Project report in the university Word template (`docs/Documentatie_Proiect.docx`): cover page, contents, lists of figures, tables and code, chapters 1–8, bibliography, abstracts in Romanian and English
+- `sql/schema.sql`: database `pai_proiect` with the tables `users(ID, user, password)` and `points(ID, lat, long, description)`, in `utf8mb4`
+- `sql/date-initiale.sql`: the first places for the map (Brașov, Codlea)
+- `sql/utilizator.sql`: a dedicated account, `pai_app`, for the site
+- `www/includes/db.php`: mysqli connection, `toatePunctele()`, `gasesteUtilizator()`
+- `www/includes/config.example.php`: model for the local `config.php`
+- `teste/verificare-bd.php`: 16 database checks, also run by `verificare.sh` (72 checks in total)
+- Project report in the university Word template (`docs/Documentatie_Proiect.docx`): cover page, contents, lists of figures, tables and code, chapters 1–8 (including the database), bibliography, abstracts in Romanian and English
+
+### Changed
+- README and technical documentation: installation steps and description of the database
+
+### Removed
+- `sql/.gitkeep`: the folder has real files now
+
+### Fixed
+- Diacritics were garbled when importing the SQL files with the Windows `mysql` client (cp850); the scripts now start with `SET NAMES utf8mb4`
+
+### Security
+- Every visitor value reaches the database through prepared statements
+- The site connects as `pai_app` (only SELECT and INSERT on `pai_proiect`), not as root
+- The database password lives only in `config.php`, ignored by git; `includes/` is denied by Apache
+- Connection errors are logged on the server; visitors see a general message (HTTP 503)
+- `CHECK` constraints keep coordinates in range; `UNIQUE` on the user name
 
 ## [0.3.0] - 2026-10-23
 M2: PHP basics and the bilingual site.

@@ -1,6 +1,6 @@
 # Documentație tehnică – site personal PAI
 
-Versiunea documentată: **v0.3.0** (23.10.2026), etapele M0–M2.
+Versiunea documentată: **v0.4.0** (24.10.2026), etapele M0–M3.
 Documentul descrie cum este construit site-ul și de ce; servește ca bază pentru raportul Word.
 
 ---
@@ -9,7 +9,7 @@ Documentul descrie cum este construit site-ul și de ce; servește ca bază pent
 
 Un site personal cu mai multe pagini (prezentare, proiecte, CV, contact), în română și engleză,
 la care se va adăuga o aplicație web cu bază de date MySQL: înregistrare, autentificare,
-autocomplete jQuery și o hartă a orașelor vizitate (etapele M3–M7).
+autocomplete jQuery și o hartă a orașelor vizitate (baza de date în M3, restul în M4–M7).
 
 ---
 
@@ -18,7 +18,7 @@ autocomplete jQuery și o hartă a orașelor vizitate (etapele M3–M7).
 Proiectul folosește modelul client–server din laboratorul 1:
 
 ```
-Browser (client)  ──cerere HTTP──►  Apache (XAMPP)  ──►  PHP 8.2  ──►  [MariaDB, din M3]
+Browser (client)  ──cerere HTTP──►  Apache (XAMPP)  ──►  PHP 8.2  ──►  MariaDB 10.4
       ▲                                                     │
       └──────────────── răspuns: HTML + CSS + JS ◄──────────┘
 ```
@@ -60,6 +60,8 @@ istoricul git (`.git`) stau în afara lui și nu pot fi cerute de nimeni.
 | `subsol.php` | Subsolul (anul curent cu `date('Y')`), scripturile paginii (`$scripturi`), închiderea documentului. |
 | `functii.php` | `e()` – escapare HTML; `tr()` – alege textul în limba curentă dintr-un `['ro' => ..., 'en' => ...]`; `gasesteProiect()`. |
 | `limba.php` | Alege limba, setează cookie-ul, încarcă dicționarul în `$t`. Definește constanta `LIMBA`. |
+| `db.php` | Conexiunea `mysqli` (o dată pe cerere), `toatePunctele()`, `gasesteUtilizator()` cu interogare pregătită. |
+| `config.php` | Datele de conectare la baza de date. Ignorat de git; modelul este `config.example.php`. |
 | `proiecte-date.php` | Un array cu cele 8 proiecte: tip (solo/echipă), texte RO/EN, tehnologii, depozit GitHub. |
 | `lang/ro.php`, `lang/en.php` | Toate textele site-ului, cu aceleași chei în ambele fișiere. |
 
@@ -124,7 +126,45 @@ site-ul funcționează identic, fără animații între pagini.
 
 ---
 
-## 8. Securitate
+## 8. Baza de date
+
+### Structura (`sql/schema.sql`)
+
+| Tabel | Coloană | Tip | Observații |
+|---|---|---|---|
+| `users` | `ID` | `INT UNSIGNED` | cheie primară, `AUTO_INCREMENT` |
+| `users` | `user` | `VARCHAR(50)` | `NOT NULL`, `UNIQUE` (un nume dublat dă eroarea 1062) |
+| `users` | `password` | `VARCHAR(255)` | hash-ul din `password_hash()`, niciodată parola |
+| `points` | `ID` | `INT UNSIGNED` | cheie primară, `AUTO_INCREMENT` |
+| `points` | `lat` | `DECIMAL(9,6)` | `CHECK` între -90 și 90 |
+| `points` | `long` | `DECIMAL(9,6)` | `CHECK` între -180 și 180; cuvânt rezervat, scris mereu `` `long` `` |
+| `points` | `description` | `VARCHAR(255)` | textul de lângă marcaj |
+
+Baza folosește `utf8mb4`, ca diacriticele să fie păstrate. Laboratorul 3 memora coordonatele ca
+text (`varchar(20)`); aici sunt numere exacte, iar baza de date respinge valorile invalide.
+
+### Scripturile
+| Fișier | Ce face |
+|---|---|
+| `sql/schema.sql` | Creează baza `pai_proiect` și tabelele (`IF NOT EXISTS`, se poate rula din nou) |
+| `sql/date-initiale.sql` | Primele locuri pentru hartă (`INSERT IGNORE` cu ID-uri fixe) |
+| `sql/utilizator.sql` | Contul `pai_app`, cu `SELECT` și `INSERT` doar pe `pai_proiect` |
+
+Toate încep cu `SET NAMES utf8mb4`: clientul `mysql` din Windows citește implicit fișierele în
+`cp850` și strică diacriticele (problemă găsită de testul automat, vezi jurnalul).
+
+### Accesul din PHP (`includes/db.php`)
+- `conectareBd()` deschide conexiunea o singură dată pe cerere, cu `mysqli_report` (erorile devin
+  excepții) și `mysqli_set_charset(..., 'utf8mb4')`.
+- Dacă lipsește `config.php` sau conectarea eșuează: detaliile merg în jurnalul serverului
+  (`error_log`), vizitatorul primește un mesaj general și codul 503.
+- Orice valoare de la utilizator trece printr-o interogare pregătită:
+  `mysqli_prepare` → `mysqli_stmt_bind_param` → `mysqli_stmt_execute`.
+  Fără valori de la utilizator (lista punctelor), o interogare simplă este suficientă.
+
+---
+
+## 9. Securitate
 
 | Amenințare | Măsură | Unde |
 |---|---|---|
@@ -139,10 +179,14 @@ site-ul funcționează identic, fără animații între pagini.
 | Expunerea `.git`, documentelor, SQL | Rădăcina web este doar `www/` (junction) | structura proiectului |
 | Pagina deschisă controlează site-ul (*tabnabbing*) | `rel="noopener noreferrer"` pe linkurile cu `target="_blank"` | toate paginile |
 | Parole în depozitul git | `www/includes/config.php` în `.gitignore` | `.gitignore` |
+| **SQL injection** | Interogări pregătite pentru orice valoare de la utilizator | `includes/db.php` |
+| Drepturi excesive în baza de date | Contul `pai_app`: doar `SELECT`, `INSERT` pe `pai_proiect` | `sql/utilizator.sql` |
+| Detalii tehnice în erori | `error_log` + mesaj general, HTTP 503 | `includes/db.php` |
+| Date invalide în tabele | `NOT NULL`, `UNIQUE`, `CHECK` pe coordonate | `sql/schema.sql` |
 
 ---
 
-## 9. Accesibilitate
+## 10. Accesibilitate
 
 - HTML semantic: `header`, `nav`, `main`, `section`, `article`, `aside`, `footer`.
 - Pagina activă din meniu are `aria-current="page"`; butoanele doar cu iconiță au `aria-label`.
@@ -153,10 +197,10 @@ site-ul funcționează identic, fără animații între pagini.
 
 ---
 
-## 10. Testare
+## 11. Testare
 
 ### Teste automate
-`bash teste/verificare.sh` (Apache pornit). Rezultat pe 23.10.2026: **50 / 50 trecute**.
+`bash teste/verificare.sh` (Apache și MySQL pornite). Rezultat pe 24.10.2026: **72 / 72 trecute**.
 
 | Grup | Ce verifică |
 |---|---|
@@ -168,6 +212,10 @@ site-ul funcționează identic, fără animații între pagini.
 | Limbă | Redirecționare 303, cookie `HttpOnly` și `SameSite=Lax`, păstrarea `?id=` |
 | Atacuri | `?lang=../../...`, `en%00`, `EN`, `fr`, `<script>`, cookie falsificat → rămâne română |
 | Escapare | Un `<script>` trimis în adresă nu apare neescapat în pagină |
+| Baza de date | `teste/verificare-bd.php`: conectarea ca `pai_app`, `utf8mb4`, coloanele, diacriticele, `x' OR '1'='1` nu găsește pe nimeni, `UNIQUE` (1062), `CHECK` (4025), `pai_app` nu poate `DELETE` / `UPDATE` / `DROP` / citi `mysql.user` (1142) |
+
+Rândurile de test sunt adăugate într-o tranzacție anulată la final (`mysqli_rollback`), deci
+baza de date rămâne neschimbată.
 
 ### Teste manuale
 - Fiecare pagină verificată în Edge, pe desktop și cu emulatorul de telefon (F12, Ctrl+Shift+M).
@@ -177,12 +225,14 @@ site-ul funcționează identic, fără animații între pagini.
 
 ---
 
-## 11. Limitări și pași următori
+## 12. Limitări și pași următori
 
 - Emailul, profilul LinkedIn, câțiva ani din parcurs, rolul în CodeStorm și progresul pe
   TryHackMe / HackTheBox sunt încă marcate cu `[PARANTEZE]`.
 - Datele live din GitHub depind de conexiunea la internet și de limita API-ului
   (60 de cereri pe oră, fără autentificare).
-- **M3:** baza de date (`sql/schema.sql`), conexiunea `mysqli` cu prepared statements,
-  `includes/config.php` cu datele de conectare (ignorat de git).
+- Harta are deocamdată doar două locuri (Brașov, Codlea); restul orașelor vizitate se adaugă în
+  `sql/date-initiale.sql`.
+- Culorile marcajelor (vizitat / de vizitat) și fotografiile au nevoie de coloane în plus în
+  `points`; se adaugă în M7, după acordul cadrului didactic.
 - **M4–M7:** înregistrare, autentificare și sesiuni, autocomplete jQuery, harta cu marcaje colorate.

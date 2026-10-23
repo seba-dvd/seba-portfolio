@@ -8,7 +8,7 @@ Site-ul are două fețe: paginile personale (Acasă, Despre, CV, Contact) în te
 și paginile tehnice (Proiecte) în tema **cyber**, cu tranziții animate între ele.
 Este disponibil în **română și engleză**.
 
-**Versiunea curentă:** v0.3.0 (etapele M0–M2). Istoricul complet: [CHANGELOG.md](CHANGELOG.md).
+**Versiunea curentă:** v0.4.0 (etapele M0–M3). Istoricul complet: [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
@@ -27,9 +27,12 @@ Este disponibil în **română și engleză**.
 Plus: comutator **RO | EN** (alegerea se păstrează într-un cookie), buton de schimbare a temei,
 tranziții între pagini, design adaptat pentru telefon.
 
+**Baza de date** (`pai_proiect`, MariaDB): tabelele `users(ID, user, password)` și
+`points(ID, lat, long, description)`, accesate din PHP cu `mysqli` și interogări pregătite,
+printr-un cont dedicat (`pai_app`) care poate doar citi și adăuga rânduri.
+
 ### Ce urmează (cerințele din enunț)
 
-- **M3:** baza de date MySQL cu tabelele `users` și `points`.
 - **M4–M5:** înregistrare și autentificare, sesiuni, logout.
 - **M6:** autocomplete jQuery pe câmpul de utilizator (laboratorul 9).
 - **M7:** harta cu orașele vizitate (marcaje colorate: vizitate / de vizitat).
@@ -42,7 +45,7 @@ Planul complet este în [docs/Carta proiectului - PAI.docx](docs/Carta%20proiect
 ## Tehnologii
 
 - **Server:** Apache și PHP 8.2 (XAMPP 8.2.12), pe Windows
-- **Bază de date (din M3):** MariaDB 10.4 (compatibil MySQL)
+- **Bază de date:** MariaDB 10.4 (compatibil MySQL), extensia PHP `mysqli`
 - **Client:** HTML5, CSS (variabile, Grid, Flexbox, View Transitions), JavaScript fără framework-uri
 - **Mai târziu:** jQuery și jQuery UI (autocomplete), o bibliotecă de hărți
 - **Versionare:** Git și GitHub (depozit privat), Conventional Commits, Semantic Versioning
@@ -70,9 +73,25 @@ Planul complet este în [docs/Carta proiectului - PAI.docx](docs/Carta%20proiect
    ```
    Doar `www\` devine accesibil din browser; `docs\`, `sql\`, `teste\` și `.git\` rămân în afara lui.
 
-3. **Pornește Apache** din XAMPP Control Panel.
+3. **Pornește Apache și MySQL** din XAMPP Control Panel.
 
-4. **Deschide** http://localhost/pai/
+4. **Creează baza de date** (Git Bash, din folderul proiectului):
+   ```bash
+   /c/xampp/mysql/bin/mysql -u root < sql/schema.sql
+   /c/xampp/mysql/bin/mysql -u root < sql/date-initiale.sql
+   ```
+
+5. **Creează contul site-ului.** În `sql/utilizator.sql`, înlocuiește `SCHIMBA_PAROLA` cu o parolă
+   lungă, aleatorie, apoi:
+   ```bash
+   /c/xampp/mysql/bin/mysql -u root < sql/utilizator.sql
+   ```
+   Pune înapoi `SCHIMBA_PAROLA` în fișier înainte de commit.
+
+6. **Configurează conexiunea:** copiază `www/includes/config.example.php` în
+   `www/includes/config.php` și scrie aceeași parolă. `config.php` este în `.gitignore`.
+
+7. **Deschide** http://localhost/pai/
 
 > Site-ul presupune adresa `/pai/`: `www/.htaccess` folosește `ErrorDocument 404 /pai/404.php`.
 > Dacă alegi alt nume pentru junction, modifică și această linie.
@@ -80,12 +99,14 @@ Planul complet este în [docs/Carta proiectului - PAI.docx](docs/Carta%20proiect
 
 ### Testare
 
-Cu Apache pornit, în Git Bash, din folderul proiectului:
+Cu Apache și MySQL pornite, în Git Bash, din folderul proiectului:
 ```bash
 bash teste/verificare.sh
 ```
-Scriptul face 50 de verificări: sintaxa PHP, cheile dicționarelor, răspunsul fiecărei pagini,
-erorile 404, folderele blocate, schimbarea limbii și încercările de atac pe parametri.
+Scriptul face 72 de verificări: sintaxa PHP, cheile dicționarelor, răspunsul fiecărei pagini,
+erorile 404, folderele blocate, schimbarea limbii, încercările de atac pe parametri și baza de date
+(structura, constrângerile, drepturile contului `pai_app`, interogările pregătite).
+Verificările bazei de date se pot rula și separat: `php teste/verificare-bd.php`.
 
 ---
 
@@ -101,13 +122,15 @@ pai-proiect/
 │   │   ├── subsol.php        ← subsolul și scripturile paginii
 │   │   ├── functii.php       ← e() (escapare HTML), tr(), gasesteProiect()
 │   │   ├── limba.php         ← alegerea limbii (allowlist + cookie)
+│   │   ├── db.php            ← conexiunea mysqli și interogările
+│   │   ├── config.example.php ← model pentru config.php (parola, ignorat de git)
 │   │   ├── proiecte-date.php ← datele celor 8 proiecte (RO și EN)
 │   │   └── lang/ro.php, lang/en.php ← toate textele site-ului
 │   ├── css/style.css         ← temele, layout-ul, tranzițiile, stilul de printare
 │   ├── js/                   ← tranzitii.js, proiecte.js (fereastra GitHub), cv.js
 │   └── img/
-├── sql/                      ← scriptul bazei de date (din M3)
-├── teste/verificare.sh       ← testele automate
+├── sql/                      ← schema.sql, date-initiale.sql, utilizator.sql
+├── teste/                    ← verificare.sh (site), verificare-bd.php (baza de date)
 ├── docs/                     ← enunțul, carta proiectului, documentația, jurnalul, raportul
 ├── CHANGELOG.md
 └── README.md
@@ -128,7 +151,13 @@ Măsurile deja implementate (detalii în [docs/documentatie.md](docs/documentati
 - **Cookie:** `HttpOnly`, `SameSite=Lax`, `Secure` când site-ul rulează pe HTTPS.
 - **Apache:** fără listarea folderelor, `includes/` blocat, fișierele ascunse blocate.
 - **Rădăcina web separată:** `.git`, documentele și scripturile SQL nu pot fi cerute din browser.
-- **Secrete:** `www/includes/config.php` (parola bazei de date, din M3) este în `.gitignore`.
+- **SQL injection:** valorile de la utilizator ajung în baza de date doar prin interogări
+  pregătite (`mysqli_prepare` + `mysqli_stmt_bind_param`), niciodată lipite în textul SQL.
+- **Drepturi minime:** site-ul folosește contul `pai_app` (doar `SELECT` și `INSERT` pe
+  `pai_proiect`), nu `root`.
+- **Erori:** o eroare de conectare la baza de date ajunge în jurnalul serverului; vizitatorul
+  primește doar un mesaj general (HTTP 503).
+- **Secrete:** `www/includes/config.php` (parola bazei de date) este în `.gitignore`.
 - **Linkuri externe:** `rel="noopener noreferrer"` pe toate linkurile care se deschid în tab nou.
 
 ---

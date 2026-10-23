@@ -84,3 +84,32 @@
 
 ### Următorul pas
 - M3: baza de date MySQL (`users`, `points`), `sql/schema.sql`, conexiunea `mysqli` cu prepared statements, după laboratorul 3.
+
+## 24.10.2026 – Raportul Word și M3: baza de date (v0.4.0)
+
+### Ce am făcut
+- Am completat raportul în șablonul facultății (`docs/Documentatie_Proiect.docx`): coperta, cuprinsul, listele de figuri, tabele și coduri, acronimele, capitolele 1–8, bibliografia, rezumatul și abstractul. Am scos paginile specifice proiectului de diplomă (fișa, vizele, anexele, declarația).
+- Am creat baza de date `pai_proiect` cu tabelele cerute: `users(ID, user, password)` și `points(ID, lat, long, description)`. Scripturile sunt în `sql/`: `schema.sql`, `date-initiale.sql` (Brașov, Codlea) și `utilizator.sql`.
+- Site-ul se conectează cu un cont separat, `pai_app`, care poate doar citi și adăuga rânduri. Parola e generată aleatoriu și stă doar în `www/includes/config.php`, ignorat de git.
+- Am scris `www/includes/db.php`, cu `mysqli` procedural ca în laboratorul 3, plus interogări pregătite.
+- Am adăugat 16 teste pentru baza de date (`teste/verificare-bd.php`), rulate și de `verificare.sh`: 72 de verificări în total, toate trecute.
+- Ca și până acum, Claude m-a ajutat ca tutore și a scris o parte din cod și din raport la cererea mea.
+
+### Ce am învățat
+- Tipurile potrivite contează: coordonatele sunt `DECIMAL(9,6)`, nu text ca în laborator, iar `CHECK` respinge o latitudine de 100.
+- `long` este cuvânt rezervat în MySQL și trebuie scris între backticks: `` `long` ``.
+- `UNIQUE` pe numele de utilizator face ca baza de date să refuze un nume dublat (eroarea 1062), chiar dacă PHP uită să verifice.
+- Interogare pregătită: textul SQL cu `?` pleacă separat de valoare, deci `x' OR '1'='1` este doar un nume ciudat, nu o comandă.
+- Drepturi minime: dacă cineva ar găsi o greșeală în site, contul `pai_app` nu poate șterge, modifica sau citi alte baze de date (eroarea 1142).
+- Testele pot lucra pe baza reală fără să lase urme: tranzacție la început, `ROLLBACK` la final.
+
+### Probleme întâlnite
+- La primul import, „Brașov” a apărut ca „BraÈ™ov”. Clientul `mysql` din Windows citește fișierele în `cp850`. Testul automat a prins problema; soluția a fost `SET NAMES utf8mb4` la începutul scripturilor și reimportarea celor două rânduri.
+
+### De completat
+- Celelalte orașe vizitate, în `sql/date-initiale.sql`.
+- Numele cadrului didactic pe coperta raportului; la deschiderea în Word, „Update fields” pentru cuprins și numerele de pagină.
+- Întrebarea pentru profesor rămâne: pot adăuga coloane în `points` (vizitat / de vizitat, fotografii) și pot folosi Leaflet în loc de Google Maps?
+
+### Următorul pas
+- M4: formularul de înregistrare, cu `password_hash` și mesaj pentru un nume deja folosit.
