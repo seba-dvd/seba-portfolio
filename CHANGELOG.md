@@ -6,6 +6,28 @@ and versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-10-24
+M7: the map with one marker per place, in demo mode.
+
+### Added
+- Map on the protected page (`harta.php`, `js/harta.js`): a green marker for each row of `points`, the description on hover, description and coordinates on click, the view fitted to all markers
+- Demo mode (default): Leaflet 1.9.4 and OpenStreetMap, no key or billing needed
+- Google mode: `'harta_furnizor' => 'google'` and a key in `config.php` use the Google Maps JavaScript API with `AdvancedMarkerElement`; without a key the page falls back to demo, a refused key shows a message
+- `includes/antet.php` accepts CDN stylesheets with SRI; `includes/subsol.php` accepts `async` scripts
+- 5 map tests, including a description with HTML stored in the database (123 checks in total)
+- Report: section on the map, with a screenshot
+
+### Changed
+- `includes/db.php`: `configuratie()` reads `config.php` once for the database and the map settings
+- `config.example.php`: the map settings
+
+### Fixed
+- Test helper `are()` uses `printf` instead of `echo`, which changed `\u003C` into `<` in Git Bash
+
+### Security
+- Map descriptions reach the page only as text (`textContent` elements, never HTML strings given to Leaflet or Google)
+- Leaflet is pinned and checked with SRI; the Google key stays in `config.php`, outside git
+
 ## [0.6.0] - 2026-10-24
 M6: jQuery autocomplete on the login form.
 

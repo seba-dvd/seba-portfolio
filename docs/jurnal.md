@@ -169,3 +169,30 @@
 
 ### Următorul pas
 - M7: harta cu marcaje. Aștept răspunsul profesorului despre Leaflet și coloanele în plus pentru `points`.
+
+## 24.10.2026 – M7: harta, în mod demo (v0.7.0)
+
+### Ce am făcut
+- Pe pagina protejată am pus harta: câte un marcaj verde pentru fiecare loc din tabelul `points`. La hover apare descrierea, iar la click descrierea și coordonatele.
+- Am făcut un **mod demo**: harta este desenată cu Leaflet pe hărți OpenStreetMap, fără cheie și fără cont. Este modul implicit.
+- Modul Google este pregătit: în `config.php` pun `'harta_furnizor' => 'google'` și cheia. Fără cheie, pagina revine singură la demo; dacă Google refuză cheia, apare un mesaj.
+- Lista locurilor a rămas sub hartă.
+- Am adăugat 5 teste pentru hartă: 123 de verificări, toate trecute.
+
+### Ce am învățat
+- Google Maps cere facturare activată în Google Cloud, chiar și pentru utilizarea gratuită. Abonamentul meu Gemini nu ajută: e un produs separat.
+- Datele din PHP ajung în JavaScript ca JSON, într-un `<script type="application/json">`; `JSON_HEX_TAG` transformă `<` în `\u003C`, deci o descriere nu poate închide tag-ul.
+- Leaflet pune un șir de caractere în pagină ca HTML. Dacă îi dau un element creat cu `textContent`, descrierea rămâne text.
+- `google.maps.Marker` este depreciat; varianta nouă este `AdvancedMarkerElement`, care cere un `mapId`.
+- Leaflet folosește z-index mare; `isolation: isolate` pe containerul hărții o ține sub meniu.
+
+### Probleme întâlnite
+- Testul pentru JSON eșua deși pagina era corectă. Cauza: în Git Bash, `echo` transformă `\u003C` în `<`. Am trecut funcția de test pe `printf '%s\n'`.
+- Modul Google nu l-am putut testa cu o cheie reală; am verificat doar „fără cheie” și „cheie refuzată”.
+
+### De completat
+- Restul orașelor vizitate în `sql/date-initiale.sql`.
+- Întrebarea pentru profesor: este acceptat modul demo (Leaflet) sau trebuie Google Maps? Pot adăuga coloane în `points` pentru culori și fotografii?
+
+### Următorul pas
+- Extinderea hărții după răspunsul profesorului, apoi M8–M9 (finisaje, revizuire de securitate, limita de încercări la autentificare).

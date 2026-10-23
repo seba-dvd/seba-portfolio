@@ -1,6 +1,6 @@
 # Documentație tehnică – site personal PAI
 
-Versiunea documentată: **v0.6.0** (24.10.2026), etapele M0–M6.
+Versiunea documentată: **v0.7.0** (24.10.2026), etapele M0–M7 (harta în mod demo).
 Documentul descrie cum este construit site-ul și de ce; servește ca bază pentru raportul Word.
 
 ---
@@ -88,7 +88,7 @@ care se schimbă rar, deci un fișier PHP este suficient și mai simplu.
 | `contact.php` | Carduri-link (email, GitHub, LinkedIn). |
 | `login.php` | Cele două formulare (autentificare, cont nou), trimise prin POST la aceeași pagină; câmpul ascuns `actiune` le deosebește. |
 | `api/utilizatori.php` | JSON cu cel mult 10 nume de utilizator care încep cu `?term=`, pentru autocomplete. |
-| `harta.php` | Pagina protejată: mesajul de bun venit, locurile din `points`, linkul de ieșire. |
+| `harta.php` | Pagina protejată: mesajul de bun venit, harta (`js/harta.js`), lista locurilor din `points`, linkul de ieșire. |
 | `logout.php` | Închide sesiunea dacă tokenul din adresă este corect. |
 | `404.php` | Trimite codul HTTP 404 (`http_response_code`) și o pagină în stilul site-ului. Folosită de Apache (`ErrorDocument`) și de `proiect.php`. |
 
@@ -210,6 +210,35 @@ stilizată în `style.css`, fără tema jQuery UI.
 
 Lista arată ce conturi există (user enumeration): tema o cere; limitele de mai sus o reduc.
 
+### Harta (M7)
+
+Furnizorul se alege în `includes/config.php`:
+
+| `harta_furnizor` | Ce se încarcă | Cheie |
+|---|---|---|
+| `demo` (implicit) | Leaflet 1.9.4 de pe unpkg (CSS și JS, cu SRI), hărți OpenStreetMap | nu |
+| `google` | `maps.googleapis.com/maps/api/js?...&callback=pornesteHartaGoogle` (async, fără SRI: încărcătorul Google se schimbă) | `google_maps_cheie`, cu facturare |
+
+`google` fără cheie → `demo`. Cheie refuzată → `gm_authFailure()` afișează un mesaj în locul hărții.
+
+**De ce un mod demo:** API-ul Google Maps JavaScript cere un proiect Google Cloud cu facturare
+activată, chiar și în limitele gratuite. Un abonament Gemini nu ajută: este facturat separat.
+
+**Datele:** `harta.php` → `toatePunctele()` → JSON în `<script id="date-harta" type="application/json">`
+(`json_encode` cu `JSON_HEX_*`): `{furnizor, puncte: [{lat, lng, descriere}]}`.
+
+**`js/harta.js`:**
+- demo: `L.circleMarker` verde pentru fiecare punct, `bindTooltip` (descrierea la hover) și
+  `bindPopup` (descriere + coordonate). Ambele primesc **elemente DOM** create cu `textContent`;
+  un șir ar fi inserat de Leaflet ca HTML. `fitBounds` pe toate marcajele.
+- google: `importLibrary('maps')` și `('marker')`, `AdvancedMarkerElement` + `PinElement` verde
+  (`google.maps.Marker` este depreciat), `mapId: 'DEMO_MAP_ID'`, `InfoWindow` cu același conținut DOM.
+- dacă Leaflet nu s-a încărcat (CDN indisponibil): mesaj în locul hărții; lista de sub hartă rămâne.
+
+`.harta-mare` are `isolation: isolate`, ca straturile Leaflet (z-index până la 1000) să nu acopere
+meniul. `includes/antet.php` acceptă `$stiluri` (CSS de pe CDN cu SRI), `includes/subsol.php`
+acceptă scripturi `async` fără SRI.
+
 ---
 
 ## 9. Securitate
@@ -239,6 +268,8 @@ Lista arată ce conturi există (user enumeration): tema o cere; limitele de mai
 | Listarea tuturor utilizatorilor prin autocomplete | Minimum 2 caractere, „începe cu”, `LIMIT 10`, `%` refuzat, `_` escapat | `api/utilizatori.php` |
 | JSON interpretat ca HTML | `application/json`, `nosniff`, `JSON_HEX_*` | `api/utilizatori.php` |
 | Bibliotecă modificată pe CDN | Versiuni fixe + `integrity` (SRI) | `login.php`, `includes/subsol.php` |
+| XSS prin descrierile de pe hartă | JSON cu `JSON_HEX_*`, apoi elemente DOM cu `textContent` în etichete și ferestre | `harta.php`, `js/harta.js` |
+| Cheia Google Maps | În `config.php`; restricționată la adresa site-ului în Google Cloud | `includes/config.php` |
 | Pagina protejată în cache / istoric | `Cache-Control: no-store`, redirecționare fără sesiune | `includes/auth.php` |
 
 ---
@@ -257,7 +288,7 @@ Lista arată ce conturi există (user enumeration): tema o cere; limitele de mai
 ## 11. Testare
 
 ### Teste automate
-`bash teste/verificare.sh` (Apache și MySQL pornite). Rezultat pe 24.10.2026: **118 / 118 trecute**.
+`bash teste/verificare.sh` (Apache și MySQL pornite). Rezultat pe 24.10.2026: **123 / 123 trecute**.
 
 | Grup | Ce verifică |
 |---|---|
@@ -270,6 +301,7 @@ Lista arată ce conturi există (user enumeration): tema o cere; limitele de mai
 | Atacuri | `?lang=../../...`, `en%00`, `EN`, `fr`, `<script>`, cookie falsificat → rămâne română |
 | Escapare | Un `<script>` trimis în adresă nu apare neescapat în pagină |
 | Conturi și sesiuni | Prin formularele reale: fără token CSRF, nume `<b>x</b>`, parolă scurtă, parole diferite, cont nou, hash `$2y$` în baza de date, nume dublat (și cu majuscule), cookie `HttpOnly` / `SameSite`, identificator nou după autentificare, `no-store`, ieșire fără și cu token, parolă greșită, nume inexistent, `x' OR '1'='1`. Conturile `zz_test_*` sunt șterse la final. |
+| Hartă | Pagina protejată are harta și datele ei, biblioteca (Leaflet cu SRI sau Google); descrierea `<img src=x onerror=alert(1)>` introdusă în baza de date apare escapată în listă, ca `\u003C` în JSON și nicăieri ca etichetă reală |
 | Autocomplete | JSON cu `nosniff`, un nume găsit după început (și cu majuscule), maximum 10, nimic pentru o literă, `%%`, `__`, `x' OR '1'='1`, `<script>`, gol sau tablou; `_` nu este wildcard (`zzXtest_ac` nu apare pentru `zz_test_ac`); jQuery UI cu SRI |
 | Baza de date | `teste/verificare-bd.php`: conectarea ca `pai_app`, `utf8mb4`, coloanele, diacriticele, `x' OR '1'='1` nu găsește pe nimeni, `UNIQUE` (1062), `CHECK` (4025), `pai_app` nu poate `DELETE` / `UPDATE` / `DROP` / citi `mysql.user` (1142) |
 
@@ -292,6 +324,8 @@ baza de date rămâne neschimbată.
   (60 de cereri pe oră, fără autentificare).
 - Nu există încă o limită pentru încercările repetate de autentificare (M9).
 - Site-ul rulează local pe HTTP; pe HTTPS, cookie-urile primesc automat `Secure`.
+- Modul `google` nu a putut fi testat cu o cheie reală (fără facturare); cazurile „fără cheie” și
+  „cheie refuzată” sunt verificate.
 - Harta are deocamdată doar două locuri (Brașov, Codlea); restul orașelor vizitate se adaugă în
   `sql/date-initiale.sql`.
 - Culorile marcajelor (vizitat / de vizitat) și fotografiile au nevoie de coloane în plus în
