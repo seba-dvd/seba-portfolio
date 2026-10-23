@@ -96,7 +96,7 @@ P="parola-de-test-123"
 token() { curl -s -c "$1" -b "$1" "$SITE/login.php" | grep -o 'name="csrf" value="[^"]*"' | head -1 | cut -d'"' -f4; }
 trimite() { local jar="$1"; shift; curl -s -c "$jar" -b "$jar" "$@" "$SITE/login.php"; }
 sid() { grep 'pai_sesiune' "$1" | awk '{print $7}'; }
-are() { echo "$1" | grep -c -F "$2" | sed 's/[2-9]/1/'; }   # 1 if the text is there, 0 if not
+are() { printf '%s\n' "$1" | grep -c -F "$2" | sed 's/[2-9]/1/'; }   # 1 if the text is there, 0 if not
 
 verifica "login.php answers" 200 "$(cod "$SITE/login.php")"
 verifica "harta.php without login → login.php" "303 login.php" \
@@ -124,6 +124,17 @@ verifica "new session id after register" 1 "$([ -n "$INAINTE" ] && [ "$INAINTE" 
 HARTA=$(curl -s -D - -c "$J1" -b "$J1" "$SITE/harta.php")
 verifica "harta.php greets the user" 1 "$(are "$HARTA" "Bine ai venit, $U!")"
 verifica "harta.php is not cached (no-store)" 1 "$(echo "$HARTA" | grep -c -i '^cache-control: no-store')"
+verifica "harta.php has the map and its data" 2 "$(echo "$HARTA" | grep -c -E 'id="harta"|id="date-harta"')"
+verifica "the map library is Leaflet with SRI or Google Maps" 1 \
+    "$(echo "$HARTA" | grep -c -E 'leaflet\.js" integrity="sha256-|maps\.googleapis\.com' | sed 's/[2-9]/1/')"
+# A description with HTML in the database must stay text, in the list and in the JSON for the map
+"$MYSQL" -u root -e "INSERT INTO pai_proiect.points (ID, lat, \`long\`, description)
+    VALUES (999999, 45, 25, '<img src=x onerror=alert(1)>')" 2>/dev/null
+HARTA_XSS=$(curl -s -c "$J1" -b "$J1" "$SITE/harta.php")
+verifica "a description with HTML is escaped in the list" 1 "$(are "$HARTA_XSS" '&lt;img src=x onerror=alert(1)&gt;')"
+verifica "… and in the map JSON (\u003C)" 1 "$(are "$HARTA_XSS" '\u003Cimg src=x')"
+verifica "… and appears nowhere as a real tag" 0 "$(printf '%s\n' "$HARTA_XSS" | grep -c '<img src=x')"
+"$MYSQL" -u root -e "DELETE FROM pai_proiect.points WHERE ID = 999999" 2>/dev/null
 verifica "the password is stored as a bcrypt hash" '$2y$' \
     "$("$MYSQL" -u root -N -e "SELECT LEFT(password, 4) FROM pai_proiect.users WHERE user = '$U'" 2>/dev/null)"
 
