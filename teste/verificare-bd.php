@@ -37,7 +37,7 @@ function codEroare(mysqli $bd, string $sql): int
 
 $bd = conectareBd();
 
-echo "9. Database\n";
+echo "10. Database\n";
 verifica('connected as pai_app', 'pai_app@localhost',
     mysqli_fetch_row(mysqli_query($bd, 'SELECT CURRENT_USER()'))[0]);
 verifica('connection charset is utf8mb4', 'utf8mb4', mysqli_character_set_name($bd));
