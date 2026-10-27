@@ -11,6 +11,7 @@
  */
 require_once __DIR__ . '/functii.php';
 require_once __DIR__ . '/limba.php';
+require_once __DIR__ . '/contacte.php';
 
 $temaCyber = $temaCyber ?? false;
 $titlu = $titlu ?? ($t['titluri'][$cheieTitlu ?? $pagina] ?? '');
@@ -47,7 +48,7 @@ $texteJs = json_encode($t['js'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | J
 <body<?= $temaCyber ? ' class="tema-cyber"' : '' ?>>
     <header>
         <nav aria-label="<?= e($t['meniu_eticheta']) ?>">
-            <a class="logo" href="index.php">Seba<span>.</span></a>
+            <a class="logo" href="index.php"><img class="avatar" src="img/avatar.jpg" alt="" width="40" height="40">Seba<span>.</span></a>
             <div class="meniu">
                 <?php foreach ($meniu as $cheie => $fisier): ?>
                     <a href="<?= e($fisier) ?>"<?= $cheie === $pagina ? ' class="activ" aria-current="page"' : '' ?>><?= e($t['meniu'][$cheie]) ?></a>

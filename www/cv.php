@@ -18,10 +18,8 @@ $s = $t['cv_sectiuni'];
                 <h1>David Sebastian Pilat</h1>
                 <p class="cv-rol"><?= e($t['cv_rol']) ?></p>
                 <p class="cv-contact">
-                    <?= e($t['locatie']) ?> ·
-                    <a href="mailto:[EMAIL]">[EMAIL]</a> ·
-                    <a href="https://github.com/seba-dvd">github.com/seba-dvd</a> ·
-                    <a href="[LINKEDIN]">[LINKEDIN]</a>
+                    <?= e($t['locatie']) ?><?php foreach (linkuriContact() as $link): ?> ·
+                    <a href="<?= e($link['href']) ?>"><?= e($link['text']) ?></a><?php endforeach; ?>
                 </p>
             </header>
 

@@ -2,6 +2,9 @@
 /**
  * Shared bottom of every page: the footer, the page's own scripts, </body> and </html>.
  *
+ * The footer repeats the menu ($meniu, from includes/antet.php) and the social
+ * icons (includes/contacte.php).
+ *
  * A page may set $scripturi before including it. Each entry is either a local
  * file ('js/....js') or a library from a CDN with its SRI hash:
  *     ['src' => 'https://...', 'integrity' => 'sha384-...']
@@ -11,8 +14,26 @@
  */
 $scripturi = $scripturi ?? [];
 ?>
-    <footer>
-        <p>&copy; <?= date('Y') ?> David Sebastian Pilat</p>
+    <footer class="subsol">
+        <div class="subsol-sus">
+            <div class="subsol-nume">
+                <a class="logo" href="index.php">Seba<span>.</span></a>
+                <p><?= e($t['subsol_tagline']) ?></p>
+            </div>
+
+            <nav class="subsol-meniu" aria-label="<?= e($t['subsol_meniu']) ?>">
+                <?php foreach ($meniu as $cheie => $fisier): ?>
+                    <a href="<?= e($fisier) ?>"><?= e($t['meniu'][$cheie]) ?></a>
+                <?php endforeach; ?>
+            </nav>
+
+            <?= htmlSociale($t['social_eticheta'], 'social social-mic') ?>
+        </div>
+
+        <div class="subsol-jos">
+            <p>&copy; <?= date('Y') ?> David Sebastian Pilat</p>
+            <p><?= e($t['locatie']) ?></p>
+        </div>
     </footer>
 <?php foreach ($scripturi as $script): ?>
 <?php if (is_array($script) && isset($script['integrity'])): ?>

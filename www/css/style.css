@@ -1,14 +1,19 @@
-/* ===== Theme 1: personal (default) ===== */
+/* ===== Theme 1: personal (default): calm mint, a faint grid, white cards ===== */
 :root {
-    --fundal: #dff1ea;          /* page background: pale green */
-    --card: #f2fbf7;            /* card background: mint */
-    --text: #1c2b26;
-    --text-slab: #5b6f68;       /* secondary text: grey-green */
-    --accent: #0f766e;          /* main colour: teal */
-    --accent-2: #f59e0b;        /* fun colour: amber */ 
-    --font: "Segoe UI", Arial, sans-serif;
-    --raza: 14px;               /* corner rounding */
-    --umbra: 0 2px 8px rgba(0, 0, 0, 0.08);
+    --fundal: #f4f8f6;          /* page background: almost white, a hint of mint */
+    --card: #ffffff;
+    --text: #1f2a27;
+    --text-slab: #5f6f6a;       /* secondary text: grey-green */
+    --accent: #0f766e;          /* main colour: teal, used only for small accents */
+    --accent-2: #f59e0b;        /* fun colour: amber */
+    --linie: rgba(31, 42, 39, 0.06);         /* the grid lines on the background */
+    --bordura: rgba(31, 42, 39, 0.09);       /* thin card borders */
+    --stralucire: rgba(15, 118, 110, 0.09);  /* soft glow behind the grid */
+    --titlu: var(--text);       /* headings inside cards */
+    --chip: #edf3f1;            /* background of tags and icon circles */
+    --font: Inter, "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+    --raza: 16px;               /* corner rounding */
+    --umbra: 0 1px 2px rgba(16, 24, 22, 0.04), 0 8px 24px rgba(16, 24, 22, 0.06);
 }
 
 /* ===== Theme 2: cyber (on <body class="tema-cyber"> or on a single card) ===== */
@@ -19,6 +24,11 @@
     --text-slab: #8b949e;
     --accent: #39ff14;          /* neon green */
     --accent-2: #00e5ff;        /* cyan */
+    --linie: rgba(57, 255, 20, 0.05);        /* a faint green grid, like a terminal screen */
+    --bordura: transparent;     /* the outline comes from --umbra */
+    --stralucire: rgba(0, 229, 255, 0.06);
+    --titlu: var(--accent);
+    --chip: #21262d;
     --font: Consolas, "Courier New", monospace;
     --raza: 4px;                /* sharper corners */
     --umbra: 0 0 0 1px #30363d; /* thin outline instead of a shadow */
@@ -27,30 +37,57 @@
 /* ===== Base ===== */
 body {
     margin: 0;
-    background: var(--fundal);
     color: var(--text);
     font-family: var(--font);
+    background-color: var(--fundal);
+    /* Graph paper: a soft glow, then thin horizontal and vertical lines every 32px */
+    background-image:
+        radial-gradient(ellipse 80% 60% at 75% 0%, var(--stralucire), transparent 70%),
+        linear-gradient(var(--linie) 1px, transparent 1px),
+        linear-gradient(90deg, var(--linie) 1px, transparent 1px);
+    background-size: 100% 100%, 32px 32px, 32px 32px;
+    background-attachment: fixed;
+    /* A column: menu, content, footer. On short pages the footer still sits at the bottom */
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
-/* ===== Menu: logo on the left, links on the right ===== */
+/* Text only for screen readers (e.g. the full greeting while it is being typed) */
+.vizual-ascuns {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Inline SVG icons (includes/iconite.php) */
+.iconita {
+    width: 1.25em;
+    height: 1.25em;
+    display: block;
+}
+
+/* ===== Menu: logo on the left, links on the right, straight on the grid ===== */
 /* body > header: only the site's top bar, not other <header> elements (like the CV's) */
-body > header {
-    background: var(--card);
-    box-shadow: var(--umbra);
-}
-
-nav {
+body > header nav {
     display: flex;
     justify-content: space-between;   /* logo left, links right */
     align-items: center;
-    max-width: 1000px;
+    max-width: 1100px;
     margin: 0 auto;
-    padding: 14px 20px;
+    padding: 22px 24px;
 }
 
 .logo {
-    font-size: 1.5em;
+    font-size: 1.4em;
     font-weight: 800;
+    letter-spacing: -0.01em;
     color: var(--text);
     text-decoration: none;
 }
@@ -59,22 +96,44 @@ nav {
     color: var(--accent-2);           /* the coloured dot */
 }
 
+/* Small round photo next to the name */
+.avatar {
+    width: 40px;
+    height: 40px;
+    margin-right: 10px;
+    vertical-align: middle;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--card);
+    box-shadow: var(--umbra);
+    transition: transform 0.3s;
+}
+
+.logo:hover .avatar {
+    transform: rotate(-8deg) scale(1.06);
+}
+
 .meniu {
     display: flex;
-    gap: 22px;
+    align-items: center;
+    gap: 26px;
 }
 
 .meniu a {
     color: var(--text-slab);
     text-decoration: none;
-    font-weight: 600;
-    padding-bottom: 4px;
+    font-weight: 500;
+    padding: 4px 0;
     border-bottom: 2px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
 }
 
-.meniu a:hover,
+.meniu a:hover {
+    color: var(--text);
+}
+
 .meniu a.activ {
-    color: var(--accent);
+    color: var(--text);
     border-bottom-color: var(--accent);   /* underline the current page */
 }
 
@@ -83,8 +142,9 @@ nav {
     display: flex;
     gap: 2px;
     padding: 3px;
-    border: 1px solid var(--text-slab);
+    border: 1px solid var(--bordura);
     border-radius: 999px;
+    background: var(--card);
 }
 
 .meniu .limbi a {
@@ -101,49 +161,13 @@ nav {
 
 /* ===== Main content ===== */
 main {
-    max-width: 1000px;
+    flex: 1 0 auto;                       /* takes the free height, pushing the footer down */
+    width: min(1000px, 100% - 40px);      /* 40px = the side padding */
     margin: 0 auto;
-    padding: 24px 20px;
+    padding: 24px 20px 56px;
 }
 
-/* ===== Hero: two columns, text + photo ===== */
-.hero {
-    display: grid;
-    grid-template-columns: 1.3fr 1fr;     /* text column is a bit wider */
-    gap: 40px;
-    align-items: center;
-    padding: 40px 0 56px;
-}
-
-.salut {
-    margin: 0;
-    color: var(--accent);
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-}
-
-.hero h1 {
-    font-size: 3em;
-    line-height: 1.1;
-    margin: 8px 0 16px;
-}
-
-.tagline {
-    font-size: 1.15em;
-    line-height: 1.6;
-    margin: 0 0 8px;
-}
-
-.tagline strong {
-    color: var(--accent);
-}
-
-.locatie {
-    color: var(--text-slab);
-    margin: 0 0 24px;
-}
-
+/* ===== Buttons (map page, admin panel) ===== */
 .butoane {
     display: flex;
     gap: 12px;
@@ -165,95 +189,136 @@ main {
     transform: translateY(-2px);
 }
 
-/* The "cyber mode" button already looks like the other world */
+/* A button that already looks like the cyber world */
 .btn-cyber {
     background: #0d1117;
     color: #39ff14;
     font-family: Consolas, "Courier New", monospace;
 }
 
-/* Photo with an organic "blob" shape and floating badges */
-.hero-poza {
-    position: relative;                   /* badges are placed relative to this box */
-    justify-self: center;
+/* ===== Home page: one calm column, the rest is one click away ===== */
+main.acasa {
+    width: min(760px, 100%);              /* border-box: 720px of text + the side padding */
+    min-height: calc(100vh - 240px);      /* the greeting fills the first screen; the footer is below */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-top: 40px;
+    padding-bottom: 72px;
+    box-sizing: border-box;
 }
 
-.poza {
-    display: block;
-    width: 300px;
-    height: 300px;
-    object-fit: cover;
-    border: 6px solid var(--card);
-    box-shadow: 14px 14px 0 var(--accent-2);
-    border-radius: 60% 40% 55% 45% / 50% 60% 40% 50%;
-    animation: blob 8s ease-in-out infinite;
+.scris {
+    font-size: clamp(2rem, 8vw, 4.2rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    margin: 0 0 28px;
 }
 
-/* The blob slowly changes shape */
-@keyframes blob {
-    50% {
-        border-radius: 40% 60% 45% 55% / 60% 40% 60% 40%;
-    }
+/* The typing cursor: a thin blinking bar (animation "clipeste", see the projects page) */
+.scris .cursor {
+    display: inline-block;
+    width: 4px;
+    height: 0.85em;
+    margin-left: 8px;
+    vertical-align: -0.06em;
+    border-radius: 2px;
+    background: var(--accent);
 }
 
-.insigna {
-    position: absolute;
-    background: var(--card);
+.acasa p {
+    font-size: 1.15em;
+    line-height: 1.75;
+    color: var(--text-slab);
+    margin: 0 0 16px;
+}
+
+.acasa p strong {
     color: var(--text);
-    padding: 8px 14px;
-    border-radius: 999px;
-    font-size: 0.9em;
+}
+
+.link-parcurs {
+    align-self: flex-start;
+    margin-top: 20px;
+    font-size: 1.15em;
     font-weight: 600;
-    box-shadow: var(--umbra);
-    white-space: nowrap;
+    color: var(--text);
+    text-decoration: none;
 }
 
-.insigna-1 { top: 10px;    left: -40px; }
-.insigna-2 { top: 140px;   right: -50px; }
-.insigna-3 { bottom: 10px; left: -10px; }
+.link-parcurs span {
+    display: inline-block;
+    transition: transform 0.2s;
+}
 
-/* ===== Bento grid ===== */
-.bento {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
+.link-parcurs:hover {
+    color: var(--accent);
+}
+
+.link-parcurs:hover span {
+    transform: translateX(6px);           /* the arrow nudges forward */
+}
+
+/* Social icons (home page and footer) */
+.social {
+    list-style: none;
+    margin: 28px 0 0;
+    padding: 0;
+    display: flex;
     gap: 18px;
-    /* Each name is a card; repeating a name makes that card span several cells */
-    grid-template-areas:
-        "despre    despre     hobby"
-        "educatie  competente competente"
-        "educatie  proiecte   harta";
 }
 
-.despre     { grid-area: despre; }
-.hobby      { grid-area: hobby; }
-.educatie   { grid-area: educatie; }
-.competente { grid-area: competente; }
-.proiecte   { grid-area: proiecte; }
-.harta      { grid-area: harta; }
+.social a {
+    display: block;
+    color: var(--text-slab);
+    transition: color 0.2s, transform 0.2s;
+}
+
+.social a:hover,
+.social a:focus-visible {
+    color: var(--accent);
+    transform: translateY(-2px);
+}
+
+.social .iconita {
+    width: 28px;
+    height: 28px;
+}
+
+.social-mic {
+    gap: 14px;
+}
+
+.social-mic .iconita {
+    width: 20px;
+    height: 20px;
+}
 
 /* ===== Cards ===== */
 .card {
     background: var(--card);
     color: var(--text);
     font-family: var(--font);
+    border: 1px solid var(--bordura);
     border-radius: var(--raza);
-    padding: 22px 24px;
+    padding: 24px 26px;
     box-shadow: var(--umbra);
-    transition: transform 0.2s, background-color 0.4s ease, color 0.4s ease;
+    transition: transform 0.25s ease, background-color 0.4s ease, color 0.4s ease;
 }
 
 .card:hover {
-    transform: translateY(-4px);          /* lift on hover */
+    transform: translateY(-3px);          /* a gentle lift on hover */
 }
 
 .card h2 {
     margin-top: 0;
-    color: var(--accent);
+    color: var(--titlu);
     font-size: 1.25em;
 }
 
 .card p {
-    line-height: 1.6;
+    line-height: 1.65;
 }
 
 .link {
@@ -262,56 +327,7 @@ main {
     text-decoration: none;
 }
 
-/* Hobbies */
-.lista-hobby {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.lista-hobby li {
-    padding: 8px 0;
-    font-size: 1.05em;
-}
-
-.lista-hobby span {
-    font-size: 1.4em;
-    margin-right: 8px;
-}
-
-/* Education timeline: a vertical line with dots */
-.timeline {
-    list-style: none;
-    margin: 0;
-    padding: 0 0 0 20px;
-    border-left: 3px solid var(--accent);
-}
-
-.timeline li {
-    position: relative;
-    margin-bottom: 18px;
-    line-height: 1.4;
-}
-
-.timeline li::before {
-    content: "";
-    position: absolute;
-    left: -29px;
-    top: 3px;
-    width: 13px;
-    height: 13px;
-    border-radius: 50%;
-    background: var(--accent-2);
-    border: 2px solid var(--card);
-}
-
-.an {
-    display: block;
-    font-weight: 700;
-    color: var(--accent);
-}
-
-/* Skills as tags */
+/* Skills as small grey tags */
 .taguri {
     list-style: none;
     padding: 0;
@@ -322,12 +338,26 @@ main {
 }
 
 .taguri li {
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: var(--chip);
+    color: var(--text-slab);
+    font-size: 0.75em;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+/* The cyber theme keeps its outlined neon pills */
+.tema-cyber .taguri li {
     padding: 6px 12px;
     border-radius: 999px;
     border: 2px solid var(--accent);
+    background: transparent;
     color: var(--accent);
-    font-weight: 600;
     font-size: 0.9em;
+    letter-spacing: 0;
+    text-transform: none;
 }
 
 /* Map teaser: legend dots */
@@ -344,11 +374,69 @@ main {
 .punct.vizitat { background: #16a34a; }   /* green: visited */
 .punct.dorit   { background: #f59e0b; }   /* amber: want to visit */
 
-/* ===== Footer ===== */
-footer {
-    text-align: center;
+/* ===== Footer: name, menu, icons; then the copyright line ===== */
+.subsol {
+    background: var(--card);
+    border-top: 1px solid var(--bordura);
     color: var(--text-slab);
-    padding: 24px;
+    font-size: 0.95em;
+}
+
+.subsol-sus {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 36px 20px 24px;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 24px;
+    align-items: start;
+}
+
+.subsol .logo {
+    font-size: 1.6em;
+}
+
+.subsol-nume p {
+    margin: 8px 0 0;
+}
+
+.subsol-meniu {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px 18px;
+    padding-top: 8px;
+}
+
+.subsol-meniu a {
+    color: var(--text-slab);
+    text-decoration: none;
+}
+
+.subsol-meniu a:hover {
+    color: var(--text);
+}
+
+.subsol .social {
+    justify-self: end;
+    margin: 0;
+    padding-top: 8px;
+}
+
+.subsol-jos {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 16px 0 28px;
+    border-top: 1px solid var(--bordura);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px 24px;
+    font-size: 0.9em;
+}
+
+.subsol-jos p {
+    margin: 0;
 }
 
 /* ===== Projects page: fake terminal ===== */
@@ -640,18 +728,92 @@ footer {
     color: var(--fundal);
 }
 
-/* ===== About page ===== */
+/* ===== About page: profile, facts, story, timeline ===== */
+.titlu-pagina {
+    text-align: center;
+    font-size: 2.4em;
+    letter-spacing: -0.02em;
+    margin: 16px 0 32px;
+}
+
+.profil {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    max-width: 840px;
+    margin: 0 auto 16px;
+    box-sizing: border-box;
+}
+
+.profil-poza {
+    flex: none;
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid var(--card);
+    box-shadow: var(--umbra);
+}
+
+.profil h2 {
+    font-size: 1.6em;
+    margin: 0 0 8px;
+}
+
+.profil p {
+    margin: 0;
+    color: var(--text-slab);
+}
+
+/* Four small tiles: icon, label, value */
+.info-tiles {
+    list-style: none;
+    max-width: 840px;
+    margin: 0 auto;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+}
+
+.info-tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 18px 12px;
+    text-align: center;
+}
+
+.info-tile .iconita {
+    width: 22px;
+    height: 22px;
+    color: var(--accent);
+}
+
+.info-eticheta {
+    font-size: 0.72em;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-slab);
+}
+
+.info-tile strong {
+    font-size: 0.95em;
+}
+
+.despre-pagina .titlu-sectiune {
+    text-align: center;
+    color: var(--text);
+    font-size: 1.6em;
+    margin: 56px 0 22px;
+}
+
 .despre-intro {
     display: grid;
     grid-template-columns: 2fr 1fr;       /* story wide, "now" card narrow */
     gap: 18px;
     align-items: start;
-    margin-bottom: 32px;
-}
-
-.despre-intro h1 {
-    margin-top: 0;
-    color: var(--accent);
 }
 
 /* The "Acum lucrez la" card: amber outline so it stands out */
@@ -674,18 +836,116 @@ footer {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 18px;
-    margin-bottom: 32px;
 }
 
 .grid-hobby h3 {
-    margin: 8px 0;
+    margin: 12px 0 8px;
+    color: var(--titlu);
+}
+
+/* An emoji or an icon in a soft round background */
+.icon-cerc {
+    display: inline-grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--chip);
+    font-size: 1.4em;
+}
+
+.icon-cerc .iconita {
+    width: 22px;
+    height: 22px;
     color: var(--accent);
+}
+
+/* Timeline: a line with dots, one card per step */
+.timeline-carduri {
+    position: relative;
+    list-style: none;
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 0 0 0 36px;
+}
+
+.timeline-carduri::before {
+    content: "";
+    position: absolute;
+    left: 11px;
+    top: 10px;
+    bottom: 10px;
+    width: 2px;
+    background: linear-gradient(var(--accent), var(--bordura));
+}
+
+.timeline-carduri li {
+    position: relative;
+    margin-bottom: 16px;
+    padding: 18px 22px;
+}
+
+.timeline-carduri li::before {
+    content: "";
+    position: absolute;
+    left: -34px;                          /* centred on the line */
+    top: 22px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--card);
+    border: 3px solid var(--accent);
+}
+
+/* The newest step: a full amber dot */
+.timeline-carduri li:first-child::before {
+    background: var(--accent-2);
+    border-color: var(--accent-2);
+}
+
+.timeline-carduri .an {
+    font-size: 0.8em;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent);
+}
+
+.timeline-carduri p {
+    margin: 6px 0 0;
+}
+
+/* "Where to go next": two cards that are links */
+.mai-departe {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+}
+
+.card-link {
+    display: block;
+    color: var(--text);
+    text-decoration: none;
+}
+
+.card-link h3 {
+    margin-top: 0;
+    color: var(--titlu);
+}
+
+.card-link:hover .link {
+    text-decoration: underline;
+}
+
+.card-link:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
 }
 
 /* ===== Contact page ===== */
 .contact-intro h1 {
     margin-top: 0;
-    color: var(--accent);
+    color: var(--titlu);
 }
 
 .contact-intro {
@@ -700,7 +960,8 @@ footer {
 }
 
 .contact-card h3 {
-    color: var(--accent);
+    margin: 14px 0 6px;
+    color: var(--titlu);
 }
 
 .contact-card p {
@@ -850,11 +1111,13 @@ a.contact-card:focus-visible {
     }
 
     body {
+        display: block;                   /* no column layout on paper */
+        min-height: 0;
         background: #ffffff !important;
     }
 
     main {
-        max-width: none;
+        width: auto;
         padding: 0;
     }
 
@@ -1461,9 +1724,10 @@ body > header {
 
 /* ===== Phones and narrow screens ===== */
 @media (max-width: 760px) {
-    nav {
+    body > header nav {
         flex-direction: column;
-        gap: 10px;
+        gap: 12px;
+        padding: 16px;
     }
 
     .meniu {
@@ -1472,46 +1736,43 @@ body > header {
         justify-content: center;
     }
 
-    .hero {
-        grid-template-columns: 1fr;       /* one column: photo under text */
+    main.acasa {
+        min-height: 0;
+        padding-top: 32px;
+    }
+
+    .profil {
+        flex-direction: column;
         text-align: center;
-        padding-top: 16px;
+        gap: 16px;
     }
 
-    .hero h1 {
-        font-size: 2.2em;
+    .info-tiles {
+        grid-template-columns: 1fr 1fr;
     }
 
-    .butoane {
-        justify-content: center;
-    }
-
-    .poza {
-        width: 220px;
-        height: 220px;
-    }
-
-    .insigna-1 { left: -20px; }
-    .insigna-2 { right: -20px; top: 100px; }
-
-    .despre-intro {
+    .despre-intro,
+    .mai-departe {
         grid-template-columns: 1fr;
     }
-
 
     .acum {
         position: static;
     }
 
-    .bento {
+    .subsol-sus {
         grid-template-columns: 1fr;
-        grid-template-areas:
-            "despre"
-            "hobby"
-            "competente"
-            "educatie"
-            "proiecte"
-            "harta";
+        justify-items: center;
+        text-align: center;
+    }
+
+    .subsol .social {
+        justify-self: center;
+    }
+
+    .subsol-jos {
+        justify-content: center;
+        text-align: center;
     }
 }
 
@@ -1528,6 +1789,6 @@ body > header {
 
 /* Respect users who turned off animations in their system settings */
 @media (prefers-reduced-motion: reduce) {
-    .poza, .cursor { animation: none; }
-    .card, .btn { transition: none; }
+    .cursor { animation: none; }
+    .card, .btn, .avatar, .social a, .link-parcurs span { transition: none; }
 }

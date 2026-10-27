@@ -29,18 +29,18 @@ return [
     'limba_eticheta' => 'Limba site-ului',
     'schimba_tema'   => 'Schimbă tema',
     'descriere_site' => 'Site-ul personal al lui David Sebastian Pilat: student la Telecomunicații, pasionat de securitate cibernetică.',
+    'subsol_tagline' => 'Semnale, rețele și securitate.',
+    'subsol_meniu'   => 'Meniu în subsol',
 
     // ===== Home =====
-    'hero_salut'        => 'Salut, eu sunt',
+    'hero_titlu'        => 'Salut, sunt Seba!',
     'hero_text_inainte' => 'Student în ultimul an la Telecomunicații. Construiesc un multi-tool de pentesting pe Raspberry Pi și țintesc o carieră în',
     'hero_accent'       => 'securitate cibernetică',
     'locatie'           => 'Brașov, România',
-    'btn_despre'        => 'Despre mine',
-    'btn_cyber'         => '> modul cyber',
+    'acasa_link'        => 'Explorează parcursul meu',
+    'social_eticheta'   => 'Mă găsești pe',
     'poza_alt'          => 'Fotografia lui David Sebastian Pilat',
-    'insigne'           => ['Cyber security', 'Radio & IoT', 'Fotbal'],
     'acasa_despre'      => 'Totul a început cu filmele cu spioni: în timp ce ceilalți urmăreau acțiunea, eu mă uitam la gadgeturi. Așa am ajuns la Telecomunicații, unde mă fascinează partea invizibilă a tehnologiei: semnale și pachete pe care nu le vede nimeni.',
-    'citeste_tot'       => 'Citește povestea întreagă →',
     'titlu_despre'      => 'Despre mine',
     'titlu_hobby'       => 'Hobby-uri',
     'titlu_parcurs'     => 'Parcurs',
@@ -53,6 +53,16 @@ return [
     'harta_link'        => 'Vezi harta →',
 
     // ===== About =====
+    'profil_salut' => 'Salut, sunt David',
+    // The four tiles under the profile card (icons: includes/iconite.php)
+    'despre_info' => [
+        ['icon' => 'locatie', 'eticheta' => 'Locație', 'valoare' => 'Brașov, România'],
+        ['icon' => 'studii',  'eticheta' => 'Studii',  'valoare' => 'Telecomunicații, anul IV'],
+        ['icon' => 'limbi',   'eticheta' => 'Limbi',   'valoare' => 'Română · [LIMBA]'],
+        ['icon' => 'focus',   'eticheta' => 'Focus',   'valoare' => 'Cyber · Radio · IoT'],
+    ],
+    'titlu_poveste'     => 'Povestea mea',
+    'titlu_mai_departe' => 'Mai departe',
     'despre_paragrafe' => [
         'Sunt David, student în ultimul an la Telecomunicații, la Universitatea Transilvania din Brașov. În prezent lucrez la lucrarea de licență: un multi-tool portabil de pentesting, construit pe Raspberry Pi, care testează securitatea dispozitivelor radio și IoT. Practic, e propriul meu Flipper Zero, cu câteva trucuri în plus. Țintesc o carieră în securitate cibernetică, ca pentester sau security engineer într-un SOC. Mă gândesc serios și să-mi pun cunoștințele în slujba țării, la MApN, MAI sau SRI.',
         'Totul a început în fața televizorului. Când eram mic, mă uitam la toate filmele cu forțe speciale și spioni pe care le găseam. În timp ce ceilalți urmăreau acțiunea, eu mă uitam la gadgeturi. Cum funcționează stația aia? Cum au intrat în sistem? N-am încetat niciodată să întreb.',

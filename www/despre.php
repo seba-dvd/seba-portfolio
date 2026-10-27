@@ -1,13 +1,36 @@
 <?php
 $pagina = 'despre';
 require __DIR__ . '/includes/antet.php';
+
+$proiecte = require __DIR__ . '/includes/proiecte-date.php';
 ?>
 
-    <main>
-        <!-- ===== Intro: the story + what I'm working on now ===== -->
+    <main class="despre-pagina">
+        <h1 class="titlu-pagina"><?= e($t['titlu_despre']) ?></h1>
+
+        <!-- ===== Who I am: photo, short intro and four quick facts ===== -->
+        <section class="card profil">
+            <img class="profil-poza" src="img/profil-rotund.jpg" alt="<?= e($t['poza_alt']) ?>" width="160" height="160">
+            <div>
+                <h2><?= e($t['profil_salut']) ?></h2>
+                <p><?= e($t['acasa_despre']) ?></p>
+            </div>
+        </section>
+
+        <ul class="info-tiles">
+            <?php foreach ($t['despre_info'] as $info): ?>
+                <li class="card info-tile">
+                    <?= iconita($info['icon']) ?>
+                    <span class="info-eticheta"><?= e($info['eticheta']) ?></span>
+                    <strong><?= e($info['valoare']) ?></strong>
+                </li>
+            <?php endforeach; ?>
+        </ul>
+
+        <!-- ===== The story + what I'm working on now ===== -->
+        <h2 class="titlu-sectiune"><?= e($t['titlu_poveste']) ?></h2>
         <section class="despre-intro">
             <article class="card">
-                <h1><?= e($t['titlu_despre']) ?></h1>
                 <?php foreach ($t['despre_paragrafe'] as $paragraf): ?>
                     <p><?= e($paragraf) ?></p>
                 <?php endforeach; ?>
@@ -31,7 +54,7 @@ require __DIR__ . '/includes/antet.php';
         <section class="grid-hobby">
             <?php foreach ($t['hobby'] as $hobby): ?>
                 <article class="card">
-                    <span class="icon"><?= e($hobby['icon']) ?></span>
+                    <span class="icon-cerc" aria-hidden="true"><?= e($hobby['icon']) ?></span>
                     <h3><?= e($hobby['titlu']) ?></h3>
                     <p><?= e($hobby['text']) ?></p>
                 </article>
@@ -53,17 +76,35 @@ require __DIR__ . '/includes/antet.php';
             <?php endforeach; ?>
         </section>
 
-        <!-- ===== Timeline: newest first (the texts are in includes/lang/) ===== -->
+        <!-- ===== Timeline: newest first, one card per step (the texts are in includes/lang/) ===== -->
         <h2 class="titlu-sectiune"><?= e($t['titlu_parcurs']) ?></h2>
-        <section class="card">
-            <ol class="timeline">
-                <?php foreach ($t['parcurs'] as $pas): ?>
-                    <li>
-                        <span class="an"><?= e($pas['an']) ?></span>
-                        <?= e($pas['text']) ?>
-                    </li>
-                <?php endforeach; ?>
-            </ol>
+        <ol class="timeline-carduri">
+            <?php foreach ($t['parcurs'] as $pas): ?>
+                <li class="card">
+                    <span class="an"><?= e($pas['an']) ?></span>
+                    <p><?= e($pas['text']) ?></p>
+                </li>
+            <?php endforeach; ?>
+        </ol>
+
+        <!-- ===== Where to go next: the projects (in the cyber theme) and the travel map ===== -->
+        <h2 class="titlu-sectiune"><?= e($t['titlu_mai_departe']) ?></h2>
+        <section class="mai-departe">
+            <a class="card card-link tema-cyber" href="proiecte.php">
+                <h3>&gt; ls ./proiecte</h3>
+                <p><?php foreach ($proiecte as $p): ?><?= e($p['slug']) ?>/  <?php endforeach; ?></p>
+                <span class="link"><?= e($t['proiecte_link']) ?></span>
+            </a>
+
+            <a class="card card-link" href="harta.php">
+                <h3><?= e($t['harta_titlu']) ?></h3>
+                <p><?= e($t['harta_text']) ?></p>
+                <p class="legenda">
+                    <span class="punct vizitat"></span> <?= e($t['harta_vizitate']) ?>
+                    <span class="punct dorit"></span> <?= e($t['harta_dorite']) ?>
+                </p>
+                <span class="link"><?= e($t['harta_link']) ?></span>
+            </a>
         </section>
     </main>
 
