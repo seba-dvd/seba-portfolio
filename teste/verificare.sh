@@ -275,6 +275,42 @@ if ! echo "$IESIRE_PROGRES" | grep -q '^Progress passed'; then
     echo "  FAIL  progress checks did not run"
 fi
 
+echo "14. Clean design: home page, About page, footer"
+ACASA=$(curl -s "$SITE/index.php")
+ACASA_EN=$(curl -s -b 'lang=en' "$SITE/index.php")
+DESPRE=$(curl -s "$SITE/despre.php")
+CONTACT=$(curl -s "$SITE/contact.php")
+CV=$(curl -s "$SITE/cv.php")
+verifica "home: the full greeting is in the HTML (works without JS)" 1 "$(are "$ACASA" 'Salut, sunt Seba!')"
+verifica "home (EN): the greeting is translated" 1 "$(are "$ACASA_EN" 'Hi, I&#039;m Seba!')"
+verifica "home: the typewriter script is loaded" 1 "$(are "$ACASA" 'src="js/acasa.js"')"
+verifica "home: one link onward, to the About page" 1 "$(are "$ACASA" 'class="link-parcurs" href="despre.php"')"
+verifica "home: the GitHub icon link" 1 "$(are "$ACASA" 'aria-label="GitHub"')"
+verifica "home: no bento grid any more" 0 "$(are "$ACASA" 'class="bento"')"
+verifica "about: the typewriter script is not loaded" 0 "$(are "$DESPRE" 'js/acasa.js')"
+verifica "about: four info tiles" 4 "$(printf '%s\n' "$DESPRE" | grep -c 'class="card info-tile"')"
+verifica "about: the profile photo" 1 "$(are "$DESPRE" 'src="img/profil-rotund.jpg"')"
+verifica "about: the timeline, one card per step" 1 "$(are "$DESPRE" 'class="timeline-carduri"')"
+verifica "about: link cards to the projects and the map" 2 \
+    "$(printf '%s\n' "$DESPRE" | grep -c -E 'class="card card-link[^"]*" href="(proiecte|harta)\.php"')"
+for img in avatar.jpg profil-rotund.jpg; do
+    verifica "img/$img is served" 200 "$(cod "$SITE/img/$img")"
+done
+for p in index.php despre.php proiecte.php contact.php cv.php nu-exista.php; do
+    PAGINA=$(curl -s "$SITE/$p")
+    verifica "$p: footer menu has all 6 links" 6 \
+        "$(printf '%s\n' "$PAGINA" | sed -n '/class="subsol-meniu"/,/<\/nav>/p' | grep -c '<a href=')"
+done
+verifica "footer menu in English" 1 \
+    "$(curl -s -b 'lang=en' "$SITE/despre.php" | sed -n '/class="subsol-meniu"/,/<\/nav>/p' | grep -c '>About<')"
+for pagina in ACASA CONTACT CV; do
+    verifica "${pagina,,}: no [EMAIL] / [LINKEDIN] placeholders" 0 \
+        "$(printf '%s\n' "${!pagina}" | grep -c -E '\[(EMAIL|LINKEDIN)\]')"
+done
+CONTACTE=$("$PHP" -r 'require $argv[1]; echo count(linkuriContact()) + 1;' "$DIR/www/includes/contacte.php")
+verifica "contact: a card per filled-in contact + location" "$CONTACTE" \
+    "$(printf '%s\n' "$CONTACT" | grep -c 'class="card contact-card"')"
+
 echo
 echo "Passed: $TRECUTE   Failed: $PICATE"
 [ "$PICATE" -eq 0 ]
