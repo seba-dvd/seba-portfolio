@@ -6,6 +6,29 @@ and versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-10-27
+A cleaner look: a minimal home page that makes visitors curious, and the details one click away.
+
+### Added
+- Graph-paper background (a faint 32px CSS grid) with a soft glow; in the cyber theme the grid is neon green
+- Home page greeting typed letter by letter (`js/acasa.js`), with the full text in the HTML and a copy for screen readers; no animation with `prefers-reduced-motion`
+- About page: a profile card with the photo, four quick facts (location, studies, languages, focus), a timeline with one card per step, and link cards to the projects and the travel map
+- A bigger footer: name and tagline, the menu again, social icons, copyright and location; it stays at the bottom on short pages
+- `includes/contacte.php`: the contact links in one place, used by the home page, the footer, the contact page and the CV; an empty value is not shown anywhere
+- `includes/iconite.php`: small inline SVG icons (GitHub, LinkedIn, email, location, studies, languages, focus)
+- A small round avatar next to the logo (`img/avatar.jpg`, 4 KB) and a square About photo (`img/profil-rotund.jpg`)
+- 26 checks for the new layout (189 checks in total, 204 with the admin flow)
+
+### Changed
+- Calmer colours: an almost-white mint background, white cards with thin borders, teal only for small accents; card headings in the text colour
+- The menu sits straight on the background (no bar); tags are small grey chips (the cyber theme keeps its neon pills)
+- The cyber theme is now the dark mode of the same layout
+- The home page keeps only the greeting, two short paragraphs, one link and the icons; the bento cards moved to the About page
+
+### Removed
+- The blob photo, the floating badges and the two buttons from the home page
+- The `[EMAIL]` / `[LINKEDIN]` placeholders on the contact page and the CV (they are now empty values in `contacte.php`)
+
 ## [0.9.0] - 2026-10-24
 The map page feels like a game: travel progress, achievements and a tour of the places.
 

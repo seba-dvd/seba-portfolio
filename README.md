@@ -6,9 +6,10 @@ Site-ul personal al lui **David Sebastian Pilat**, student în anul IV la Teleco
 
 Site-ul are două fețe: paginile personale (Acasă, Despre, CV, Contact) în tema **mint**,
 și paginile tehnice (Proiecte) în tema **cyber**, cu tranziții animate între ele.
-Este disponibil în **română și engleză**.
+Este disponibil în **română și engleză**. Aspectul este curat: fundal cu o grilă fină, carduri albe
+și multe spații libere; pagina de start este minimală și trimite spre pagina Despre.
 
-**Versiunea curentă:** v0.9.0 (etapele M0–M7, panoul de administrare, progresul pe hartă). Istoricul complet: [CHANGELOG.md](CHANGELOG.md).
+**Versiunea curentă:** v0.10.0 (etapele M0–M7, panoul de administrare, progresul pe hartă, design curat). Istoricul complet: [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
@@ -16,12 +17,12 @@ Este disponibil în **română și engleză**.
 
 | Pagină | Conținut |
 |---|---|
-| **Acasă** (`index.php`) | Prezentare, fotografie, rezumate din celelalte pagini (bento grid) |
-| **Despre** (`despre.php`) | Povestea mea, lucrarea de licență, hobby-uri, competențe, parcurs |
+| **Acasă** (`index.php`) | Salutul scris literă cu literă, o prezentare scurtă, un link spre Despre, iconițele sociale |
+| **Despre** (`despre.php`) | Profil cu fotografie, 4 informații rapide, povestea, lucrarea de licență, hobby-uri, competențe, parcursul (cronologie), linkuri spre Proiecte și Hartă |
 | **Proiecte** (`proiecte.php`) | Proiecte individuale și în echipă; la click, o fereastră cu date live din API-ul GitHub |
 | **Proiect** (`proiect.php?id=N`) | Pagina unui proiect: ce face, tehnologii, cod sursă |
 | **CV** (`cv.php`) | CV formal; butonul „Descarcă PDF” îl exportă pe o pagină A4 |
-| **Contact** (`contact.php`) | Email, GitHub, LinkedIn, locație |
+| **Contact** (`contact.php`) | Linkurile completate în `includes/contacte.php` (GitHub, LinkedIn, email), locație |
 | **404** (`404.php`) | Pagina pentru adrese inexistente |
 | **Autentificare** (`login.php`) | Formularele de autentificare și de cont nou; completare automată (jQuery UI) pe numele de utilizator |
 | **Hartă** (`harta.php`) | Pagina protejată: „Bine ai venit, <utilizator>!”, nivelul de călător (XP, realizări), harta cu un marcaj pentru fiecare loc și turul locurilor (◀ ▶), lista locurilor, ieșire |
@@ -122,14 +123,14 @@ Cu Apache și MySQL pornite, în Git Bash, din folderul proiectului:
 ```bash
 bash teste/verificare.sh
 ```
-Scriptul face 163 de verificări: sintaxa PHP, cheile dicționarelor, răspunsul fiecărei pagini,
+Scriptul face 189 de verificări: sintaxa PHP, cheile dicționarelor, răspunsul fiecărei pagini,
 erorile 404, folderele blocate, schimbarea limbii, încercările de atac pe parametri, conturile și
-sesiunile (prin formularele reale), harta, completarea automată, baza de date și progresul de pe hartă (structura, constrângerile, drepturile contului
+sesiunile (prin formularele reale), harta, completarea automată, baza de date, progresul de pe hartă și aspectul paginilor (structura, constrângerile, drepturile contului
 `pai_app`, interogările pregătite). Conturile de test sunt șterse la final (cu `root`).
 Verificările bazei de date se pot rula și separat: `php teste/verificare-bd.php`.
 
 Cu un cont de administrator, testele parcurg și panoul de administrare (adăugare, modificare,
-ștergere de locuri și conturi), 178 de verificări în total:
+ștergere de locuri și conturi), 204 verificări în total:
 ```bash
 ADMIN_USER=seba ADMIN_PASS='parola ta' bash teste/verificare.sh
 ```
@@ -157,12 +158,14 @@ pai-proiect/
 │   │   ├── db-admin.php      ← interogările panoului (contul pai_admin)
 │   │   ├── leaflet.php       ← adresele și hash-urile SRI ale Leaflet
 │   │   ├── progres.php       ← XP, nivel, realizări, distanțe (pagina hărții)
+│   │   ├── contacte.php      ← linkurile de contact, într-un singur loc (gol = nu apare)
+│   │   ├── iconite.php       ← iconițe SVG (GitHub, LinkedIn, email, locație...)
 │   │   ├── config.example.php ← model pentru config.php (parola, ignorat de git)
 │   │   ├── proiecte-date.php ← datele celor 8 proiecte (RO și EN)
 │   │   └── lang/ro.php, lang/en.php ← toate textele site-ului
 │   ├── css/style.css         ← temele, layout-ul, tranzițiile, stilul de printare
-│   ├── js/                   ← tranzitii.js, proiecte.js (fereastra GitHub), cv.js, autocomplete.js, harta.js, admin.js
-│   └── img/
+│   ├── js/                   ← tranzitii.js, acasa.js (salutul scris), proiecte.js (fereastra GitHub), cv.js, autocomplete.js, harta.js, admin.js
+│   └── img/                  ← profil.jpeg, avatar.jpg (meniu), profil-rotund.jpg (Despre)
 ├── sql/                      ← schema.sql, date-initiale.sql, utilizator.sql, admin.sql
 ├── teste/                    ← verificare.sh (site), verificare-bd.php (baza de date), verificare-progres.php
 ├── docs/                     ← enunțul, carta proiectului, documentația, jurnalul, raportul

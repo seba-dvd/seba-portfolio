@@ -57,7 +57,9 @@ istoricul git (`.git`) stau în afara lui și nu pot fi cerute de nimeni.
 | Fișier | Rol |
 |---|---|
 | `antet.php` | `<!DOCTYPE>`, `<head>`, meniul cu pagina activă, comutatorul RO \| EN, butonul de temă. Pagina setează înainte `$pagina`, opțional `$titlu`, `$temaCyber`. |
-| `subsol.php` | Subsolul (anul curent cu `date('Y')`), scripturile paginii (`$scripturi`), închiderea documentului. |
+| `subsol.php` | Subsolul: numele, meniul repetat (`$meniu` din antet), iconițele sociale, anul curent cu `date('Y')`; apoi scripturile paginii (`$scripturi`) și închiderea documentului. |
+| `contacte.php` | Constanta `CONTACTE` (GitHub, LinkedIn, email), `linkuriContact()` (doar cele completate) și `htmlSociale()` (rândul de iconițe). Un câmp gol nu apare nicăieri. |
+| `iconite.php` | `iconita($nume)`: iconițe SVG mici, în culoarea textului (`currentColor`), ascunse de cititoarele de ecran (`aria-hidden`). |
 | `functii.php` | `e()` – escapare HTML; `tr()` – alege textul în limba curentă dintr-un `['ro' => ..., 'en' => ...]`; `gasesteProiect()`. |
 | `limba.php` | Alege limba, setează cookie-ul, încarcă dicționarul în `$t`. Definește constanta `LIMBA`. |
 | `db.php` | Conexiunea `mysqli` (o dată pe cerere), `toatePunctele()`, `gasesteUtilizator()` cu interogare pregătită. |
@@ -83,12 +85,12 @@ care se schimbă rar, deci un fișier PHP este suficient și mai simplu.
 
 | Pagină | Ce face tehnic |
 |---|---|
-| `index.php` | Rezumate generate din aceleași date ca paginile complete (`array_slice` pentru primele 4 etape din parcurs, lista proiectelor din `proiecte-date.php`). |
-| `despre.php` | Paragrafe, hobby-uri, competențe și parcurs, toate generate cu `foreach` din dicționar. |
+| `index.php` | Pagina de start minimală: salutul (`js/acasa.js` îl scrie literă cu literă), două paragrafe, un link spre Despre, iconițele din `contacte.php`. |
+| `despre.php` | Profilul, cele 4 informații (`despre_info`), povestea, hobby-urile, competențele, cronologia parcursului și cardurile spre Proiecte și Hartă, toate generate cu `foreach` din dicționar. |
 | `proiecte.php` | Un singur `foreach` pentru ambele secțiuni (individuale și în echipă), filtrate cu `array_filter`. Fiecare card are `data-repo` și, la nevoie, `data-privat`, citite de `js/proiecte.js`. |
 | `proiect.php` | Pagina unui proiect, cu validarea `id`-ului și 404 pentru valori invalide. |
 | `cv.php` | CV formal, generat din dicționar. `js/cv.js` deschide fereastra de printare; `@media print` și `@page { size: A4 }` îl transformă într-o singură pagină A4. |
-| `contact.php` | Carduri-link (email, GitHub, LinkedIn). |
+| `contact.php` | Carduri-link generate din `linkuriContact()`, plus locația. |
 | `login.php` | Cele două formulare (autentificare, cont nou), trimise prin POST la aceeași pagină; câmpul ascuns `actiune` le deosebește. |
 | `api/utilizatori.php` | JSON cu cel mult 10 nume de utilizator care încep cu `?term=`, pentru autocomplete. |
 | `harta.php` | Pagina protejată: mesajul de bun venit, harta (`js/harta.js`), lista locurilor din `points`, linkul de ieșire. |
@@ -106,7 +108,20 @@ Culorile, fontul și rotunjirea colțurilor sunt variabile CSS definite în `:ro
 Clasa `.tema-cyber` redefinește aceleași variabile. Restul regulilor folosesc doar `var(--...)`,
 deci o singură clasă schimbă aspectul:
 - pe `<body>` → toată pagina (Proiecte, Proiect, 404);
-- pe un singur card → doar acel card (cardul de proiecte de pe Acasă).
+- pe un singur card → doar acel card (cardul de proiecte de pe pagina Despre).
+
+### Aspectul (v0.10.0)
+Inspirat de site-urile de portofoliu minimaliste: puțin conținut pe prima pagină, restul la un click distanță.
+- **Fundal:** grilă fină din CSS (`linear-gradient` orizontal și vertical, celule de 32 px, culoarea `--linie`) și o
+  strălucire discretă (`radial-gradient`). În tema cyber, `--linie` este verde, deci grila arată ca un ecran de terminal.
+- **Carduri:** albe, cu margine subțire (`--bordura`) și umbră moale; titlurile din carduri folosesc `--titlu`
+  (culoarea textului în mint, verdele neon în cyber), iar etichetele `--chip`.
+- **Tema cyber este modul întunecat** al aceluiași aspect: butonul `>_` schimbă doar variabilele.
+- **Subsolul** stă jos și pe paginile scurte: `body` este o coloană flex, iar `main` are `flex: 1 0 auto`.
+- **Salutul scris literă cu literă** (`js/acasa.js`): textul complet este în HTML (funcționează fără JavaScript),
+  o copie `.vizual-ascuns` rămâne pentru cititoarele de ecran, iar cu `prefers-reduced-motion` textul apare direct.
+- **Imagini:** `avatar.jpg` (128 px, 4 KB) în meniu și `profil-rotund.jpg` (360 px) pe Despre, decupate din
+  `profil.jpeg` (247 KB), ca fotografia mare să nu se încarce pe fiecare pagină.
 
 ### Tranziții (`js/tranzitii.js`)
 | Efect | Tehnică |
@@ -345,7 +360,9 @@ verifică la fiecare pagină protejată dacă numele mai există.
 ## 10. Accesibilitate
 
 - HTML semantic: `header`, `nav`, `main`, `section`, `article`, `aside`, `footer`.
-- Pagina activă din meniu are `aria-current="page"`; butoanele doar cu iconiță au `aria-label`.
+- Pagina activă din meniu are `aria-current="page"`; butoanele și linkurile doar cu iconiță au `aria-label`
+  (GitHub, LinkedIn, Email), iar iconițele SVG sunt `aria-hidden`.
+- Salutul scris literă cu literă are o copie completă pentru cititoarele de ecran.
 - Cardurile de proiect se deschid și cu tastatura (Enter sau Space); fereastra se închide cu Esc.
 - Fiecare imagine are text `alt`; contrastul textului respectă nivelul WCAG AA (4,5:1).
 - Animațiile se opresc cu `prefers-reduced-motion`.
@@ -356,7 +373,7 @@ verifică la fiecare pagină protejată dacă numele mai există.
 ## 11. Testare
 
 ### Teste automate
-`bash teste/verificare.sh` (Apache și MySQL pornite). Rezultat pe 24.10.2026: **163 / 163 trecute**; cu `ADMIN_USER` și `ADMIN_PASS`, **178 / 178**.
+`bash teste/verificare.sh` (Apache și MySQL pornite). Rezultat pe 27.10.2026: **189 / 189 trecute**; cu `ADMIN_USER` și `ADMIN_PASS`, 204 verificări.
 
 | Grup | Ce verifică |
 |---|---|
@@ -371,6 +388,7 @@ verifică la fiecare pagină protejată dacă numele mai există.
 | Conturi și sesiuni | Prin formularele reale: fără token CSRF, nume `<b>x</b>`, parolă scurtă, parole diferite, cont nou, hash `$2y$` în baza de date, nume dublat (și cu majuscule), cookie `HttpOnly` / `SameSite`, identificator nou după autentificare, `no-store`, ieșire fără și cu token, parolă greșită, nume inexistent, `x' OR '1'='1`. Conturile `zz_test_*` sunt șterse la final. |
 | Hartă | Pagina protejată are harta și datele ei, biblioteca (Leaflet cu SRI sau Google); descrierea `<img src=x onerror=alert(1)>` introdusă în baza de date apare escapată în listă, ca `\u003C` în JSON și nicăieri ca etichetă reală |
 | Progres (`teste/verificare-progres.php`) | Distanțe (Brașov–Codlea ≈ 12,6 km, Brașov–București ≈ 141 km), fără locuri, 2 / 5 / 10 locuri, „acasă” = cel mai mic `ID`, drum lung, departe de casă, roza vânturilor (4 direcții da, 3 nu), calculul XP și al nivelului |
+| Aspect | Salutul complet în HTML (RO și EN), `js/acasa.js` doar pe pagina de start, fără bento grid, 4 informații, fotografia și cronologia pe Despre, carduri-link spre Proiecte și Hartă, `avatar.jpg` și `profil-rotund.jpg` servite, meniul din subsol (6 linkuri) pe 6 pagini și în engleză, nicio paranteză `[EMAIL]` / `[LINKEDIN]` pe Acasă, Contact și CV, câte un card de contact pentru fiecare link completat |
 | Pagina hărții | Nivelul, bara XP, cele 6 realizări, bara de explorare ascunsă până la pornirea JavaScript, `distanta_km` în JSON |
 | Panou de administrare | Fără autentificare → `login.php`; utilizator obișnuit → 403 (și pentru POST), fără link în pagină; `403.php`. Cu un cont de administrator: CSRF, latitudine 100, descriere goală, adăugare (virgula ca separator), escapare în panou, modificare, ștergere, contul de administrator nu poate fi șters, ștergerea unui cont îl deconectează |
 | Autocomplete | JSON cu `nosniff`, un nume găsit după început (și cu majuscule), maximum 10, nimic pentru o literă, `%%`, `__`, `x' OR '1'='1`, `<script>`, gol sau tablou; `_` nu este wildcard (`zzXtest_ac` nu apare pentru `zz_test_ac`); jQuery UI cu SRI |
@@ -390,8 +408,9 @@ baza de date rămâne neschimbată.
 
 ## 12. Limitări și pași următori
 
-- Emailul, profilul LinkedIn, câțiva ani din parcurs, rolul în CodeStorm și progresul pe
-  TryHackMe / HackTheBox sunt încă marcate cu `[PARANTEZE]`.
+- Emailul și profilul LinkedIn se completează în `www/includes/contacte.php`; până atunci nu apar pe site.
+  Limbile străine, câțiva ani din parcurs, rolul în CodeStorm și progresul pe TryHackMe / HackTheBox sunt
+  încă marcate cu `[PARANTEZE]`.
 - Datele live din GitHub depind de conexiunea la internet și de limita API-ului
   (60 de cereri pe oră, fără autentificare).
 - Nu există încă o limită pentru încercările repetate de autentificare (M9).

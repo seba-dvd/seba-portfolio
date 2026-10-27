@@ -249,3 +249,25 @@
 ### Probleme întâlnite
 - Două teste au picat din cauza așteptărilor mele, nu a codului: Brașov–București are în linie dreaptă aproximativ 141 km, nu 136, iar București (sud-est) plus Paris (nord-vest) deblochează pe bună dreptate „Roza vânturilor”.
 - Un test număra și iconițele realizărilor (`class="realizare-icon"`); acum numără doar elementele `<li>`.
+
+## 27.10.2026 – Design curat (v0.10.0)
+
+### Ce am făcut
+- Mi-a plăcut un site de portofoliu foarte curat, care te face curios să afli mai mult. Am păstrat ideea, nu și conținutul lui.
+- Pagina de start are acum doar un salut scris literă cu literă, două paragrafe, un link spre Despre și iconițele mele.
+- Pagina Despre a primit un card de profil cu fotografia, patru informații rapide, o cronologie cu câte un card pe etapă și carduri spre Proiecte și Hartă.
+- Fundalul are o grilă fină, cardurile sunt albe, iar tema cyber a devenit modul întunecat al aceluiași aspect.
+- Subsolul are meniul, iconițele și anul. Linkurile de contact stau într-un singur fișier, `includes/contacte.php`.
+- 26 de verificări noi: 189 în total, toate trecute.
+
+### Ce am învățat
+- O grilă se poate desena doar din CSS, cu două `linear-gradient` repetate.
+- Mai puțin conținut pe prima pagină face site-ul să pară mai ordonat și îl face pe vizitator să dea click mai departe.
+- Un efect de scriere trebuie să funcționeze și fără JavaScript și să nu deranjeze cititoarele de ecran: textul complet rămâne în HTML.
+- Cu `display: flex` și `flex-direction: column` pe `body`, subsolul stă jos și pe paginile scurte.
+
+### Probleme întâlnite
+- Între „Seba” și punctul colorat apărea un spațiu: `gap` din flex se aplica și între text și `<span>`. Am renunțat la flex pentru logo.
+- Pe pagina 404 subsolul rămânea la mijlocul ecranului; am rezolvat cu coloana flex de pe `body`.
+- Fotografia de 247 KB s-ar fi încărcat pe fiecare pagină pentru o iconiță de 40 px; am făcut o variantă de 4 KB.
+
