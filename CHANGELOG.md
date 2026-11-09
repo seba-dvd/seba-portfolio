@@ -6,6 +6,22 @@ and versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-11-09
+A limit on repeated login attempts, and the report generator moved into the repository.
+
+### Added
+- Limit on repeated logins (`includes/limitare.php`): after 5 wrong passwords for the same name, or 20 from the same IP address, within 15 minutes, the login form answers HTTP 429 with `Retry-After: 900` and "Too many failed attempts", without checking the password; the same for real and unknown names
+- `incercari_login` table: one row per failure for the name and one for the address, stored only as SHA-256 hashes; a correct login clears the name's failures and rows older than a day
+- `docs/raport-generator/`: the Word report generator (`continut.py`, `genereaza.py`, the UniTBv template and the screenshots), with a README; run `py -3.12 genereaza.py`
+- 18 checks: the limit through the real login form (15) and the new table and rights (3); 207 checks in total, 222 with the admin flow
+
+### Changed
+- `pai_app` may also `DELETE` from `incercari_login` (only that table)
+- The test script empties the failed-login log first, so repeated runs don't lock themselves out
+
+### Security
+- Brute-force protection on the login form (issue #6)
+
 ## [0.10.0] - 2026-10-27
 A cleaner look: a minimal home page that makes visitors curious, and the details one click away.
 

@@ -165,6 +165,12 @@ site-ul funcționează identic, fără animații între pagini.
 | `points` | `lat` | `DECIMAL(9,6)` | `CHECK` între -90 și 90 |
 | `points` | `long` | `DECIMAL(9,6)` | `CHECK` între -180 și 180; cuvânt rezervat, scris mereu `` `long` `` |
 | `points` | `description` | `VARCHAR(255)` | textul de lângă marcaj |
+| `incercari_login` | `ID` | `INT UNSIGNED` | cheie primară, `AUTO_INCREMENT` |
+| `incercari_login` | `cheie` | `CHAR(64)` | hash SHA-256 al numelui sau al adresei IP (niciodată valorile în clar) |
+| `incercari_login` | `moment` | `DATETIME` | ora greșelii (`DEFAULT CURRENT_TIMESTAMP`); index `(cheie, moment)` |
+
+`users` și `points` sunt tabelele cerute de enunț. `incercari_login` este un jurnal tehnic pentru
+limita de autentificare, nu face parte din aplicația cu hartă.
 
 Baza folosește `utf8mb4`, ca diacriticele să fie păstrate. Laboratorul 3 memora coordonatele ca
 text (`varchar(20)`); aici sunt numere exacte, iar baza de date respinge valorile invalide.
@@ -202,6 +208,15 @@ Toate încep cu `SET NAMES utf8mb4`: clientul `mysql` din Windows citește impli
 **Autentificare** (`actiune=login`): `gasesteUtilizator()` → `password_verify()`. Pentru un nume
 inexistent se verifică un hash fals (`HASH_FALS`), ca timpul de răspuns să fie același. Un singur
 mesaj: „Utilizator sau parolă greșită.”
+
+**Limita de încercări** (`includes/limitare.php`, M9): înainte de verificarea parolei,
+`loginBlocat()` numără greșelile din ultimele 15 minute (`esecuriRecente()`), pentru nume și pentru
+adresa IP (`REMOTE_ADDR`, nu `X-Forwarded-For`, care poate fi falsificat). La 5 greșeli pe nume sau 20 pe
+adresă, răspunsul este HTTP 429, cu `Retry-After: 900` și mesajul „Prea multe încercări greșite”, fără să
+se mai verifice parola, la fel pentru nume existente și inexistente. O greșeală adaugă două rânduri
+(`noteazaEsec()`); o autentificare reușită șterge rândurile numelui și pe cele mai vechi de o zi
+(`stergeEsecuri()`), dar nu și pe ale adresei, ca intrarea în propriul cont să nu reseteze limita pentru
+alte nume. Cheile sunt `hash('sha256', 'nume:' . strtolower($nume))` și `hash('sha256', 'ip:' . $ip)`.
 
 **Sesiunea** (`includes/sesiune.php`): numele cookie-ului `pai_sesiune`, calea `/pai/`,
 `HttpOnly`, `SameSite=Lax`, `Secure` pe HTTPS, `session.use_strict_mode`. `conecteaza()` apelează
@@ -336,11 +351,12 @@ verifică la fiecare pagină protejată dacă numele mai există.
 | Pagina deschisă controlează site-ul (*tabnabbing*) | `rel="noopener noreferrer"` pe linkurile cu `target="_blank"` | toate paginile |
 | Parole în depozitul git | `www/includes/config.php` în `.gitignore` | `.gitignore` |
 | **SQL injection** | Interogări pregătite pentru orice valoare de la utilizator | `includes/db.php` |
-| Drepturi excesive în baza de date | Contul `pai_app`: doar `SELECT`, `INSERT` pe `pai_proiect` | `sql/utilizator.sql` |
+| Drepturi excesive în baza de date | Contul `pai_app`: doar `SELECT`, `INSERT` pe `pai_proiect` (plus `DELETE` pe `incercari_login`) | `sql/utilizator.sql` |
 | Detalii tehnice în erori | `error_log` + mesaj general, HTTP 503 | `includes/db.php` |
 | Date invalide în tabele | `NOT NULL`, `UNIQUE`, `CHECK` pe coordonate | `sql/schema.sql` |
 | **Parole furate din baza de date** | `password_hash` (bcrypt, sare aleatorie), `password_verify` | `login.php` |
 | Ghicirea numelor de utilizator | Același mesaj și același timp de răspuns pentru nume sau parolă greșită | `login.php` |
+| **Ghicirea parolei (brute force)** | 5 greșeli pe nume / 20 pe adresă în 15 minute → HTTP 429; nume și adrese doar ca hash SHA-256 | `includes/limitare.php` |
 | **Session fixation** | `session_regenerate_id(true)` după autentificare; `use_strict_mode` | `includes/sesiune.php` |
 | Furtul cookie-ului de sesiune | `HttpOnly`, `SameSite=Lax`, `Secure` pe HTTPS, expirare la 30 de minute | `includes/sesiune.php` |
 | **CSRF** | Token aleatoriu în sesiune, `hash_equals`, în formulare și în linkul de ieșire | `login.php`, `logout.php` |
@@ -373,7 +389,7 @@ verifică la fiecare pagină protejată dacă numele mai există.
 ## 11. Testare
 
 ### Teste automate
-`bash teste/verificare.sh` (Apache și MySQL pornite). Rezultat pe 27.10.2026: **189 / 189 trecute**; cu `ADMIN_USER` și `ADMIN_PASS`, 204 verificări.
+`bash teste/verificare.sh` (Apache și MySQL pornite). Rezultat pe 09.11.2026: **207 / 207 trecute**; cu `ADMIN_USER` și `ADMIN_PASS`, 222 de verificări.
 
 | Grup | Ce verifică |
 |---|---|
@@ -390,10 +406,11 @@ verifică la fiecare pagină protejată dacă numele mai există.
 | Progres (`teste/verificare-progres.php`) | Distanțe (Brașov–Codlea ≈ 12,6 km, Brașov–București ≈ 141 km), fără locuri, 2 / 5 / 10 locuri, „acasă” = cel mai mic `ID`, drum lung, departe de casă, roza vânturilor (4 direcții da, 3 nu), calculul XP și al nivelului |
 | Aspect | Salutul complet în HTML (RO și EN), `js/acasa.js` doar pe pagina de start, fără bento grid, 4 informații, fotografia și cronologia pe Despre, carduri-link spre Proiecte și Hartă, `avatar.jpg` și `profil-rotund.jpg` servite, meniul din subsol (6 linkuri) pe 6 pagini și în engleză, nicio paranteză `[EMAIL]` / `[LINKEDIN]` pe Acasă, Contact și CV, câte un card de contact pentru fiecare link completat |
 | Pagina hărții | Nivelul, bara XP, cele 6 realizări, bara de explorare ascunsă până la pornirea JavaScript, `distanta_km` în JSON |
+| Limita de autentificare | 2 greșeli numărate pentru nume, o autentificare corectă le șterge; după 5 greșeli, a 6-a încercare (chiar cu parola bună) → 429, `Retry-After: 900`, fără autentificare; un nume inexistent blocat la fel; alt nume de pe aceeași adresă merge până la 20 de greșeli; tabelul conține doar hash-uri de 64 de caractere hexazecimale |
 | Panou de administrare | Fără autentificare → `login.php`; utilizator obișnuit → 403 (și pentru POST), fără link în pagină; `403.php`. Cu un cont de administrator: CSRF, latitudine 100, descriere goală, adăugare (virgula ca separator), escapare în panou, modificare, ștergere, contul de administrator nu poate fi șters, ștergerea unui cont îl deconectează |
 | Autocomplete | JSON cu `nosniff`, un nume găsit după început (și cu majuscule), maximum 10, nimic pentru o literă, `%%`, `__`, `x' OR '1'='1`, `<script>`, gol sau tablou; `_` nu este wildcard (`zzXtest_ac` nu apare pentru `zz_test_ac`); jQuery UI cu SRI |
 | Baza de date (`pai_admin`) | Poate `UPDATE` / `DELETE` pe `points` și `DELETE` pe `users` (în tranzacție anulată); nu poate schimba sau crea conturi, nu poate `DROP`, nu poate citi `mysql.user` |
-| Baza de date | `teste/verificare-bd.php`: conectarea ca `pai_app`, `utf8mb4`, coloanele, diacriticele, `x' OR '1'='1` nu găsește pe nimeni, `UNIQUE` (1062), `CHECK` (4025), `pai_app` nu poate `DELETE` / `UPDATE` / `DROP` / citi `mysql.user` (1142) |
+| Baza de date | `teste/verificare-bd.php`: conectarea ca `pai_app`, `utf8mb4`, coloanele, diacriticele, `x' OR '1'='1` nu găsește pe nimeni, `UNIQUE` (1062), `CHECK` (4025), `pai_app` nu poate `DELETE` / `UPDATE` / `DROP` / citi `mysql.user` (1142); coloanele `incercari_login`, `pai_app` poate `DELETE` din el, dar nu `UPDATE` |
 
 Rândurile de test sunt adăugate într-o tranzacție anulată la final (`mysqli_rollback`), deci
 baza de date rămâne neschimbată.
@@ -413,7 +430,8 @@ baza de date rămâne neschimbată.
   încă marcate cu `[PARANTEZE]`.
 - Datele live din GitHub depind de conexiunea la internet și de limita API-ului
   (60 de cereri pe oră, fără autentificare).
-- Nu există încă o limită pentru încercările repetate de autentificare (M9).
+- Limita de autentificare poate fi folosită pentru a bloca temporar contul altcuiva (cineva greșește
+  intenționat parola de 5 ori). Pentru un site personal, 15 minute de blocare sunt un compromis acceptabil.
 - Site-ul rulează local pe HTTP; pe HTTPS, cookie-urile primesc automat `Secure`.
 - Modul `google` a fost verificat pe 24.10.2026 cu o cheie reală (cont Google Cloud de probă, credit
   valabil până pe 22.01.2027), restricționată la `http://localhost/*`, `http://127.0.0.1/*` și la

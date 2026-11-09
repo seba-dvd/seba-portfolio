@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ro"><head><meta charset="utf-8"><style>
+body{margin:0;background:#fff;font:15px/1.35 "Segoe UI",Arial,sans-serif;color:#1d1d1d}
+.wrap{width:1200px;height:340px;position:relative}
+.box{box-sizing:border-box;position:absolute;border:2px solid #333;border-radius:10px;padding:12px 14px;background:#f6f6f6}
+.box h3{margin:0 0 6px;font-size:17px}
+.box ul{margin:0;padding-left:18px}
+.zona{position:absolute;border:2px dashed #888;border-radius:14px}
+.zona span{position:absolute;top:-12px;left:16px;background:#fff;padding:0 8px;font-weight:600;color:#555}
+svg{position:absolute;inset:0}
+.lbl{position:absolute;font-size:13px;color:#333;background:#fff;padding:0 4px}
+</style></head><body><div class="wrap">
+<div class="zona" style="left:10px;top:30px;width:270px;height:290px"><span>Client</span></div>
+<div class="zona" style="left:340px;top:30px;width:850px;height:290px"><span>Server (XAMPP, localhost)</span></div>
+
+<div class="box" style="left:30px;top:80px;width:200px;height:210px">
+<h3>Browser</h3><ul><li>afișează HTML + CSS</li><li>rulează JavaScript (tranziții, fereastra GitHub, autocomplete)</li><li>păstrează cookie-urile (limba, sesiunea)</li></ul></div>
+
+<div class="box" style="left:370px;top:80px;width:200px;height:210px">
+<h3>Apache 2.4</h3><ul><li>primește cererea HTTP</li><li>aplică regulile din .htaccess</li><li>trimite direct fișierele statice (CSS, JS, imagini)</li></ul></div>
+
+<div class="box" style="left:640px;top:80px;width:230px;height:210px">
+<h3>PHP 8.2</h3><ul><li>pagina cerută + includes/ (antet, subsol, funcții, limbă)</li><li>validează intrările</li><li>escapează ieșirea cu e()</li><li>generează HTML</li></ul></div>
+
+<div class="box" style="left:940px;top:80px;width:210px;height:210px">
+<h3>MariaDB 10.4</h3><ul><li>baza pai_proiect</li><li>tabelele users și points</li><li>utilizator dedicat pai_app (drepturi minime)</li></ul></div>
+
+<svg width="1200" height="340"><defs><marker id="a" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8z" fill="#333"/></marker></defs>
+<g stroke="#333" stroke-width="2" fill="none" marker-end="url(#a)">
+<path d="M232 150 H368"/><path d="M368 240 H232"/>
+<path d="M572 150 H638"/><path d="M638 240 H572"/>
+<path d="M872 150 H938"/><path d="M938 240 H872"/>
+</g></svg>
+<div class="lbl" style="left:250px;top:124px">cerere HTTP</div>
+<div class="lbl" style="left:246px;top:246px">HTML, CSS, JS</div>
+<div class="lbl" style="left:888px;top:124px">SQL</div>
+<div class="lbl" style="left:876px;top:246px">rânduri</div>
+</div></body></html>

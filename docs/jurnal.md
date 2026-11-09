@@ -271,3 +271,21 @@
 - Pe pagina 404 subsolul rămânea la mijlocul ecranului; am rezolvat cu coloana flex de pe `body`.
 - Fotografia de 247 KB s-ar fi încărcat pe fiecare pagină pentru o iconiță de 40 px; am făcut o variantă de 4 KB.
 
+## 09.11.2026 – Limita de autentificare și generatorul raportului (v0.11.0)
+
+### Ce am făcut
+- Am limitat încercările de autentificare: după 5 parole greșite pentru același nume sau 20 de pe aceeași adresă, în 15 minute, formularul răspunde cu HTTP 429.
+- Greșelile sunt păstrate în tabelul `incercari_login`, doar ca hash SHA-256 al numelui și al adresei. Contul `pai_app` poate șterge doar din acest tabel.
+- Am mutat generatorul raportului Word în depozit (`docs/raport-generator/`). Până acum stătea într-un folder temporar.
+- 18 verificări noi: 207 în total, toate trecute.
+
+### Ce am învățat
+- Codul HTTP 429 (Too Many Requests) și antetul `Retry-After` spun clientului cât să aștepte.
+- Limita trebuie să fie și pe nume, și pe adresă: pe nume protejează un cont, pe adresă oprește pe cineva care încearcă multe nume.
+- Adresa reală este `REMOTE_ADDR`; antetul `X-Forwarded-For` poate fi scris de oricine.
+- Un hash al numelui și al adresei este suficient pentru numărare și nu păstrează date personale.
+
+### Probleme întâlnite
+- Folderul temporar al generatorului raportului fusese deja curățat parțial: lipseau șablonul și imaginile. Le-am recuperat din git (commit-ul `f669ce1`) și din raportul existent, apoi am verificat că raportul generat este identic.
+- Testele fac multe autentificări greșite; dacă rulau de două ori în 15 minute, s-ar fi blocat singure. Acum golesc tabelul la început.
+

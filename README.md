@@ -9,7 +9,7 @@ Site-ul are două fețe: paginile personale (Acasă, Despre, CV, Contact) în te
 Este disponibil în **română și engleză**. Aspectul este curat: fundal cu o grilă fină, carduri albe
 și multe spații libere; pagina de start este minimală și trimite spre pagina Despre.
 
-**Versiunea curentă:** v0.10.0 (etapele M0–M7, panoul de administrare, progresul pe hartă, design curat). Istoricul complet: [CHANGELOG.md](CHANGELOG.md).
+**Versiunea curentă:** v0.11.0 (etapele M0–M7, panoul de administrare, progresul pe hartă, design curat, limita de autentificare). Istoricul complet: [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
@@ -123,14 +123,14 @@ Cu Apache și MySQL pornite, în Git Bash, din folderul proiectului:
 ```bash
 bash teste/verificare.sh
 ```
-Scriptul face 189 de verificări: sintaxa PHP, cheile dicționarelor, răspunsul fiecărei pagini,
+Scriptul face 207 verificări: sintaxa PHP, cheile dicționarelor, răspunsul fiecărei pagini,
 erorile 404, folderele blocate, schimbarea limbii, încercările de atac pe parametri, conturile și
-sesiunile (prin formularele reale), harta, completarea automată, baza de date, progresul de pe hartă și aspectul paginilor (structura, constrângerile, drepturile contului
+sesiunile (prin formularele reale), harta, completarea automată, baza de date, progresul de pe hartă, aspectul paginilor și limita de autentificare (structura, constrângerile, drepturile contului
 `pai_app`, interogările pregătite). Conturile de test sunt șterse la final (cu `root`).
 Verificările bazei de date se pot rula și separat: `php teste/verificare-bd.php`.
 
 Cu un cont de administrator, testele parcurg și panoul de administrare (adăugare, modificare,
-ștergere de locuri și conturi), 204 verificări în total:
+ștergere de locuri și conturi), 222 de verificări în total:
 ```bash
 ADMIN_USER=seba ADMIN_PASS='parola ta' bash teste/verificare.sh
 ```
@@ -159,6 +159,7 @@ pai-proiect/
 │   │   ├── leaflet.php       ← adresele și hash-urile SRI ale Leaflet
 │   │   ├── progres.php       ← XP, nivel, realizări, distanțe (pagina hărții)
 │   │   ├── contacte.php      ← linkurile de contact, într-un singur loc (gol = nu apare)
+│   │   ├── limitare.php      ← limita de încercări la autentificare
 │   │   ├── iconite.php       ← iconițe SVG (GitHub, LinkedIn, email, locație...)
 │   │   ├── config.example.php ← model pentru config.php (parola, ignorat de git)
 │   │   ├── proiecte-date.php ← datele celor 8 proiecte (RO și EN)
@@ -169,6 +170,7 @@ pai-proiect/
 ├── sql/                      ← schema.sql, date-initiale.sql, utilizator.sql, admin.sql
 ├── teste/                    ← verificare.sh (site), verificare-bd.php (baza de date), verificare-progres.php
 ├── docs/                     ← enunțul, carta proiectului, documentația, jurnalul, raportul
+│   └── raport-generator/     ← generează raportul Word (py -3.12 genereaza.py)
 ├── CHANGELOG.md
 └── README.md
 ```
@@ -191,11 +193,14 @@ Măsurile deja implementate (detalii în [docs/documentatie.md](docs/documentati
 - **SQL injection:** valorile de la utilizator ajung în baza de date doar prin interogări
   pregătite (`mysqli_prepare` + `mysqli_stmt_bind_param`), niciodată lipite în textul SQL.
 - **Drepturi minime:** site-ul folosește contul `pai_app` (doar `SELECT` și `INSERT` pe
-  `pai_proiect`), nu `root`.
+  `pai_proiect`, plus `DELETE` pe jurnalul `incercari_login`), nu `root`.
 - **Erori:** o eroare de conectare la baza de date ajunge în jurnalul serverului; vizitatorul
   primește doar un mesaj general (HTTP 503).
 - **Parole:** salvate doar ca hash bcrypt (`password_hash`), verificate cu `password_verify`;
   același mesaj pentru nume sau parolă greșită.
+- **Limita de autentificare:** după 5 parole greșite pentru același nume sau 20 de pe aceeași adresă,
+  în 15 minute, formularul răspunde cu HTTP 429. Numele și adresele sunt păstrate doar ca hash SHA-256
+  (tabelul `incercari_login`); o autentificare reușită șterge greșelile acelui nume.
 - **Sesiuni:** cookie `HttpOnly` și `SameSite=Lax`, identificator nou după autentificare
   (`session_regenerate_id`), expirare după 30 de minute de inactivitate.
 - **CSRF:** token aleatoriu în formulare și în linkul de ieșire.
@@ -221,6 +226,7 @@ Măsurile deja implementate (detalii în [docs/documentatie.md](docs/documentati
 | [docs/jurnal.md](docs/jurnal.md) | Jurnalul de dezvoltare, pe etape |
 | [CHANGELOG.md](CHANGELOG.md) | Ce s-a schimbat în fiecare versiune |
 | `docs/Documentatie_Proiect.docx` | Raportul proiectului (Word, șablonul UniTBv) |
+| [docs/raport-generator/](docs/raport-generator/README.md) | Generatorul raportului: textul (`continut.py`), șablonul, capturile |
 | `docs/Carta proiectului - PAI.docx` | Obiective, cerințe, etape, riscuri |
 | `docs/Proiect - PAI 2025.pdf` | Enunțul proiectului |
 
