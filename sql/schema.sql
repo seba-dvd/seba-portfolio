@@ -33,3 +33,15 @@ CREATE TABLE IF NOT EXISTS points (
     CONSTRAINT chk_points_lat  CHECK (lat BETWEEN -90 AND 90),
     CONSTRAINT chk_points_long CHECK (`long` BETWEEN -180 AND 180)
 ) ENGINE=InnoDB;
+
+-- Failed logins, for the limit on repeated attempts (www/includes/limitare.php).
+-- Not one of the brief's tables: a technical log, like a server log file.
+-- cheie is a SHA-256 hash of the user name or the IP address, so the table
+-- never holds a name or an address. Rows older than a day are deleted.
+CREATE TABLE IF NOT EXISTS incercari_login (
+    ID     INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    cheie  CHAR(64)     NOT NULL,
+    moment DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (ID),
+    KEY idx_incercari_cheie_moment (cheie, moment)   -- "failures of this key since ..."
+) ENGINE=InnoDB;

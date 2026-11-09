@@ -198,6 +198,7 @@ return [
     'buton_login'            => 'Intră în cont',
     'buton_inregistrare'     => 'Creează contul',
     'eroare_login'           => 'Utilizator sau parolă greșită.',
+    'eroare_prea_multe'      => 'Prea multe încercări greșite. Încearcă din nou peste %d minute.',
     'eroare_utilizator'      => 'Numele de utilizator trebuie să aibă 3–30 caractere: litere fără diacritice, cifre, punct, minus sau underscore.',
     'eroare_parola_scurta'   => 'Parola trebuie să aibă cel puțin 8 caractere.',
     'eroare_parola_lunga'    => 'Parola poate avea cel mult 72 de caractere.',

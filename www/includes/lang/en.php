@@ -198,6 +198,7 @@ return [
     'buton_login'            => 'Log in',
     'buton_inregistrare'     => 'Create account',
     'eroare_login'           => 'Wrong username or password.',
+    'eroare_prea_multe'      => 'Too many failed attempts. Try again in %d minutes.',
     'eroare_utilizator'      => 'The username must have 3–30 characters: plain letters, digits, dot, hyphen or underscore.',
     'eroare_parola_scurta'   => 'The password must have at least 8 characters.',
     'eroare_parola_lunga'    => 'The password can have at most 72 characters.',

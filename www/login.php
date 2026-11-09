@@ -10,6 +10,7 @@ require_once __DIR__ . '/includes/functii.php';
 require_once __DIR__ . '/includes/limba.php';
 require_once __DIR__ . '/includes/sesiune.php';
 require_once __DIR__ . '/includes/db.php';
+require_once __DIR__ . '/includes/limitare.php';
 
 // A random bcrypt hash: for an unknown name we still run password_verify on it,
 // so the answer takes as long as for a real name and timing doesn't reveal
@@ -39,17 +40,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif ($actiune === 'login') {
         $numeLogin = trim((string) ($_POST['user'] ?? ''));
         $parola = (string) ($_POST['password'] ?? '');
+        $ip = $_SERVER['REMOTE_ADDR'] ?? '';      // the real address; X-Forwarded-For can be faked
 
-        $cont = $numeLogin === '' ? null : gasesteUtilizator($numeLogin);
-        $parolaCorecta = password_verify($parola, $cont['password'] ?? HASH_FALS);
+        if (loginBlocat($numeLogin, $ip)) {
+            // Too many wrong passwords: refuse without checking this one.
+            // Same answer for real and unknown names, so it reveals nothing.
+            http_response_code(429);              // 429 = Too Many Requests
+            header('Retry-After: ' . FEREASTRA_MINUTE * 60);
+            $eroareLogin = sprintf($t['eroare_prea_multe'], FEREASTRA_MINUTE);
+        } else {
+            $cont = $numeLogin === '' ? null : gasesteUtilizator($numeLogin);
+            $parolaCorecta = password_verify($parola, $cont['password'] ?? HASH_FALS);
 
-        if ($cont !== null && $parolaCorecta) {
-            conecteaza((int) $cont['ID'], $cont['user']);
-            header('Location: harta.php', true, 303);
-            exit;
+            if ($cont !== null && $parolaCorecta) {
+                stergeEsecuri($numeLogin, $ip);
+                conecteaza((int) $cont['ID'], $cont['user']);
+                header('Location: harta.php', true, 303);
+                exit;
+            }
+            noteazaEsec($numeLogin, $ip);
+            // One message for both cases: it doesn't tell which part was wrong
+            $eroareLogin = $t['eroare_login'];
         }
-        // One message for both cases: it doesn't tell which part was wrong
-        $eroareLogin = $t['eroare_login'];
     } elseif ($actiune === 'inregistrare') {
         $numeCont = trim((string) ($_POST['user'] ?? ''));
         $parola = (string) ($_POST['password'] ?? '');
