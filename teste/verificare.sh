@@ -89,6 +89,8 @@ verifica "no raw <script> from the address" 0 \
 
 echo "9. Accounts and sessions"
 MYSQL="${MYSQL:-/c/xampp/mysql/bin/mysql.exe}"
+# Start with an empty failed-login log, so earlier runs can't trigger the login limit
+"$MYSQL" -u root -e "DELETE FROM pai_proiect.incercari_login" 2>/dev/null
 J1="$(mktemp)"; J2="$(mktemp)"
 trap 'rm -f "$COOKIES" "$J1" "$J2"' EXIT
 U="zz_test_$RANDOM$RANDOM"                  # removed again at the end
@@ -310,6 +312,47 @@ done
 CONTACTE=$("$PHP" -r 'require $argv[1]; echo count(linkuriContact()) + 1;' "$DIR/www/includes/contacte.php")
 verifica "contact: a card per filled-in contact + location" "$CONTACTE" \
     "$(printf '%s\n' "$CONTACT" | grep -c 'class="card contact-card"')"
+
+echo "15. Limit on repeated logins (includes/limitare.php)"
+"$MYSQL" -u root -e "DELETE FROM pai_proiect.incercari_login" 2>/dev/null
+J3="$(mktemp)"; J4="$(mktemp)"; J5="$(mktemp)"
+U2="zz_test_lim_$RANDOM"                    # removed again at the end of this section
+cheie() { printf '%s' "$1" | sha256sum | cut -d' ' -f1; }     # like cheiIncercare() in PHP
+esecuri() { "$MYSQL" -u root -N -e "SELECT COUNT(*) FROM pai_proiect.incercari_login WHERE cheie = '$(cheie "nume:$1")'" 2>/dev/null; }
+greseste() { trimite "$1" -o /dev/null -w '%{http_code}' -d actiune=login -d "csrf=$2" --data-urlencode "user=$3" -d 'password=gresita'; }
+
+T=$(token "$J3")
+verifica "a user for these checks" "303 harta.php" "$(trimite "$J3" -o /dev/null -w '%{http_code} %{redirect_url}' \
+    -d actiune=inregistrare -d "csrf=$T" --data-urlencode "user=$U2" -d "password=$P" -d "password2=$P" | sed 's#http[^ ]*/##')"
+
+T=$(token "$J4")
+greseste "$J4" "$T" "$U2" >/dev/null; greseste "$J4" "$T" "$U2" >/dev/null
+verifica "2 wrong passwords are counted for the name" 2 "$(esecuri "$U2")"
+verifica "a correct login still works → harta.php" "303 harta.php" "$(trimite "$J4" -o /dev/null -w '%{http_code} %{redirect_url}' \
+    -d actiune=login -d "csrf=$T" --data-urlencode "user=$U2" -d "password=$P" | sed 's#http[^ ]*/##')"
+verifica "… and clears the name's failures" 0 "$(esecuri "$U2")"
+
+T=$(token "$J5")
+CODURI=""
+for i in 1 2 3 4 5; do CODURI="$CODURI $(greseste "$J5" "$T" "$U2")"; done
+verifica "5 wrong passwords get the normal answer (200)" " 200 200 200 200 200" "$CODURI"
+R=$(trimite "$J5" -D - -d actiune=login -d "csrf=$T" --data-urlencode "user=$U2" -d "password=$P")
+verifica "the 6th attempt, even with the right password: 429" 1 "$(printf '%s\n' "$R" | grep -c '^HTTP/1.1 429')"
+verifica "… says 'Prea multe încercări greșite'" 1 "$(are "$R" 'Prea multe încercări greșite')"
+verifica "… sends Retry-After: 900 (15 minutes)" 1 "$(printf '%s\n' "$R" | grep -c -i '^retry-after: 900')"
+verifica "… and does not log in (harta.php → login.php)" 303 "$(cod -c "$J5" -b "$J5" "$SITE/harta.php")"
+N="zz_test_nimeni_$RANDOM"
+for i in 1 2 3 4 5; do greseste "$J5" "$T" "$N" >/dev/null; done
+verifica "an unknown name is blocked the same way (nothing revealed)" 429 "$(greseste "$J5" "$T" "$N")"
+verifica "another name from the same address still gets the normal answer" 200 "$(greseste "$J5" "$T" zz_test_altul)"
+for i in 1 2 3 4 5 6 7; do greseste "$J5" "$T" "zz_test_ip_$i" >/dev/null; done      # 20 failures from this address
+verifica "after 20 failures from one address, every name is blocked" 429 "$(greseste "$J5" "$T" zz_test_ip_nou)"
+verifica "the log holds hashes, not names" 0 \
+    "$("$MYSQL" -u root -N -e "SELECT COUNT(*) FROM pai_proiect.incercari_login WHERE cheie LIKE '%zz%'" 2>/dev/null)"
+verifica "… 64 hex characters each" 0 \
+    "$("$MYSQL" -u root -N -e "SELECT COUNT(*) FROM pai_proiect.incercari_login WHERE cheie NOT REGEXP '^[0-9a-f]{64}\$'" 2>/dev/null)"
+"$MYSQL" -u root -e "DELETE FROM pai_proiect.incercari_login; DELETE FROM pai_proiect.users WHERE user = '$U2'" 2>/dev/null
+rm -f "$J3" "$J4" "$J5"
 
 echo
 echo "Passed: $TRECUTE   Failed: $PICATE"

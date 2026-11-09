@@ -73,6 +73,12 @@ verifica('pai_app cannot UPDATE', 1142, codEroare($bd, 'UPDATE users SET user = 
 verifica('pai_app cannot DROP', 1142, codEroare($bd, 'DROP TABLE points'));
 verifica('pai_app cannot read the mysql database', 1142, codEroare($bd, 'SELECT user FROM mysql.user'));
 
+// The failed-login log (limit on repeated logins): pai_app may clear it, nothing more
+verifica('incercari_login has ID, cheie, moment', ['ID', 'cheie', 'moment'], $coloane('incercari_login'));
+verifica('pai_app can DELETE from the failed-login log', 0, codEroare($bd, 'DELETE FROM incercari_login WHERE ID = 0'));
+verifica('pai_app cannot UPDATE the failed-login log', 1142,
+    codEroare($bd, 'UPDATE incercari_login SET cheie = cheie WHERE ID = 0'));
+
 // pai_admin (admin panel): may change places and delete users, nothing more
 $admin = conectareBd(true);
 verifica('connected as pai_admin', 'pai_admin@localhost',
