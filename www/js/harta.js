@@ -170,9 +170,10 @@ window.pornesteHartaGoogle = async function () {
             map: harta,
             position: { lat: punct.lat, lng: punct.lng },
             title: punct.descriere,                  // label on hover (plain text)
-            content: pin.element,
+            content: pin,                            // the PinElement itself (pin.element is deprecated)
+            gmpClickable: true,                      // needed for the gmp-click event
         });
-        marcaj.addListener('click', () => {
+        marcaj.addEventListener('gmp-click', () => {
             fereastra.setContent(continutLoc(punct));
             fereastra.open({ map: harta, anchor: marcaj });
             explorare.selectat(i);

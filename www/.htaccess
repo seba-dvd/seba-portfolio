@@ -11,3 +11,36 @@ ErrorDocument 403 /pai/403.php
 <FilesMatch "^\.">
     Require all denied
 </FilesMatch>
+
+# Security headers ("always": also on redirects and error pages)
+<IfModule mod_headers.c>
+    # Content Security Policy: the browser runs scripts and loads resources only from the
+    # sources listed here. There is no inline JavaScript on the site, so script-src has no
+    # 'unsafe-inline': even if some text slipped through e(), it could not run.
+    # Styles need 'unsafe-inline': Google Maps and Leaflet add their own <style> rules.
+    # Google domains: https://developers.google.com/maps/documentation/javascript/content-security-policy
+    Header always set Content-Security-Policy "default-src 'self'; \
+script-src 'self' https://code.jquery.com https://unpkg.com https://*.googleapis.com https://*.gstatic.com; \
+style-src 'self' 'unsafe-inline' https://unpkg.com https://fonts.googleapis.com; \
+img-src 'self' data: https://tile.openstreetmap.org https://unpkg.com https://*.googleapis.com https://*.gstatic.com https://*.google.com https://*.googleusercontent.com; \
+font-src 'self' https://fonts.gstatic.com; \
+connect-src 'self' https://api.github.com https://*.googleapis.com https://*.google.com https://*.gstatic.com data: blob:; \
+frame-src https://*.google.com; \
+worker-src blob:; \
+object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+
+    # The browser must not guess file types (a text file can't become a script).
+    # "unset" first: api/utilizatori.php sends it too, and it should appear only once
+    Header unset X-Content-Type-Options
+    Header always set X-Content-Type-Options "nosniff"
+    # No other site may show these pages in a frame (clickjacking); older browsers
+    Header always set X-Frame-Options "DENY"
+    # Other sites get only the origin, not the full address. Google Maps still receives
+    # http://localhost/, which matches the key's referrer restriction.
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    # Features the site never uses stay off
+    Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+    # Don't advertise the PHP version
+    Header always unset X-Powered-By
+    Header unset X-Powered-By
+</IfModule>

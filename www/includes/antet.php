@@ -40,6 +40,7 @@ $texteJs = json_encode($t['js'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | J
 <?php foreach ($stiluri ?? [] as $stil): ?>
     <link rel="stylesheet" href="<?= e($stil['href']) ?>" integrity="<?= e($stil['integrity']) ?>" crossorigin="anonymous">
 <?php endforeach; ?>
+    <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="css/style.css">
     <script id="texte-js" type="application/json"><?= $texteJs ?></script>
     <script src="js/tranzitii.js"></script>
