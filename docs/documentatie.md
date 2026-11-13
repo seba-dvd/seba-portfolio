@@ -86,7 +86,7 @@ care se schimbă rar, deci un fișier PHP este suficient și mai simplu.
 | Pagină | Ce face tehnic |
 |---|---|
 | `index.php` | Pagina de start minimală: salutul (`js/acasa.js` îl scrie literă cu literă), două paragrafe, un link spre Despre, iconițele din `contacte.php`. |
-| `despre.php` | Profilul, cele 4 informații (`despre_info`), povestea, hobby-urile, competențele, cronologia parcursului și cardurile spre Proiecte și Hartă, toate generate cu `foreach` din dicționar. |
+| `despre.php` | Profilul, cele 4 informații (`despre_info`), povestea, interesele, competențele, cronologia parcursului și cardurile spre Proiecte și Hartă, toate generate cu `foreach` din dicționar. |
 | `proiecte.php` | Un singur `foreach` pentru ambele secțiuni (individuale și în echipă), filtrate cu `array_filter`. Fiecare card are `data-repo` și, la nevoie, `data-privat`, citite de `js/proiecte.js`. |
 | `proiect.php` | Pagina unui proiect, cu validarea `id`-ului și 404 pentru valori invalide. |
 | `cv.php` | CV formal, generat din dicționar. `js/cv.js` deschide fereastra de printare; `@media print` și `@page { size: A4 }` îl transformă într-o singură pagină A4. |
@@ -333,6 +333,32 @@ zecimal, descriere de 1–255 caractere); după fiecare modificare, redirecțion
 o singură dată în sesiune. Un cont șters este deconectat la următoarea cerere: `includes/auth.php`
 verifică la fiecare pagină protejată dacă numele mai există.
 
+**Căutarea unui loc (v0.13.0):** cu Google Maps (`harta_furnizor` = `google` și o cheie), deasupra
+coordonatelor apare o bară de căutare Google Places (`PlaceAutocompleteElement`, din biblioteca `places`).
+Când alegi un rezultat, `js/admin.js` cere detaliile locului (`fetchFields`: `displayName`, `location`),
+completează latitudinea, longitudinea (6 zecimale) și descrierea (maximum 255 de caractere) și mută
+marcajul pe harta Leaflet. Salvarea trece prin același formular și aceeași validare pe server ca înainte:
+căutarea doar completează câmpurile. Containerul (`#cautare-loc`) este `hidden` până când bara Google s-a
+creat; dacă scriptul e blocat, cheia e refuzată (`gm_authFailure`) sau o cerere e respinsă (`gmp-error`),
+bara rămâne ascunsă și formularul merge mai departe completat de mână. Încărcătorul Google vine după
+`js/admin.js`, care definește funcția apelată la final (`callback=pornesteCautarea`). Cheia trebuie să
+aibă activat și *Places API (New)*.
+
+### Harta publică (comutator, v0.13.0)
+
+Pentru proiect, harta rămâne pagina protejată. Site-ul pus online, în schimb, trebuie să-i arate harta
+oricui (angajatori, colaboratori), iar autentificarea să rămână doar pentru administrare. Două setări din
+`config.php` schimbă asta, fără alt cod pe server:
+
+| Setare | Implicit (proiectul) | Site-ul public | Efect |
+|---|---|---|---|
+| `harta_publica` | `false` | `true` | `harta.php` se deschide și fără cont: titlul este „Harta călătoriilor”, fără butoanele de ieșire și de administrare |
+| `inregistrare_deschisa` | `true` | `false` | `login.php` nu mai are formularul de cont nou, un POST trimis direct primește 403, iar autocomplete-ul întoarce mereu o listă goală |
+
+Funcțiile `hartaPublica()` și `inregistrareDeschisa()` (`includes/db.php`) citesc setările.
+`harta.php` setează `$accesFaraCont` înainte de `includes/auth.php`, care atunci nu mai trimite vizitatorul
+la autentificare. Fără cele două rânduri în `config.php`, comportamentul este cel cerut în enunț.
+
 ---
 
 ## 9. Securitate
@@ -370,6 +396,25 @@ verifică la fiecare pagină protejată dacă numele mai există.
 | Ștergerea propriului cont de administrator | Conturile de administrator nu au buton și sunt refuzate și pe server | `admin.php` |
 | Sesiunea unui cont șters | `auth.php` verifică existența contului la fiecare cerere | `includes/auth.php` |
 | Pagina protejată în cache / istoric | `Cache-Control: no-store`, redirecționare fără sesiune | `includes/auth.php` |
+| **XSS care ar scăpa de escapare** | `Content-Security-Policy`: scripturi doar din `'self'`, `code.jquery.com`, `unpkg.com` și domeniile Google Maps; fără `unsafe-inline` / `unsafe-eval` | `www/.htaccess` |
+| **Clickjacking** | `frame-ancestors 'none'` și `X-Frame-Options: DENY` | `www/.htaccess` |
+| Tipuri de fișiere ghicite | `X-Content-Type-Options: nosniff` pe orice răspuns (o singură dată) | `www/.htaccess` |
+| Informații despre server | `X-Powered-By` eliminat; `Permissions-Policy` oprește camera, microfonul, locația | `www/.htaccess` |
+| Conturi străine pe site-ul public | `inregistrare_deschisa` = `false`: fără formular, POST refuzat cu 403 | `login.php` |
+| Numele administratorului aflat prin autocomplete | Pe site-ul public, API-ul întoarce mereu `[]` | `api/utilizatori.php` |
+
+### Content Security Policy (v0.12.0)
+Revizuirea codului (M8–M9) a arătat că site-ul nu are JavaScript inline (`<script>` cu cod, `onclick=`,
+`javascript:`) și nici `innerHTML`. De aceea politica poate interzice complet scripturile inline: chiar dacă un
+text ar scăpa vreodată de `e()`, browserul nu l-ar executa. Singura excepție este `style-src 'unsafe-inline'`,
+fiindcă Google Maps și Leaflet își adaugă singure stilurile. Domeniile Google sunt cele din ghidul oficial
+(*Maps JavaScript API – Content Security Policy Guide*). Blocul `<script type="application/json">` cu
+textele pentru JavaScript nu este afectat: browserul nu execută date JSON.
+
+Verificare în browser (Chrome DevTools): un script inline injectat de test este blocat, iar paginile reale nu
+au nicio eroare în consolă: Acasă, Despre, Proiecte (cu datele live din GitHub), Proiect, CV, Contact,
+autentificarea cu autocomplete și harta, atât în modul demo (Leaflet și imaginile OpenStreetMap), cât și cu
+Google Maps (harta desenată, marcajele, fereastra la click și turul ◀ ▶).
 
 ---
 
@@ -379,17 +424,25 @@ verifică la fiecare pagină protejată dacă numele mai există.
 - Pagina activă din meniu are `aria-current="page"`; butoanele și linkurile doar cu iconiță au `aria-label`
   (GitHub, LinkedIn, Email), iar iconițele SVG sunt `aria-hidden`.
 - Salutul scris literă cu literă are o copie completă pentru cititoarele de ecran.
-- Cardurile de proiect se deschid și cu tastatura (Enter sau Space); fereastra se închide cu Esc.
+- Cardurile de proiect rămân `article`; titlul fiecăruia este un `<button>` real, deci fereastra se
+  deschide cu Tab + Enter sau Space, fără `role="button"` pe tot cardul; fereastra se închide cu Esc.
+- Titlurile coboară fără salturi (`h1` → `h2` → `h3`), inclusiv pe Contact.
+- Audit Lighthouse (13.11.2026, simulare de telefon): 100 la accesibilitate, bune practici și SEO pe
+  Acasă, Despre, Proiecte, CV și Contact.
 - Fiecare imagine are text `alt`; contrastul textului respectă nivelul WCAG AA (4,5:1).
 - Animațiile se opresc cu `prefers-reduced-motion`.
 - Layout-ul se adaptează la telefon (o coloană sub 760 px).
+- Focusul de la tastatură are un contur vizibil, în culoarea site-ului, pe orice link, buton sau câmp
+  (`:focus-visible`, deci nu apare la click cu mouse-ul).
 
 ---
 
 ## 11. Testare
 
 ### Teste automate
-`bash teste/verificare.sh` (Apache și MySQL pornite). Rezultat pe 09.11.2026: **207 / 207 trecute**; cu `ADMIN_USER` și `ADMIN_PASS`, 222 de verificări.
+`bash teste/verificare.sh` (Apache și MySQL pornite). Rezultat pe 13.11.2026: **251 / 251 trecute**; cu `ADMIN_USER` și `ADMIN_PASS`, 269 de verificări.
+Scriptul presupune setările proiectului (harta protejată, înregistrare deschisă): dacă `config.php` are
+setările site-ului public, se oprește cu o explicație.
 
 | Grup | Ce verifică |
 |---|---|
@@ -406,8 +459,10 @@ verifică la fiecare pagină protejată dacă numele mai există.
 | Progres (`teste/verificare-progres.php`) | Distanțe (Brașov–Codlea ≈ 12,6 km, Brașov–București ≈ 141 km), fără locuri, 2 / 5 / 10 locuri, „acasă” = cel mai mic `ID`, drum lung, departe de casă, roza vânturilor (4 direcții da, 3 nu), calculul XP și al nivelului |
 | Aspect | Salutul complet în HTML (RO și EN), `js/acasa.js` doar pe pagina de start, fără bento grid, 4 informații, fotografia și cronologia pe Despre, carduri-link spre Proiecte și Hartă, `avatar.jpg` și `profil-rotund.jpg` servite, meniul din subsol (6 linkuri) pe 6 pagini și în engleză, nicio paranteză `[EMAIL]` / `[LINKEDIN]` pe Acasă, Contact și CV, câte un card de contact pentru fiecare link completat |
 | Pagina hărții | Nivelul, bara XP, cele 6 realizări, bara de explorare ascunsă până la pornirea JavaScript, `distanta_km` în JSON |
+| Anteturi de securitate | Pe 5 tipuri de răspuns (pagină, autentificare, 404, CSS, API): CSP prezent, fără `unsafe-inline` / `unsafe-eval` la scripturi, `nosniff` o singură dată; CSP cu `default-src`, `object-src 'none'`, `base-uri`, `form-action`, `frame-ancestors 'none'`; `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`, fără `X-Powered-By`; iconița paginii |
 | Limita de autentificare | 2 greșeli numărate pentru nume, o autentificare corectă le șterge; după 5 greșeli, a 6-a încercare (chiar cu parola bună) → 429, `Retry-After: 900`, fără autentificare; un nume inexistent blocat la fel; alt nume de pe aceeași adresă merge până la 20 de greșeli; tabelul conține doar hash-uri de 64 de caractere hexazecimale |
-| Panou de administrare | Fără autentificare → `login.php`; utilizator obișnuit → 403 (și pentru POST), fără link în pagină; `403.php`. Cu un cont de administrator: CSRF, latitudine 100, descriere goală, adăugare (virgula ca separator), escapare în panou, modificare, ștergere, contul de administrator nu poate fi șters, ștergerea unui cont îl deconectează |
+| Panou de administrare | Fără autentificare → `login.php`; utilizator obișnuit → 403 (și pentru POST), fără link în pagină; `403.php`. Cu un cont de administrator: CSRF, latitudine 100, descriere goală, adăugare (virgula ca separator), escapare în panou, modificare, ștergere, contul de administrator nu poate fi șters, ștergerea unui cont îl deconectează; bara de căutare Google Places apare doar cu Google Maps, ascunsă până se încarcă, iar încărcătorul vine după `js/admin.js` |
+| Conținut și accesibilitate | Nicio paranteză `[...]` rămasă pe Acasă, Despre, Proiecte, CV și Contact (RO și EN); pe Contact, titlurile cardurilor sunt `h2`, LinkedIn și emailul apar; pe Proiecte, niciun `role="button"` și câte un buton pentru fiecare card; paginile proiectelor noi (9, 10); `config.example.php` are harta protejată și înregistrarea deschisă implicit, iar harta cere în continuare cont |
 | Autocomplete | JSON cu `nosniff`, un nume găsit după început (și cu majuscule), maximum 10, nimic pentru o literă, `%%`, `__`, `x' OR '1'='1`, `<script>`, gol sau tablou; `_` nu este wildcard (`zzXtest_ac` nu apare pentru `zz_test_ac`); jQuery UI cu SRI |
 | Baza de date (`pai_admin`) | Poate `UPDATE` / `DELETE` pe `points` și `DELETE` pe `users` (în tranzacție anulată); nu poate schimba sau crea conturi, nu poate `DROP`, nu poate citi `mysql.user` |
 | Baza de date | `teste/verificare-bd.php`: conectarea ca `pai_app`, `utf8mb4`, coloanele, diacriticele, `x' OR '1'='1` nu găsește pe nimeni, `UNIQUE` (1062), `CHECK` (4025), `pai_app` nu poate `DELETE` / `UPDATE` / `DROP` / citi `mysql.user` (1142); coloanele `incercari_login`, `pai_app` poate `DELETE` din el, dar nu `UPDATE` |
@@ -425,9 +480,9 @@ baza de date rămâne neschimbată.
 
 ## 12. Limitări și pași următori
 
-- Emailul și profilul LinkedIn se completează în `www/includes/contacte.php`; până atunci nu apar pe site.
-  Limbile străine, câțiva ani din parcurs, rolul în CodeStorm și progresul pe TryHackMe / HackTheBox sunt
-  încă marcate cu `[PARANTEZE]`.
+- Toate informațiile personale sunt completate (v0.13.0): emailul și LinkedIn în
+  `www/includes/contacte.php`, limbile, anii din parcurs și rolul în CodeStorm în dicționare.
+- Emailul apare în clar pe site; pe site-ul public merită o protecție contra roboților care adună adrese.
 - Datele live din GitHub depind de conexiunea la internet și de limita API-ului
   (60 de cereri pe oră, fără autentificare).
 - Limita de autentificare poate fi folosită pentru a bloca temporar contul altcuiva (cineva greșește
@@ -436,8 +491,8 @@ baza de date rămâne neschimbată.
 - Modul `google` a fost verificat pe 24.10.2026 cu o cheie reală (cont Google Cloud de probă, credit
   valabil până pe 22.01.2027), restricționată la `http://localhost/*`, `http://127.0.0.1/*` și la
   Maps JavaScript API. După expirarea creditului, pagina trece singură pe harta demo.
-- Harta are deocamdată doar două locuri (Brașov, Codlea); restul orașelor vizitate se adaugă în
-  `sql/date-initiale.sql`.
+- Orașele vizitate se adaugă din panoul de administrare, cu bara de căutare Google Places (sau de mână);
+  `sql/date-initiale.sql` are doar locurile de pornire (Brașov, Codlea).
 - Culorile marcajelor (vizitat / de vizitat) și fotografiile au nevoie de coloane în plus în
   `points`; se adaugă în M7, după acordul cadrului didactic.
 - **M4–M7:** înregistrare, autentificare și sesiuni, autocomplete jQuery, harta cu marcaje colorate.

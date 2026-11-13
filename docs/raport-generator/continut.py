@@ -6,7 +6,7 @@ AUTOR = 'David Sebastian PILAT'
 AUTOR_PROP = 'David Sebastian Pilat'
 PROFESOR = '[Titulatura. NUMELE și prenumele cadrului didactic]'
 PROGRAM = 'Telecomunicații, anul IV'
-DATA_MODIFICARE = '2026-11-09T21:00:00Z'
+DATA_MODIFICARE = '2026-11-13T12:00:00Z'
 
 # Set to True once M3 (database) is done; chapter 5 changes accordingly.
 M3_GATA = True
@@ -17,6 +17,8 @@ ADMIN_GATA = True  # admin panel
 JOC_GATA = True    # travel progress, achievements, explore mode
 DESIGN_GATA = True # clean redesign: minimal home, richer About page, footer
 LIMITA_GATA = True # limit on repeated login attempts (M9)
+ANTETE_GATA = True # security headers (CSP...), keyboard focus, tab icon (M8-M9)
+CAUTARE_GATA = True # v0.13.0: Places search, professional content, public-site switch, a11y fixes
 
 
 def construieste(a):
@@ -59,7 +61,7 @@ def construieste(a):
                'se adaugă o aplicație web cu bază de date MySQL: înregistrare și autentificare, completare automată a '
                'numelui de utilizator cu jQuery și o pagină protejată cu o hartă a orașelor vizitate.'))
     x.append(p('Am ales să construiesc site-ul ca pe o carte de vizită pentru angajatori și colegi: pe lângă CV, '
-               'site-ul prezintă hobby-urile, competențele și proiectele mele, iar paginile tehnice trec într-o temă '
+               'site-ul prezintă obiectivele mele profesionale, interesele, competențele și proiectele, iar paginile tehnice trec într-o temă '
                'vizuală „cyber”, legată de domeniul care mă interesează, securitatea cibernetică.'))
 
     x.append(t(2, 'Cerințele temei'))
@@ -140,7 +142,7 @@ def construieste(a):
     x.append(p('Proiectul are patru foldere principale: `www/` conține site-ul, `sql/` scripturile bazei de date, '
                '`teste/` testele automate, iar `docs/` documentația (Codul 1).'))
     x.append(cod([
-        'pai-proiect/',
+        'seba-portfolio/',
         '├── www/                  rădăcina web (legată la C:\\xampp\\htdocs\\pai)',
         '│   ├── index.php, despre.php, proiecte.php, proiect.php,',
         '│   │   cv.php, contact.php, 404.php',
@@ -214,7 +216,9 @@ def construieste(a):
         ['Extra', 'Harta în stil de joc: progres, realizări, turul locurilor', 'Finalizată (v0.9.0, 24.10.2026)'],
         ['Extra', 'Design curat: pagina de start minimală, pagina Despre extinsă, subsol', 'Finalizată (v0.10.0, 27.10.2026)'],
         ['M8–M9', 'Finisaje, revizuire de securitate, testare completă',
+         'Finalizată (v0.11.0 – v0.12.0, 11.11.2026)' if ANTETE_GATA else
          'În lucru: limita de încercări la autentificare finalizată (v0.11.0, 09.11.2026)' if LIMITA_GATA else 'Planificată'],
+        ['Extra', 'Căutare Google Places în panou, conținut profesional, site public', 'Finalizată (v0.13.0, 13.11.2026)' if CAUTARE_GATA else 'Planificată'],
         ['M10', 'Raportul final și prezentarea', 'Decembrie 2026'],
     ]
     x.append(tabel(['Etapa', 'Conținut', 'Stare'], tabel_etape, [12, 58, 30], 'Etapele proiectului'))
@@ -230,7 +234,7 @@ def construieste(a):
                    'literă cu literă. O copie ascunsă vizual rămâne pentru cititoarele de ecran, iar pentru utilizatorii care '
                    'au cerut mai puține animații textul apare direct.'))
         x.append(p('Pagina Despre (Figura 2, dreapta) adună ce era înainte pe pagina de start: un card de profil cu '
-                   'fotografia, patru informații rapide (locație, studii, limbi, focus), povestea, hobby-urile, competențele, '
+                   'fotografia, patru informații rapide (locație, studii, limbi, focus), povestea și obiectivele profesionale, interesele, competențele, '
                    'parcursul sub forma unei cronologii cu câte un card pentru fiecare etapă și, la final, două carduri-link '
                    'spre proiecte și spre hartă. Linkurile de contact (GitHub, LinkedIn, email) stau într-un singur fișier, '
                    '`includes/contacte.php`, și apar pe pagina de start, în subsol, pe pagina de contact și în CV; '
@@ -385,6 +389,18 @@ def construieste(a):
             ['Cheia Google Maps', 'Stă în config.php (în afara Git); trebuie restricționată în Google Cloud la adresa site-ului, fiindcă apare în pagină', 'includes/config.php'],
             ['Bibliotecă de hărți modificată pe CDN', 'Leaflet 1.9.4 cu versiune fixă și hash SRI', 'harta.php'],
         ]
+    if ANTETE_GATA:
+        randuri += [
+            ['XSS care ar scăpa totuși de escapare', 'Content-Security-Policy: scripturi doar din sursele listate, fără unsafe-inline și unsafe-eval; site-ul nu are JavaScript inline', 'www/.htaccess'],
+            ['Pagini încadrate de alt site (clickjacking)', 'frame-ancestors \'none\' și X-Frame-Options: DENY', 'www/.htaccess'],
+            ['Tipuri de fișiere ghicite de browser', 'X-Content-Type-Options: nosniff pe orice răspuns', 'www/.htaccess'],
+            ['Versiunea PHP afișată', 'Antetul X-Powered-By este eliminat', 'www/.htaccess'],
+        ]
+    if CAUTARE_GATA:
+        randuri += [
+            ['Conturi străine pe site-ul public', 'Cu inregistrare_deschisa = false nu apare formularul, iar un POST trimis direct primește 403', 'login.php'],
+            ['Numele administratorului aflat prin autocomplete', 'Pe site-ul public, API-ul întoarce mereu o listă goală', 'api/utilizatori.php'],
+        ]
     if M6_GATA:
         randuri += [
             ['Listarea tuturor utilizatorilor prin autocomplete', 'Minimum 2 caractere, doar nume care încep cu textul, maximum 10 rezultate; % refuzat, _ escapat în LIKE', 'api/utilizatori.php'],
@@ -425,6 +441,15 @@ def construieste(a):
                         'majuscule), hash bcrypt în baza de date, cookie HttpOnly și SameSite, identificator nou după '
                         'autentificare, pagină protejată fără cache, deconectare cu și fără token, parolă greșită, nume '
                         "inexistent, x' OR '1'='1"])
+    if CAUTARE_GATA:
+        grupuri.append(['Conținut și accesibilitate', 'nicio paranteză [...] rămasă pe paginile publice, în română și în engleză; '
+                        'titlurile de pe Contact fără salturi de nivel; pe Proiecte, câte un buton real pentru fiecare card și '
+                        'niciun role="button"; paginile proiectelor noi; setările implicite pentru site-ul public; bara de căutare '
+                        'din panou apare doar cu Google Maps și e ascunsă până se încarcă'])
+    if ANTETE_GATA:
+        grupuri.append(['Anteturi de securitate', 'pe pagini, pagina 404, CSS și API: Content-Security-Policy fără unsafe-inline / unsafe-eval la scripturi, '
+                        'default-src, object-src, base-uri, form-action, frame-ancestors; nosniff o singură dată, X-Frame-Options, '
+                        'Referrer-Policy, Permissions-Policy, fără X-Powered-By; iconița paginii'])
     if LIMITA_GATA:
         grupuri.append(['Limita de autentificare', 'două greșeli sunt numărate, o autentificare corectă le șterge; după 5 greșeli, a 6-a încercare '
                         '(chiar cu parola bună) primește 429 cu Retry-After și nu autentifică; un nume inexistent este blocat la fel; '
@@ -614,7 +639,7 @@ def implementare_admin(a):
         'tabelul conturilor, cu buton de ștergere pentru conturile obișnuite.',
     ]:
         x.append(b(c))
-    x.append(fig(img('admin.png'), 'Panoul de administrare, cu un loc deschis pentru modificare'))
+    x.append(fig(img('admin.png'), 'Panoul de administrare, cu bara de căutare Google Places deasupra coordonatelor', 12))
     x.append(p('Administratorii sunt numele de utilizator trecute în `config.php` (`admini`). Am ales configurarea în '
                'locul unei coloane noi, ca tabelul `users` să rămână exact cel din enunț. Verificarea se face pe server, '
                'la fiecare cerere, inclusiv la trimiterea formularelor: un utilizator obișnuit care trimite direct o '
@@ -627,6 +652,18 @@ def implementare_admin(a):
     x.append(p('Fiecare formular are token CSRF, valorile sunt validate pe server (latitudine între -90 și 90, longitudine '
                'între -180 și 180, descriere de 1–255 caractere), iar ștergerile cer confirmare în browser. După fiecare '
                'modificare, pagina este reîncărcată prin redirecționare, cu un mesaj afișat o singură dată.'))
+    if CAUTARE_GATA:
+        x.append(p('Din versiunea 0.13.0, formularul are și o bară de căutare Google Places (`PlaceAutocompleteElement`). '
+                   'Când aleg un rezultat, `js/admin.js` cere detaliile locului (numele și coordonatele), completează '
+                   'latitudinea, longitudinea și descrierea și mută marcajul pe hartă. Salvarea trece prin aceeași validare pe '
+                   'server ca înainte, deci căutarea doar completează câmpurile. Bara este ascunsă până când scriptul Google '
+                   'reușește să o creeze; dacă cheia este refuzată sau o cerere eșuează, rămâne ascunsă, iar formularul se '
+                   'completează în continuare de mână. Primii pași ai acestei funcții (variabila care decide dacă bara apare '
+                   'și încărcarea scriptului Google) i-am scris eu, ghidat pas cu pas.'))
+        x.append(p('Tot în versiunea 0.13.0, două setări din `config.php` pregătesc site-ul pentru publicare: '
+                   '`harta_publica` face harta vizibilă fără cont, iar `inregistrare_deschisa` = `false` ascunde formularul de '
+                   'cont nou și refuză crearea de conturi. Fără aceste setări, comportamentul rămâne cel cerut în enunț: harta '
+                   'este pagina protejată și oricine își poate crea un cont.'))
     return x
 
 
@@ -862,9 +899,9 @@ def implementare_m3(a):
     return x
 
 
-REZULTAT_TESTE = ('La rularea din 09.11.2026, toate cele 207 verificări au trecut. Cu un cont de administrator '
+REZULTAT_TESTE = ('La rularea din 13.11.2026, toate cele 251 de verificări au trecut. Cu un cont de administrator '
                   '(variabilele ADMIN_USER și ADMIN_PASS), testele parcurg și fluxul complet al panoului de administrare: '
-                  '222 de verificări. Conturile de test sunt create prin formularul real și șterse la final. Verificările bazei de date sunt în `teste/verificare-bd.php`: rândurile de test sunt adăugate '
+                  '269 de verificări. Conturile de test sunt create prin formularul real și șterse la final. Verificările bazei de date sunt în `teste/verificare-bd.php`: rândurile de test sunt adăugate '
                   'într-o tranzacție anulată la final, deci baza de date rămâne neschimbată. Scriptul se termină cu un cod '
                   'de ieșire diferit de zero dacă o verificare eșuează, deci poate fi folosit înainte de fiecare commit.')
 
@@ -876,15 +913,13 @@ CONCLUZII = ('Până în acest moment au fost finalizate etapele M0–M7: mediul
              'proiectele anterioare și CV-ul, oferit atât ca pagină web, cât și ca PDF.')
 
 PASI_URMATORI = ('Urmează extinderea hărții (culori pentru locurile vizitate și dorite, fotografii), după acordul '
-                 'cadrului didactic, apoi revizuirea de securitate și finisajele (limita de încercări la autentificare '
-                 'este deja făcută). Adresa de email și profilul LinkedIn '
-                 'se completează în `includes/contacte.php` (până atunci nu apar pe site), iar câteva date personale '
-                 '(limbile străine, rolul în proiectul CodeStorm) sunt încă marcate cu paranteze pătrate și vor fi '
-                 'completate înainte de prezentare.')
+                 'cadrului didactic; revizuirea de securitate și finisajele sunt încheiate, iar toate informațiile personale '
+                 'sunt completate. După prezentare, site-ul poate fi publicat pe un server gratuit, cu harta vizibilă fără '
+                 'cont și autentificarea păstrată doar pentru administrare.')
 
 REZUMAT = [
     'Proiectul constă într-un site personal bilingv (română și engleză) și o aplicație web cu bază de date, realizate '
-    'pentru disciplina Programarea Aplicațiilor Internet. Site-ul prezintă autorul, hobby-urile, competențele, '
+    'pentru disciplina Programarea Aplicațiilor Internet. Site-ul prezintă autorul, obiectivele lui profesionale, interesele, competențele, '
     'proiectele și un CV formal, care poate fi descărcat ca PDF dintr-o singură pagină web. Paginile personale folosesc '
     'o temă luminoasă, iar cele tehnice o temă „cyber”, cu tranziții animate între ele, realizate cu View Transitions API.',
     'Aplicația este construită pe arhitectura client–server, cu Apache, PHP 8.2 și MariaDB în pachetul XAMPP. Codul comun '

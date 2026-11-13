@@ -9,7 +9,7 @@ Site-ul are două fețe: paginile personale (Acasă, Despre, CV, Contact) în te
 Este disponibil în **română și engleză**. Aspectul este curat: fundal cu o grilă fină, carduri albe
 și multe spații libere; pagina de start este minimală și trimite spre pagina Despre.
 
-**Versiunea curentă:** v0.11.0 (etapele M0–M7, panoul de administrare, progresul pe hartă, design curat, limita de autentificare). Istoricul complet: [CHANGELOG.md](CHANGELOG.md).
+**Versiunea curentă:** v0.13.0 (etapele M0–M9: site, aplicație, panou de administrare cu căutare Google Places, progres pe hartă, design curat, securitate, conținut profesional). Istoricul complet: [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
@@ -18,7 +18,7 @@ Este disponibil în **română și engleză**. Aspectul este curat: fundal cu o 
 | Pagină | Conținut |
 |---|---|
 | **Acasă** (`index.php`) | Salutul scris literă cu literă, o prezentare scurtă, un link spre Despre, iconițele sociale |
-| **Despre** (`despre.php`) | Profil cu fotografie, 4 informații rapide, povestea, lucrarea de licență, hobby-uri, competențe, parcursul (cronologie), linkuri spre Proiecte și Hartă |
+| **Despre** (`despre.php`) | Profil cu fotografie, 4 informații rapide, povestea (inclusiv obiectivele profesionale), lucrarea de licență, interese, competențe, parcursul (cronologie), linkuri spre Proiecte și Hartă |
 | **Proiecte** (`proiecte.php`) | Proiecte individuale și în echipă; la click, o fereastră cu date live din API-ul GitHub |
 | **Proiect** (`proiect.php?id=N`) | Pagina unui proiect: ce face, tehnologii, cod sursă |
 | **CV** (`cv.php`) | CV formal; butonul „Descarcă PDF” îl exportă pe o pagină A4 |
@@ -27,7 +27,7 @@ Este disponibil în **română și engleză**. Aspectul este curat: fundal cu o 
 | **Autentificare** (`login.php`) | Formularele de autentificare și de cont nou; completare automată (jQuery UI) pe numele de utilizator |
 | **Hartă** (`harta.php`) | Pagina protejată: „Bine ai venit, <utilizator>!”, nivelul de călător (XP, realizări), harta cu un marcaj pentru fiecare loc și turul locurilor (◀ ▶), lista locurilor, ieșire |
 | **Ieșire** (`logout.php?token=…`) | Închide sesiunea |
-| **Administrare** (`admin.php`) | Doar pentru administratori: adaugă, modifică și șterge locurile (cu alegerea punctului pe hartă), șterge conturi, statistici |
+| **Administrare** (`admin.php`) | Doar pentru administratori: adaugă, modifică și șterge locurile (cu căutare Google Places sau alegerea punctului pe hartă), șterge conturi, statistici |
 | **403** (`403.php`) | Acces interzis (Apache și panoul de administrare) |
 
 Plus: comutator **RO | EN** (alegerea se păstrează într-un cookie), buton de schimbare a temei,
@@ -40,7 +40,7 @@ printr-un cont dedicat (`pai_app`) care poate doar citi și adăuga rânduri.
 ### Ce urmează (cerințele din enunț)
 
 - **M7 (extindere):** culori pentru locurile vizitate / de vizitat și fotografii, după acordul profesorului.
-- **M8–M10:** finisaje, revizuire de securitate, raportul Word.
+- **M10:** prezentarea proiectului. Etapele M8–M9 (finisaje, revizuire de securitate) sunt încheiate.
 
 Planul complet este în [docs/Carta proiectului - PAI.docx](docs/Carta%20proiectului%20-%20PAI.docx).
 
@@ -67,14 +67,14 @@ Planul complet este în [docs/Carta proiectului - PAI.docx](docs/Carta%20proiect
 
 1. **Clonează proiectul** (Git Bash):
    ```bash
-   git clone https://github.com/seba-dvd/pai-proiect.git
+   git clone https://github.com/seba-dvd/seba-portfolio.git
    ```
 
 2. **Leagă folderul `www` de XAMPP.** Apache servește doar fișierele din `C:\xampp\htdocs`.
    Un *junction* face ca `htdocs\pai` să arate spre `www\` din proiect, fără copii.
    În **Command Prompt (cmd)**, cu căile tale:
    ```bat
-   mklink /J "C:\xampp\htdocs\pai" "C:\cale\spre\pai-proiect\www"
+   mklink /J "C:\xampp\htdocs\pai" "C:\cale\spre\seba-portfolio\www"
    ```
    Doar `www\` devine accesibil din browser; `docs\`, `sql\`, `teste\` și `.git\` rămân în afara lui.
 
@@ -109,7 +109,12 @@ Planul complet este în [docs/Carta proiectului - PAI.docx](docs/Carta%20proiect
    `'harta_furnizor' => 'google'` și `'google_maps_cheie' => '...'` în `config.php`. Cheia vine
    dintr-un proiect Google Cloud cu facturare activată și trebuie restricționată la adresa site-ului.
    Fără cheie, sau dacă Google refuză cheia (de exemplu după expirarea creditului), pagina afișează
-   singură harta demo.
+   singură harta demo. Bara de căutare din panoul de administrare are nevoie, în plus, de
+   *Places API (New)* activat pentru aceeași cheie.
+
+   **Site-ul public:** pe serverul online, adaugă în `config.php` `'harta_publica' => true` (harta se
+   vede fără cont) și `'inregistrare_deschisa' => false` (doar administratorul se autentifică). Pentru
+   proiect, lasă-le deoparte: harta rămâne pagina protejată.
 
 7. **Deschide** http://localhost/pai/
 
@@ -123,14 +128,14 @@ Cu Apache și MySQL pornite, în Git Bash, din folderul proiectului:
 ```bash
 bash teste/verificare.sh
 ```
-Scriptul face 207 verificări: sintaxa PHP, cheile dicționarelor, răspunsul fiecărei pagini,
+Scriptul face 251 de verificări: sintaxa PHP, cheile dicționarelor, răspunsul fiecărei pagini,
 erorile 404, folderele blocate, schimbarea limbii, încercările de atac pe parametri, conturile și
-sesiunile (prin formularele reale), harta, completarea automată, baza de date, progresul de pe hartă, aspectul paginilor și limita de autentificare (structura, constrângerile, drepturile contului
+sesiunile (prin formularele reale), harta, completarea automată, baza de date, progresul de pe hartă, aspectul paginilor, limita de autentificare, anteturile de securitate, conținutul și accesibilitatea (structura, constrângerile, drepturile contului
 `pai_app`, interogările pregătite). Conturile de test sunt șterse la final (cu `root`).
 Verificările bazei de date se pot rula și separat: `php teste/verificare-bd.php`.
 
 Cu un cont de administrator, testele parcurg și panoul de administrare (adăugare, modificare,
-ștergere de locuri și conturi), 222 de verificări în total:
+ștergere de locuri și conturi, bara de căutare), 269 de verificări în total:
 ```bash
 ADMIN_USER=seba ADMIN_PASS='parola ta' bash teste/verificare.sh
 ```
@@ -140,7 +145,7 @@ ADMIN_USER=seba ADMIN_PASS='parola ta' bash teste/verificare.sh
 ## Structura proiectului
 
 ```
-pai-proiect/
+seba-portfolio/
 ├── www/                      ← rădăcina web (legată la C:\xampp\htdocs\pai)
 │   ├── index.php, despre.php, proiecte.php, proiect.php, cv.php, contact.php, 404.php
 │   ├── login.php, harta.php, logout.php   ← aplicația: conturi, sesiuni, pagina protejată
@@ -215,6 +220,9 @@ Măsurile deja implementate (detalii în [docs/documentatie.md](docs/documentati
   cheia Google, dacă există, stă în `config.php`.
 - **Secrete:** `www/includes/config.php` (parola bazei de date) este în `.gitignore`.
 - **Linkuri externe:** `rel="noopener noreferrer"` pe toate linkurile care se deschid în tab nou.
+- **Anteturi HTTP** (`www/.htaccess`): `Content-Security-Policy` (scripturi doar din sursele listate,
+  fără `unsafe-inline`; site-ul nu are JavaScript inline), `frame-ancestors 'none'` / `X-Frame-Options`,
+  `nosniff`, `Referrer-Policy`, `Permissions-Policy`; versiunea PHP nu mai apare (`X-Powered-By`).
 
 ---
 

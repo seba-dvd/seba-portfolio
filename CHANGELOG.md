@@ -6,6 +6,45 @@ and versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.13.0] - 2026-11-13
+Place search in the admin panel, professional content, a public-site switch and accessibility fixes.
+
+### Added
+- Google Places search in the admin panel's place form (`PlaceAutocompleteElement`): picking a result fills in the latitude, longitude and description and moves the marker; hidden until it loads, and hidden again if Google refuses the key or a request, so the form still works by hand (needs Places API (New) on the key)
+- Public-site switch in `config.php`: `harta_publica` (the map needs no account) and `inregistrare_deschisa` (registration on or off); the defaults keep the course setup (protected map, open registration)
+- With registration off: no new-account form, a POST sent anyway gets 403, and the username autocomplete always answers `[]`
+- Two team projects on the projects page and in the CV: Live Auction App and IP Tracker
+- LinkedIn and email in `includes/contacte.php`
+- 19 checks: content (no `[PLACEHOLDER]` left, RO and EN), contact headings, project buttons, the new project pages, the switch's defaults, and 3 admin checks for the search box (251 checks in total, 269 with the admin flow); the script stops with an explanation if `config.php` has the public-site settings
+
+### Changed
+- About page and CV rewritten in a professional tone: career goals, international teams and travel; "Hobbies" became "Interests" (travel and cultures, hands-on security, radio and IoT, sport in one line); childhood and personal details trimmed
+- Filled in: English (B2), the barista job (2023 – present), the role in EduDocSync (AI agent with Ollama, backend, Docker); TryHackMe / HackTheBox shown as active learning
+- The GitHub repository is now `seba-dvd/seba-portfolio` (was `pai-proiect`; the old address redirects)
+- Removed the "CV web" project
+
+### Fixed
+- Accessibility (Lighthouse): project cards no longer use `role="button"`; each title is a real `<button>` that opens the preview, and keyboard focus outlines the whole card
+- Contact: card titles are `h2` under the page's `h1` (no skipped heading level); every public page now scores 100 for accessibility, best practices and SEO
+
+## [0.12.0] - 2026-11-11
+Security review and final polish (milestones M8–M9).
+
+### Added
+- Security headers for every response (`www/.htaccess`): a Content-Security-Policy that allows scripts only from the site, code.jquery.com, unpkg.com and the Google Maps domains, with no `unsafe-inline` or `unsafe-eval`; `frame-ancestors 'none'` and `X-Frame-Options: DENY`; `X-Content-Type-Options: nosniff`; `Referrer-Policy`; `Permissions-Policy`
+- A tab icon (`img/favicon.svg`): "S." in the site's colours
+- A visible keyboard focus outline on every link, button and field (`:focus-visible`)
+- 25 checks for the headers and the icon (232 checks in total, 247 with the admin flow)
+
+### Changed
+- `X-Powered-By` is no longer sent (the PHP version stays hidden); `nosniff` is sent once, also on the JSON API
+- The map uses Google Maps again (`harta_furnizor` = `google` in `config.php`); checked with the new policy
+- Google markers: the `PinElement` is passed directly and clicks use the `gmp-click` event (replaces the deprecated `pin.element` and `addListener('click')`)
+
+### Security
+- Code review: no unescaped output, no SQL built from strings, no inline JavaScript, no `innerHTML` (issue #7)
+- Checked in the browser: an injected inline script is blocked, and no page has console errors (demo map mode)
+
 ## [0.11.0] - 2026-11-09
 A limit on repeated login attempts, and the report generator moved into the repository.
 

@@ -289,3 +289,45 @@
 - Folderul temporar al generatorului raportului fusese deja curățat parțial: lipseau șablonul și imaginile. Le-am recuperat din git (commit-ul `f669ce1`) și din raportul existent, apoi am verificat că raportul generat este identic.
 - Testele fac multe autentificări greșite; dacă rulau de două ori în 15 minute, s-ar fi blocat singure. Acum golesc tabelul la început.
 
+## 11.11.2026 – Revizuirea de securitate și finisaje (v0.12.0)
+
+### Ce am făcut
+- Am căutat prin tot codul afișări fără `e()`, interogări SQL lipite din text, JavaScript inline și `innerHTML`: nu există.
+- Pentru că nu există JavaScript inline, am putut adăuga o politică Content-Security-Policy strictă, plus celelalte anteturi de securitate, în `www/.htaccess`.
+- Am verificat în browser că un script inline injectat este blocat și că paginile reale nu au erori în consolă.
+- Finisaje: o iconiță pentru tab și un contur vizibil pentru focusul de la tastatură.
+- 25 de verificări noi: 232 în total, toate trecute.
+
+### Ce am învățat
+- CSP spune browserului de unde are voie să încarce scripturi, stiluri, imagini și conexiuni; restul este blocat.
+- Un site fără JavaScript inline poate interzice complet scripturile inline, deci un XSS nu s-ar mai executa.
+- `Referrer-Policy` nu trebuie să fie prea strictă: cheia Google Maps este restricționată după adresa site-ului, deci Google trebuie să primească măcar originea.
+- `:focus-visible` arată conturul doar la navigarea cu tastatura, nu și la click.
+
+### Probleme întâlnite
+- Primul test din Edge headless nu citea consola deloc; un test de control (un `console.error` intenționat) a arătat asta. Am folosit Chrome DevTools, care citește consola direct.
+- `nosniff` apărea de două ori la API (îl trimite și PHP); `Header unset` înainte de `Header always set` îl lasă o singură dată.
+- Am trecut harta înapoi pe Google Maps (`harta_furnizor` = `google`) și am verificat-o cu noua politică: nicio eroare. Consola arăta două avertismente de la Google, pentru `pin.element` și `addListener('click')`, funcții pe care Google le va scoate; acum marcajul primește direct `PinElement`, iar clickul folosește `addEventListener('gmp-click')`.
+
+
+## 13.11.2026 – Căutarea locurilor, conținut profesional și harta publică (v0.13.0)
+
+### Ce am făcut
+- În panoul de administrare am adăugat o bară de căutare Google Places: aleg un oraș din sugestii, iar latitudinea, longitudinea și descrierea se completează singure. Primii pași (variabila `$cautareGoogle` și încărcarea scriptului Google în `admin.php`) i-am scris eu, ghidat pas cu pas.
+- Am rescris textele de pe Despre și din CV pe un ton profesional: obiective de carieră, echipe internaționale, călătorii și culturi noi; am completat informațiile care lipseau (limbi, ani, rol, email, LinkedIn).
+- Am adăugat pe pagina Proiecte două proiecte de echipă noi (Live Auction App, IP Tracker) și am scos proiectul „CV web”.
+- Am făcut un audit Lighthouse și am reparat cele două probleme găsite: ordinea titlurilor pe Contact și cardurile de proiect care se prezentau ca butoane.
+- Am adăugat un comutator pentru site-ul public: harta fără cont și fără înregistrare, doar cu autentificare pentru administrare. Pentru proiect, setările implicite rămân cele din enunț.
+- Am redenumit depozitul GitHub în `seba-portfolio`.
+- 19 verificări noi: 251 în total (269 cu panoul de administrare), toate trecute.
+
+### Ce am învățat
+- `??` dă o valoare de rezervă când o cheie lipsește, iar `===` compară și tipul, fără conversii neașteptate.
+- Ordinea scripturilor contează: scriptul care definește funcția apelată de Google (`callback`) trebuie încărcat înaintea încărcătorului Google.
+- Un element ascuns cu `hidden` până când JavaScript reușește evită o interfață care apare, dar nu funcționează.
+- Un `article` cu `role="button"` amestecă rolurile pentru cititoarele de ecran; un `<button>` real în titlu e mai corect și merge singur cu Enter și Space.
+- Aceeași bază de cod poate servi două scopuri (proiectul și site-ul public) cu setări în configurare, fără ramuri separate.
+
+### Probleme întâlnite
+- Primul test pentru linkurile de contact număra rânduri, nu linkuri: iconițele din subsol erau pe același rând. Acum numără adresele distincte.
+- Pe site-ul public, autocomplete-ul de la autentificare ar fi arătat oricui numele contului de administrator; cu înregistrarea oprită, API-ul întoarce o listă goală.
