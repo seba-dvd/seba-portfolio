@@ -62,6 +62,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // One message for both cases: it doesn't tell which part was wrong
             $eroareLogin = $t['eroare_login'];
         }
+    } elseif ($actiune === 'inregistrare' && !inregistrareDeschisa()) {
+        // The form isn't shown on the public site; a request sent anyway is refused
+        http_response_code(403);
+        $eroareLogin = $t['eroare_inregistrare_inchisa'];
     } elseif ($actiune === 'inregistrare') {
         $numeCont = trim((string) ($_POST['user'] ?? ''));
         $parola = (string) ($_POST['password'] ?? '');
@@ -123,7 +127,7 @@ $token = tokenCsrf();
             <div class="terminal-corp">
                 <p><span class="prompt">$</span> <?= e($t['login_comanda']) ?></p>
                 <h1><?= e($t['login_titlu_pagina']) ?></h1>
-                <p><?= e($t['login_intro']) ?></p>
+                <p><?= e(inregistrareDeschisa() ? $t['login_intro'] : $t['login_intro_admin']) ?></p>
             </div>
         </section>
 
@@ -151,6 +155,7 @@ $token = tokenCsrf();
                 <button class="btn" type="submit"><?= e($t['buton_login']) ?></button>
             </form>
 
+            <?php if (inregistrareDeschisa()): ?>
             <form class="card formular" method="post" action="login.php">
                 <h2><?= e($t['inregistrare_titlu']) ?></h2>
                 <input type="hidden" name="actiune" value="inregistrare">
@@ -180,6 +185,7 @@ $token = tokenCsrf();
 
                 <button class="btn" type="submit"><?= e($t['buton_inregistrare']) ?></button>
             </form>
+            <?php endif; ?>
         </div>
     </main>
 

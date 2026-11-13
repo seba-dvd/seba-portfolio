@@ -14,14 +14,14 @@ require __DIR__ . '/includes/antet.php';
             <?php foreach (linkuriContact() as $link): ?>
                 <a class="card contact-card" href="<?= e($link['href']) ?>"<?= $link['extern'] ? ' target="_blank" rel="noopener noreferrer"' : '' ?>>
                     <span class="icon-cerc"><?= iconita($link['cheie']) ?></span>
-                    <h3><?= e($link['nume']) ?></h3>
+                    <h2><?= e($link['nume']) ?></h2>
                     <p><?= e($link['text']) ?></p>
                 </a>
             <?php endforeach; ?>
 
             <div class="card contact-card">
                 <span class="icon-cerc"><?= iconita('locatie') ?></span>
-                <h3><?= e($t['contact_locatie']) ?></h3>
+                <h2><?= e($t['contact_locatie']) ?></h2>
                 <p><?= e($t['locatie']) ?></p>
             </div>
         </section>

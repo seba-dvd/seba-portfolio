@@ -114,11 +114,25 @@ $dateAdmin = array_map(fn(array $p) => [
     'lat' => (float) $p['lat'], 'lng' => (float) $p['long'], 'descriere' => $p['description'],
 ], $puncte);
 
+// The place search (Google Places) works only with the Google map and a key in config.php
+$config = configuratie();
+$cheieGoogle = trim((string) ($config['google_maps_cheie'] ?? ''));
+$cautareGoogle = ($config['harta_furnizor'] ?? 'demo') === 'google' && $cheieGoogle !== '';
+
 $pagina = '';
 $cheieTitlu = 'admin';
 $temaCyber = true;
 $stiluri = [['href' => LEAFLET['css'], 'integrity' => LEAFLET['css_hash']]];
 $scripturi = [['src' => LEAFLET['js'], 'integrity' => LEAFLET['js_hash']], 'js/admin.js'];
+
+if ($cautareGoogle) {
+    $scripturi[] = [
+        'src' => 'https://maps.googleapis.com/maps/api/js?key=' . urlencode($cheieGoogle)
+               . '&loading=async&callback=pornesteCautarea&language=' . LIMBA,
+        'async' => true,
+    ];
+}
+
 require __DIR__ . '/includes/antet.php';
 ?>
 
@@ -167,6 +181,14 @@ require __DIR__ . '/includes/antet.php';
                     <input type="hidden" name="csrf" value="<?= e($token) ?>">
                     <?php if ($loc['ID']): ?>
                         <input type="hidden" name="id" value="<?= e((string) $loc['ID']) ?>">
+                    <?php endif; ?>
+
+                    <?php if ($cautareGoogle): ?>
+                        <!-- Filled by js/admin.js with Google's search box; shown only once that works -->
+                        <div id="cautare-loc" class="cautare-loc" hidden>
+                            <span id="cautare-eticheta" class="eticheta-cautare"><?= e($t['camp_cautare']) ?></span>
+                            <small><?= e($t['cautare_ajutor']) ?></small>
+                        </div>
                     <?php endif; ?>
 
                     <label for="loc-lat"><?= e($t['camp_lat']) ?></label>

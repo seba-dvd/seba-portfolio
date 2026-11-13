@@ -1,5 +1,5 @@
 // Preview window for the projects page.
-// Click (or Enter) on a card -> a window opens with the card's details,
+// Click on a card (or Enter on its title) -> a window opens with the card's details,
 // plus live data read from GitHub's public API for public repositories.
 
 const fereastra = document.getElementById('fereastra');
@@ -88,18 +88,12 @@ async function incarcaGithub(repo) {
     zonaGithub.append(link);
 }
 
-// Open on click, or on Enter/Space for keyboard users
+// Open with a click anywhere on the card. Keyboard users reach the title, which is a
+// real <button>, so Enter and Space work by themselves (no role="button" on the card).
 document.querySelectorAll('.proiect').forEach(card => {
     card.addEventListener('click', e => {
         if (e.target.closest('a')) return;          // a click on "./detalii" follows the link
         deschide(card);
-    });
-    card.addEventListener('keydown', e => {
-        if (e.target !== card) return;              // Enter on the link inside follows the link
-        if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            deschide(card);
-        }
     });
 });
 

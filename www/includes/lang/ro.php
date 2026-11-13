@@ -40,9 +40,9 @@ return [
     'acasa_link'        => 'Explorează parcursul meu',
     'social_eticheta'   => 'Mă găsești pe',
     'poza_alt'          => 'Fotografia lui David Sebastian Pilat',
-    'acasa_despre'      => 'Totul a început cu filmele cu spioni: în timp ce ceilalți urmăreau acțiunea, eu mă uitam la gadgeturi. Așa am ajuns la Telecomunicații, unde mă fascinează partea invizibilă a tehnologiei: semnale și pachete pe care nu le vede nimeni.',
+    'acasa_despre'      => 'Mă atrage partea invizibilă a tehnologiei: semnalele radio și pachetele care traversează rețelele în fiecare secundă. Vreau să înțeleg cum funcționează și, mai ales, cum pot fi protejate.',
     'titlu_despre'      => 'Despre mine',
-    'titlu_hobby'       => 'Hobby-uri',
+    'titlu_hobby'       => 'Interese',
     'titlu_parcurs'     => 'Parcurs',
     'titlu_competente'  => 'Competențe',
     'proiecte_link'     => './deschide.sh →',
@@ -58,15 +58,16 @@ return [
     'despre_info' => [
         ['icon' => 'locatie', 'eticheta' => 'Locație', 'valoare' => 'Brașov, România'],
         ['icon' => 'studii',  'eticheta' => 'Studii',  'valoare' => 'Telecomunicații, anul IV'],
-        ['icon' => 'limbi',   'eticheta' => 'Limbi',   'valoare' => 'Română · [LIMBA]'],
+        ['icon' => 'limbi',   'eticheta' => 'Limbi',   'valoare' => 'Română · Engleză (B2)'],
         ['icon' => 'focus',   'eticheta' => 'Focus',   'valoare' => 'Cyber · Radio · IoT'],
     ],
     'titlu_poveste'     => 'Povestea mea',
     'titlu_mai_departe' => 'Mai departe',
     'despre_paragrafe' => [
-        'Sunt David, student în ultimul an la Telecomunicații, la Universitatea Transilvania din Brașov. În prezent lucrez la lucrarea de licență: un multi-tool portabil de pentesting, construit pe Raspberry Pi, care testează securitatea dispozitivelor radio și IoT. Practic, e propriul meu Flipper Zero, cu câteva trucuri în plus. Țintesc o carieră în securitate cibernetică, ca pentester sau security engineer într-un SOC. Mă gândesc serios și să-mi pun cunoștințele în slujba țării, la MApN, MAI sau SRI.',
-        'Totul a început în fața televizorului. Când eram mic, mă uitam la toate filmele cu forțe speciale și spioni pe care le găseam. În timp ce ceilalți urmăreau acțiunea, eu mă uitam la gadgeturi. Cum funcționează stația aia? Cum au intrat în sistem? N-am încetat niciodată să întreb.',
-        'Întrebările astea m-au adus la Telecomunicații, unde am descoperit ce mă fascinează și azi: partea invizibilă a tehnologiei. Semnalele zboară prin aer și pachetele traversează rețelele în fiecare secundă, fără ca cineva să le observe. Pe parcurs, stagiul de la Dräxlmaier mi-a arătat cum funcționează sistemele industriale, iar fiecare laborator și proiect m-a adus mai aproape de securitate. În afara laboratorului mă găsești pe teren cu echipa mea, la sală sau urmărind o probă de raliu undeva prin țară.',
+        'Sunt David, student în ultimul an la Telecomunicații, la Universitatea Transilvania din Brașov. Lucrez la lucrarea de licență: un multi-tool portabil de pentesting, construit pe Raspberry Pi, care testează securitatea dispozitivelor radio și IoT. Îmi place să înțeleg un sistem până la nivelul semnalului, apoi să-i găsesc punctele slabe înaintea altcuiva.',
+        'Curiozitatea a pornit de la gadgeturile din filmele cu spioni și m-a adus la Telecomunicații, unde am descoperit partea invizibilă a tehnologiei: semnale și pachete care circulă în fiecare secundă fără să le observe nimeni. Stagiul de la Dräxlmaier mi-a arătat cum funcționează sistemele industriale, iar laboratoarele, hackathonul CodeStorm și proiectele în echipă m-au apropiat tot mai mult de securitate.',
+        'Pe termen scurt îmi doresc un stagiu sau un post de junior ca pentester sau security engineer într-un SOC. Pe termen lung vreau să devin specialist în securitatea comunicațiilor radio și IoT, să-mi confirm cunoștințele prin certificări și să lucrez la proiecte care contează, inclusiv în domeniul apărării și al securității naționale.',
+        'Visez să lucrez în echipe internaționale și să călătoresc cât mai mult: să văd cât mai multe țări, să descopăr culturi noi și să învăț de la oameni care gândesc altfel decât mine. Cred că perspectivele diferite fac dintr-un inginer un om mai bun la rezolvat probleme.',
     ],
     'acum_eticheta' => 'Acum lucrez la',
     'acum_titlu'    => 'Multi-Tool Pentesting Platform',
@@ -74,10 +75,10 @@ return [
     'acum_taguri'   => ['Raspberry Pi', 'Sub-1 GHz', 'NFC', 'RFID'],
 
     'hobby' => [
-        ['icon' => '⚽', 'titlu' => 'Fotbal', 'text' => 'Am jucat ca fundaș central la trei cluburi din Brașov între 9 și 15 ani, iar de la 17 ani joc minifotbal, acum la FCP Steagu, echipa pe care am construit-o cu trei prieteni în Liga Pro Brașov, Divizia B.'],
-        ['icon' => '🥊', 'titlu' => 'Kickboxing și sală', 'text' => 'Filmele cu spioni și MMA m-au adus la sporturile de contact, iar kickboxingul și sala sunt timpul meu, în care scap de stres și mă dezvolt.'],
-        ['icon' => '🏁', 'titlu' => 'Motorsport românesc', 'text' => 'De când am descoperit anul trecut raliul și viteza în coastă, urmăresc fiecare etapă pe care o prind, pentru că iubesc mașinile și adrenalina unei curse.'],
-        ['icon' => '🎮', 'titlu' => 'Jocuri și filme', 'text' => 'Joc EA FC, UFC și F1 și mă uit la filme de acțiune, comedie și tehnologie, dar și la documentare.'],
+        ['icon' => '🌍', 'titlu' => 'Călătorii și culturi', 'text' => 'Vreau să văd cât mai multe țări și să descopăr culturi noi. Harta călătoriilor de pe site ține evidența orașelor vizitate și a celor de pe listă.'],
+        ['icon' => '🛡️', 'titlu' => 'Securitate în practică', 'text' => 'Învăț activ pe TryHackMe și HackTheBox, unde exersez tehnici de atac și de apărare pe sisteme construite pentru asta.'],
+        ['icon' => '📡', 'titlu' => 'Radio și IoT', 'text' => 'Experimentez cu Raspberry Pi și cu protocoale precum Sub-1 GHz, NFC și RFID, ca să înțeleg cum comunică dispozitivele din jurul nostru.'],
+        ['icon' => '⚽', 'titlu' => 'Sport', 'text' => 'Joc minifotbal și urmăresc motorsportul românesc. Sportul de echipă m-a învățat disciplină și cum să lucrez cu ceilalți.'],
     ],
 
     'competente' => [
@@ -94,10 +95,8 @@ return [
         ['an' => 'Vara 2026', 'text' => 'Stagiu de practică la Dräxlmaier (Codlea), departamentul Electrics & Applied Engineering: programare PLC, automatizări, scheme electrice, testare echipamente'],
         ['an' => '2026', 'text' => 'Hackathonul Transilvania CodeStorm @ MI (ediția a 2-a)'],
         ['an' => '2023 – 2027', 'text' => 'Licență în Telecomunicații, Universitatea Transilvania din Brașov'],
-        ['an' => '[ANUL]', 'text' => 'Am co-fondat FCP Steagu, echipă de minifotbal în Liga Pro Brașov, Divizia B'],
-        ['an' => '[ANII]', 'text' => 'Barista; vânzător la un magazin de cartier'],
+        ['an' => '2023 – prezent', 'text' => 'Barista; vânzător la un magazin de cartier'],
         ['an' => '2019 – 2023', 'text' => 'Colegiul Național „Emil Racoviță” Brașov, profil Științe'],
-        ['an' => '9 – 15 ani', 'text' => 'Jucător de fotbal la trei cluburi din Brașov'],
     ],
 
     // ===== Projects =====
@@ -108,8 +107,7 @@ return [
     'detalii'         => './detalii →',
     'titlu_realizari' => 'Realizări',
     'realizari'       => [
-        'TryHackMe – [RANG / CAMERE TERMINATE]',
-        'HackTheBox – [RANG / MAȘINI REZOLVATE]',
+        'TryHackMe și HackTheBox – învăț activ, cu exerciții de atac și de apărare',
         'Transilvania CodeStorm @ MI – ediția a 2-a',
     ],
     'inchide_fereastra' => 'Închide fereastra',
@@ -135,7 +133,7 @@ return [
         'competente' => 'Competențe',
         'interese'   => 'Interese',
     ],
-    'cv_profil' => 'Student în ultimul an la Telecomunicații, cu interes pentru securitatea rețelelor, a protocoalelor radio și a dispozitivelor IoT. Lucrez la o platformă portabilă de pentesting pe Raspberry Pi și caut un stagiu sau un post de junior ca pentester sau security engineer într-un SOC.',
+    'cv_profil' => 'Student în ultimul an la Telecomunicații, cu interes pentru securitatea rețelelor, a protocoalelor radio și a dispozitivelor IoT. Lucrez la o platformă portabilă de pentesting pe Raspberry Pi și caut un stagiu sau un post de junior ca pentester sau security engineer într-un SOC, ideal într-o echipă internațională.',
     'cv_experienta' => [
         [
             'titlu'    => 'Stagiu de practică – Dräxlmaier, Codlea',
@@ -149,7 +147,7 @@ return [
         ],
         [
             'titlu'    => 'Barista; vânzător la un magazin de cartier',
-            'perioada' => '[ANII]',
+            'perioada' => '2023 – prezent',
             'sub'      => 'Lucru cu clienții, comunicare, lucru în echipă',
             'puncte'   => [],
         ],
@@ -161,8 +159,10 @@ return [
     'cv_proiecte' => [
         ['nume' => 'Multi-Tool Pentesting Platform', 'text' => '(lucrare de licență, 2026–2027): dispozitiv portabil pe Raspberry Pi pentru securitatea protocoalelor radio și IoT.'],
         ['nume' => 'Straja', 'text' => ': platformă proprie de monitorizare și securitate a rețelei (Java, Spring Boot, Docker).'],
+        ['nume' => 'Live Auction App', 'text' => '(echipă de 5, Agile/Scrum, în lucru): platformă de licitații live din microservicii (Spring Boot, React, MySQL, WebSocket, Docker); rol: Project Manager, user-service și api-gateway (JWT).'],
         ['nume' => 'KubiDoIt', 'text' => '(echipă de 4): aplicație to-do web și mobil; rol: dezvoltator backend (Supabase, securitate).'],
-        ['nume' => 'EduDocSync', 'text' => ': hackathonul Transilvania CodeStorm @ MI, ediția a 2-a (Python, OCR, PostgreSQL).'],
+        ['nume' => 'IP Tracker', 'text' => '(echipă de 3): informații despre un IP sau un domeniu, pe web (React) și mobil (React Native); rol: istoricul, cardurile, design responsive, documentația.'],
+        ['nume' => 'EduDocSync', 'text' => '(hackathonul Transilvania CodeStorm @ MI, ediția a 2-a, echipă de 4): procesarea documentelor academice; rol: agentul AI cu Ollama, backend și Docker.'],
         ['nume' => 'SimpleScanner', 'text' => ': scanner de porturi TCP în Python, cu thread-uri.'],
     ],
     'cv_competente' => [
@@ -170,9 +170,9 @@ return [
         ['Rețelistică', 'TCP/IP, subnetare, rutare, Wireshark, Cisco Packet Tracer, Wi-Fi (802.11), DNS, FTP, Profinet'],
         ['Securitate', 'Kali Linux, Nmap, TryHackMe, HackTheBox, protocoale radio și IoT (Sub-1 GHz, NFC, RFID)'],
         ['Instrumente', 'Linux, Git/GitHub, VS Code, Docker/WSL, MATLAB, Raspberry Pi, CODESYS / PLC'],
-        ['Limbi străine', '[LIMBA – NIVEL]'],
+        ['Limbi', 'Română (nativ), Engleză (B2)'],
     ],
-    'cv_interese' => 'Fotbal (co-fondator FCP Steagu, Liga Pro Brașov, Divizia B), kickboxing, motorsport românesc (raliuri, viteză în coastă).',
+    'cv_interese' => 'Călătorii și culturi noi, securitate în practică (TryHackMe, HackTheBox), radio și IoT, minifotbal.',
 
     // ===== Contact =====
     'contact_text'    => 'Caut un stagiu sau un post de junior în securitate cibernetică și sunt deschis la proiecte în rețelistică, radio și IoT. Cel mai rapid răspund pe email.',
@@ -189,6 +189,8 @@ return [
     'login_titlu_pagina'     => 'Harta călătoriilor',
     'login_intro'            => 'Intră în cont ca să vezi locurile pe care le-am vizitat, sau creează-ți un cont nou.',
     'login_titlu'            => 'Autentificare',
+    'login_intro_admin'      => 'Autentificarea este doar pentru administrarea site-ului. Harta se vede fără cont.',
+    'eroare_inregistrare_inchisa' => 'Crearea de conturi noi este oprită pe acest site.',
     'inregistrare_titlu'     => 'Cont nou',
     'camp_utilizator'        => 'Utilizator',
     'camp_parola'            => 'Parolă',
@@ -266,6 +268,8 @@ return [
     'camp_lat'                   => 'Latitudine',
     'camp_long'                  => 'Longitudine',
     'camp_descriere'             => 'Descriere',
+    'camp_cautare'               => 'Caută un loc',
+    'cautare_ajutor'             => 'Alege un rezultat: coordonatele și descrierea se completează singure.',
     'col_id'                     => 'ID',
     'col_coordonate'             => 'Coordonate',
     'col_actiuni'                => 'Acțiuni',

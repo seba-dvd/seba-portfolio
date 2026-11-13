@@ -12,6 +12,7 @@
  * start with the text, at most 10 results. The text may only contain the
  * characters allowed in a username, so "%" (the LIKE wildcard) is refused and
  * "_" is escaped: neither can turn the search into "list everyone".
+ * On the public site (config: 'inregistrare_deschisa' => false) the list is always empty.
  */
 require_once __DIR__ . '/../includes/db.php';
 
@@ -21,6 +22,12 @@ const MAXIM_REZULTATE = 10;
 header('Content-Type: application/json; charset=utf-8');
 header('X-Content-Type-Options: nosniff');        // the browser must treat it as JSON, nothing else
 header('Cache-Control: no-store');
+
+// On the public site only the admin logs in: listing names would only reveal the admin's
+if (!inregistrareDeschisa()) {
+    echo '[]';
+    exit;
+}
 
 $text = $_GET['term'] ?? '';
 

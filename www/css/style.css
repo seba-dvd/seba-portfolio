@@ -53,6 +53,13 @@ body {
     flex-direction: column;
 }
 
+/* Keyboard focus: a clear outline in the site's colour on every link, button and field.
+   :focus-visible shows it for the keyboard only, not after a mouse click */
+:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+}
+
 /* Text only for screen readers (e.g. the full greeting while it is being typed) */
 .vizual-ascuns {
     position: absolute;
@@ -644,9 +651,20 @@ main.acasa {
     cursor: pointer;
 }
 
-.proiect:focus-visible {
-    outline: 2px solid var(--accent-2);   /* visible when using the keyboard */
+/* The title button looks like a normal heading */
+.proiect-deschide {
+    all: unset;
+    cursor: pointer;
+}
+
+/* Keyboard focus on the title outlines the whole card */
+.proiect:has(.proiect-deschide:focus-visible) {
+    outline: 2px solid var(--accent-2);
     outline-offset: 3px;
+}
+
+.proiect-deschide:focus-visible {
+    outline: none;                        /* the card's outline above is enough */
 }
 
 /* ===== Preview window (<dialog>) ===== */
@@ -959,9 +977,10 @@ main.acasa {
     color: var(--text);
 }
 
-.contact-card h3 {
+.contact-card h2 {
     margin: 14px 0 6px;
     color: var(--titlu);
+    font-size: 1.17em;                    /* the size it had as an h3 */
 }
 
 .contact-card p {
@@ -1539,6 +1558,29 @@ ul.mesaj {
 
 .harta-admin {
     height: 340px;
+}
+
+/* Google Places search above the coordinates (the box itself is Google's own element) */
+.cautare-loc {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-bottom: 14px;
+    margin-bottom: 4px;
+    border-bottom: 1px dashed var(--linie, var(--text-slab));
+}
+
+.cautare-loc[hidden] {
+    display: none;
+}
+
+.eticheta-cautare {
+    font-weight: 600;
+    margin-top: 8px;
+}
+
+#cautare-google {
+    width: 100%;
 }
 
 .tabel-container {

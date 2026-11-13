@@ -41,13 +41,13 @@ $din = fn(string $tip) => array_filter($proiecte, fn($p) => $p['tip'] === $tip);
             <section class="grid-proiecte">
                 <?php foreach ($din($tip) as $p): ?>
                     <article class="card proiect <?= e($tip) ?>"
-                             data-repo="<?= e($p['repo'] ?? '') ?>"<?= $p['privat'] ? ' data-privat' : '' ?>
-                             tabindex="0" role="button" aria-haspopup="dialog">
+                             data-repo="<?= e($p['repo'] ?? '') ?>"<?= $p['privat'] ? ' data-privat' : '' ?>>
                         <div class="proiect-cap">
                             <span class="icon"><?= e($p['icon']) ?></span>
                             <span class="eticheta"><?= e(tr($p['eticheta'])) ?></span>
                         </div>
-                        <h3><?= e(tr($p['titlu'])) ?></h3>
+                        <!-- The title is the keyboard way in: a real button that opens the preview window -->
+                        <h3><button class="proiect-deschide" type="button" aria-haspopup="dialog"><?= e(tr($p['titlu'])) ?></button></h3>
                         <p><?= e(tr($p['scurt'])) ?></p>
                         <?php if ($p['rol'] !== null): ?>
                             <p class="rol"><span><?= e($t['rolul_meu']) ?></span> <?= e(tr($p['rol'])) ?></p>

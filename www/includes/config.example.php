@@ -25,4 +25,10 @@ return [
     //              in the page source, like every Maps JavaScript key.
     'harta_furnizor'    => 'demo',
     'google_maps_cheie' => '',
+
+    // Who can see what. Keep the defaults for the course project (protected map,
+    // anyone can register). On the public site: 'harta_publica' => true (the map
+    // needs no account) and 'inregistrare_deschisa' => false (only the admin logs in).
+    'harta_publica'         => false,
+    'inregistrare_deschisa' => true,
 ];

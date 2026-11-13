@@ -8,8 +8,8 @@ require_once __DIR__ . '/iconite.php';
 
 const CONTACTE = [
     'github'   => 'https://github.com/seba-dvd',
-    'linkedin' => '',       // TODO: the LinkedIn profile, e.g. https://www.linkedin.com/in/...
-    'email'    => '',       // TODO: the email address for the public site
+    'linkedin' => 'https://www.linkedin.com/in/david-sebastian-pilat-a620aa376',
+    'email'    => 'pilatdvd@gmail.com',
 ];
 
 const NUME_CONTACTE = [

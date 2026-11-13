@@ -60,6 +60,25 @@ function configuratie(): array
 }
 
 /**
+ * Can visitors see the map without an account? ('harta_publica' in config.php)
+ * Off by default: harta.php is the course project's protected page. The public
+ * site turns it on, so employers see the map; the login is then only for the admin.
+ */
+function hartaPublica(): bool
+{
+    return (configuratie()['harta_publica'] ?? false) === true;
+}
+
+/**
+ * Can anyone create an account? ('inregistrare_deschisa' in config.php)
+ * On by default (the course project needs it); off on the public site.
+ */
+function inregistrareDeschisa(): bool
+{
+    return (configuratie()['inregistrare_deschisa'] ?? true) !== false;
+}
+
+/**
  * Is this user an admin? The admin usernames are listed in config.php ('admini').
  * Compared without case, like the usernames in the database (Seba = seba).
  */

@@ -1,6 +1,7 @@
 <?php
 /**
- * The protected page: only for logged-in users (includes/auth.php).
+ * The protected page: only for logged-in users (includes/auth.php), unless
+ * config.php has 'harta_publica' => true (the public site): then anyone sees it.
  * A map with one marker per row of the points table, the travel progress (level, XP,
  * achievements: includes/progres.php), an explore bar to jump from place to place,
  * and the same places as a list.
@@ -11,8 +12,9 @@
  */
 require_once __DIR__ . '/includes/functii.php';
 require_once __DIR__ . '/includes/limba.php';
-require_once __DIR__ . '/includes/auth.php';       // sets $utilizator or redirects to login
 require_once __DIR__ . '/includes/db.php';
+$accesFaraCont = hartaPublica();
+require_once __DIR__ . '/includes/auth.php';       // sets $utilizator (null for a visitor) or redirects to login
 require_once __DIR__ . '/includes/leaflet.php';    // LEAFLET: demo mode, and the fallback if Google refuses the key
 require_once __DIR__ . '/includes/progres.php';
 
@@ -59,15 +61,17 @@ require __DIR__ . '/includes/antet.php';
     <main>
         <section class="card harta-antet">
             <div>
-                <h1><?= e(sprintf($t['bun_venit'], $utilizator)) ?></h1>
+                <h1><?= e($utilizator !== null ? sprintf($t['bun_venit'], $utilizator) : $t['harta_titlu']) ?></h1>
                 <p><?= e($t['harta_intro']) ?></p>
             </div>
-            <div class="butoane">
-                <?php if (esteAdmin($utilizator)): ?>
-                    <a class="btn btn-cyber" href="admin.php"><?= e($t['admin_link']) ?></a>
-                <?php endif; ?>
-                <a class="btn" href="logout.php?token=<?= e(tokenCsrf()) ?>"><?= e($t['iesire']) ?></a>
-            </div>
+            <?php if ($utilizator !== null): ?>
+                <div class="butoane">
+                    <?php if (esteAdmin($utilizator)): ?>
+                        <a class="btn btn-cyber" href="admin.php"><?= e($t['admin_link']) ?></a>
+                    <?php endif; ?>
+                    <a class="btn" href="logout.php?token=<?= e(tokenCsrf()) ?>"><?= e($t['iesire']) ?></a>
+                </div>
+            <?php endif; ?>
         </section>
 
         <section class="card hud" aria-labelledby="titlu-progres">
