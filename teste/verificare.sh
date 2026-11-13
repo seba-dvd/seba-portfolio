@@ -35,6 +35,15 @@ if [ "$(cod "$SITE/")" = "000" ]; then
     exit 2
 fi
 
+# The checks expect the course project's settings: protected map, open registration.
+# config.php can switch both for the public site ('harta_publica', 'inregistrare_deschisa').
+config() { "$PHP" -r 'require $argv[1]; echo eval("return " . $argv[2] . ";") ? 1 : 0;' "$DIR/www/includes/db.php" "$1"; }
+if [ "$(config 'hartaPublica() || !inregistrareDeschisa()')" = 1 ]; then
+    echo "config.php has the public-site settings (harta_publica / inregistrare_deschisa)."
+    echo "These checks are for the course setup: remove both lines from config.php and run again."
+    exit 2
+fi
+
 echo "1. PHP syntax"
 for f in "$DIR"/www/*.php "$DIR"/www/api/*.php "$DIR"/www/includes/*.php "$DIR"/www/includes/lang/*.php; do
     "$PHP" -l "$f" >/dev/null 2>&1
@@ -218,6 +227,14 @@ if [ -n "$ADMIN_USER" ] && [ -n "$ADMIN_PASS" ]; then
         trimite "$J3" -o /dev/null -d actiune=login -d "csrf=$T3" --data-urlencode "user=$ADMIN_USER" --data-urlencode "password=$ADMIN_PASS"
     fi
     verifica "admin.php for an admin → 200" 200 "$(cod -c "$J3" -b "$J3" "$SITE/admin.php")"
+    # The Google Places search: only when the site uses Google Maps with a key
+    GOOGLE=$(config '(configuratie()["harta_furnizor"] ?? "demo") === "google" && trim((string) (configuratie()["google_maps_cheie"] ?? "")) !== ""')
+    PA=$(curl -s -c "$J3" -b "$J3" "$SITE/admin.php")
+    verifica "place search box on the panel only with Google Maps" "$GOOGLE" "$(printf '%s\n' "$PA" | grep -c 'id="cautare-loc"')"
+    verifica "… hidden until Google's search box has loaded" "$GOOGLE" \
+        "$(printf '%s\n' "$PA" | grep -c 'id="cautare-loc" class="cautare-loc" hidden')"
+    verifica "… Google's loader comes after js/admin.js, which defines its callback" "$GOOGLE" \
+        "$(printf '%s\n' "$PA" | grep -o 'src="[^"]*"' | grep -A1 'js/admin.js' | grep -c 'callback=pornesteCautarea')"
     verifica "the map shows the admin link to an admin" 1 "$(curl -s -c "$J3" -b "$J3" "$SITE/harta.php" | grep -c 'href="admin.php"')"
     TA=$(curl -s -c "$J3" -b "$J3" "$SITE/admin.php" | grep -o 'name="csrf" value="[^"]*"' | head -1 | cut -d'"' -f4)
     admin_post() { curl -s -c "$J3" -b "$J3" "$@" "$SITE/admin.php"; }
@@ -353,6 +370,51 @@ verifica "… 64 hex characters each" 0 \
     "$("$MYSQL" -u root -N -e "SELECT COUNT(*) FROM pai_proiect.incercari_login WHERE cheie NOT REGEXP '^[0-9a-f]{64}\$'" 2>/dev/null)"
 "$MYSQL" -u root -e "DELETE FROM pai_proiect.incercari_login; DELETE FROM pai_proiect.users WHERE user = '$U2'" 2>/dev/null
 rm -f "$J3" "$J4" "$J5"
+
+echo "16. Security headers (www/.htaccess)"
+antet() { curl -s -D - -o /dev/null "$1" | tr -d '\r' | grep -i "^$2:" | cut -d' ' -f2-; }
+for p in index.php login.php nu-exista.php css/style.css "api/utilizatori.php?term=ab"; do
+    CSP=$(antet "$SITE/$p" content-security-policy)
+    verifica "$p: has a Content-Security-Policy" 1 "$([ -n "$CSP" ] && echo 1 || echo 0)"
+    verifica "$p: scripts only from listed sources (no 'unsafe-inline' / 'unsafe-eval')" 0 \
+        "$(printf '%s\n' "$CSP" | grep -o "script-src[^;]*" | grep -c "unsafe")"
+    verifica "$p: X-Content-Type-Options nosniff (once)" "nosniff" "$(antet "$SITE/$p" x-content-type-options)"
+done
+CSP=$(antet "$SITE/index.php" content-security-policy)
+for d in "default-src 'self'" "object-src 'none'" "base-uri 'self'" "form-action 'self'" "frame-ancestors 'none'"; do
+    verifica "CSP has $d" 1 "$(printf '%s\n' "$CSP" | grep -c -F "$d")"
+done
+verifica "X-Frame-Options DENY (older browsers)" DENY "$(antet "$SITE/index.php" x-frame-options)"
+verifica "Referrer-Policy (still sends the origin, for the Google key)" "strict-origin-when-cross-origin" \
+    "$(antet "$SITE/index.php" referrer-policy)"
+verifica "Permissions-Policy turns off the camera and location" 1 \
+    "$(antet "$SITE/index.php" permissions-policy | grep -c 'camera=(), microphone=(), geolocation=()')"
+verifica "no X-Powered-By (PHP version hidden)" "" "$(antet "$SITE/index.php" x-powered-by)"
+verifica "the tab icon is linked and served" "1 200" \
+    "$(curl -s "$SITE/index.php" | grep -c 'rel="icon" href="img/favicon.svg"') $(cod "$SITE/img/favicon.svg")"
+
+echo "17. Content, accessibility and the public-site switch"
+for p in index.php despre.php proiecte.php cv.php contact.php; do
+    for l in ro en; do
+        verifica "$p ($l): no [PLACEHOLDER] left" 0 "$(curl -s "$SITE/$p?lang=$l" -L | grep -cE '\[[A-ZĂÂÎȘȚ_ /–-]{3,}\]')"
+    done
+done
+CONTACT=$(curl -s "$SITE/contact.php")
+verifica "contact: card titles are h2 under the h1 (no skipped heading level)" 0 "$(printf '%s\n' "$CONTACT" | grep -c '<h3')"
+verifica "contact: LinkedIn and email are shown" 2 \
+    "$(printf '%s\n' "$CONTACT" | grep -oE 'href="(https://www\.linkedin\.com/in/[^"]*|mailto:[^"]*)"' | sort -u | wc -l | tr -d ' ')"
+PR=$(curl -s "$SITE/proiecte.php")
+verifica "projects: no card pretends to be a button (role=\"button\")" 0 "$(printf '%s\n' "$PR" | grep -c 'role="button"')"
+verifica "projects: every card has a real button to open the preview" \
+    "$(printf '%s\n' "$PR" | grep -c 'class="card proiect')" "$(printf '%s\n' "$PR" | grep -c '<button class="proiect-deschide" type="button"')"
+for id in 9 10; do
+    verifica "proiect.php?id=$id (new team project) → 200" 200 "$(cod "$SITE/proiect.php?id=$id")"
+done
+verifica "config.example.php: protected map and open registration by default" "10" \
+    "$("$PHP" -r '$c = require $argv[1]; echo (int) ($c["harta_publica"] === false), (int) ($c["inregistrare_deschisa"] === false);' \
+        "$DIR/www/includes/config.example.php")"
+verifica "with the course settings the map still needs an account" 303 "$(cod "$SITE/harta.php")"
+verifica "… and login.php still shows the new-account form" 1 "$(curl -s "$SITE/login.php" | grep -c 'value="inregistrare"')"
 
 echo
 echo "Passed: $TRECUTE   Failed: $PICATE"
